@@ -105,28 +105,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const loadUserCVs = (userId: string) => {
+  const loadUserCVs = async (userId: string) => {
+    const key = `richi_saved_cvs_${userId}`;
+    let loadedCVs: SavedCV[] = [];
+
+    // 1. Try local cache first for instant UI response
     try {
-      const key = `richi_saved_cvs_${userId}`;
       const saved = localStorage.getItem(key);
       if (saved) {
-        setUserCVs(JSON.parse(saved));
-      } else {
-        const defaultCV: SavedCV = {
-          id: `cv-${Date.now()}`,
-          title: 'CV Utama Saya',
-          updatedAt: new Date().toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          }),
-          data: initialCVData,
-        };
-        setUserCVs([defaultCV]);
-        localStorage.setItem(key, JSON.stringify([defaultCV]));
+        loadedCVs = JSON.parse(saved);
+        setUserCVs(loadedCVs);
+      }
+    } catch {}
+
+    // 2. Fetch latest from Cloud database (Upstash Redis)
+    try {
+      const res = await fetch(`/api/cv?userId=${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.cvs) && data.cvs.length > 0) {
+          setUserCVs(data.cvs);
+          localStorage.setItem(key, JSON.stringify(data.cvs));
+          return;
+        }
       }
     } catch (e) {
-      console.error('Failed to load user CVs', e);
+      console.warn('Failed to load CVs from cloud, using cache:', e);
+    }
+
+    // 3. If nothing found in cloud or local, initialize default CV and sync to cloud
+    if (loadedCVs.length === 0) {
+      const defaultCV: SavedCV = {
+        id: `cv-${Date.now()}`,
+        title: 'CV Utama Saya',
+        updatedAt: new Date().toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+        data: initialCVData,
+      };
+      setUserCVs([defaultCV]);
+      localStorage.setItem(key, JSON.stringify([defaultCV]));
+
+      fetch('/api/cv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, cvs: [defaultCV] }),
+      }).catch(() => {});
     }
   };
 
@@ -550,6 +576,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUserCVs(updatedList);
     localStorage.setItem(`richi_saved_cvs_${user.id}`, JSON.stringify(updatedList));
+
+    // Auto-sync CV document to Cloud database (Upstash Redis)
+    fetch('/api/cv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, cvs: updatedList }),
+    }).catch((err) => console.warn('Cloud CV sync notice:', err));
+
     return targetCV!;
   };
 
@@ -559,6 +593,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updated = userCVs.filter((item) => item.id !== id);
     setUserCVs(updated);
     localStorage.setItem(`richi_saved_cvs_${user.id}`, JSON.stringify(updated));
+
+    // Sync deletion to Cloud database
+    fetch('/api/cv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, cvs: updated }),
+    }).catch((err) => console.warn('Cloud CV delete notice:', err));
   };
 
   return (

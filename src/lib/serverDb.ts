@@ -275,3 +275,49 @@ export async function removePendingReset(email: string): Promise<void> {
     }
   }
 }
+
+/**
+ * Customer CV Cloud Storage (Upstash / Vercel KV)
+ */
+export async function getUserCVs(userId: string): Promise<any[]> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+  if (KV_URL && KV_TOKEN) {
+    try {
+      const res = await fetch(`${KV_URL}/get/cvbagus_cvs_${userId}`, {
+        headers: { Authorization: `Bearer ${KV_TOKEN}` },
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.result) {
+          const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
+          if (Array.isArray(parsed)) return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching CVs from KV:', e);
+    }
+  }
+  return [];
+}
+
+export async function saveUserCVs(userId: string, cvs: any[]): Promise<boolean> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+  if (KV_URL && KV_TOKEN) {
+    try {
+      await fetch(`${KV_URL}/set/cvbagus_cvs_${userId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${KV_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cvs),
+      });
+      return true;
+    } catch (e) {
+      console.error('Error saving CVs to KV:', e);
+    }
+  }
+  return false;
+}
+
