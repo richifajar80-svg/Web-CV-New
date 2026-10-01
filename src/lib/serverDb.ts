@@ -20,9 +20,17 @@ export interface ResetRecord {
   createdAt: number;
 }
 
-// Environment variables for Vercel KV / Upstash Redis
-const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Environment variables for Vercel KV / Upstash Redis (Dynamic lookup)
+const getKvConfig = () => {
+  const url =
+    process.env.KV_REST_API_URL ||
+    process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.KV_URL;
+  const token =
+    process.env.KV_REST_API_TOKEN ||
+    process.env.UPSTASH_REDIS_REST_TOKEN;
+  return { url, token };
+};
 
 // Local fallback file path
 const getFilePath = () => {
@@ -53,6 +61,8 @@ if (!global.__cvbagus_reset_cache) {
  * Read all registered users from Cloud Storage (Vercel KV / Upstash) or Fallback
  */
 export async function getAllUsers(): Promise<UserRecord[]> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+
   // 1. Try Cloud KV if configured
   if (KV_URL && KV_TOKEN) {
     try {
@@ -102,6 +112,7 @@ export async function getAllUsers(): Promise<UserRecord[]> {
  * Save all registered users to Cloud Storage (Vercel KV / Upstash) and Fallback
  */
 export async function saveAllUsers(users: UserRecord[]): Promise<boolean> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   global.__cvbagus_users_cache = users;
 
   // 1. Save to Cloud KV if configured
@@ -135,6 +146,7 @@ export async function saveAllUsers(users: UserRecord[]): Promise<boolean> {
  * Pending Verifications Store
  */
 export async function setPendingVerification(pending: PendingRecord): Promise<void> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   if (!global.__cvbagus_pending_cache) global.__cvbagus_pending_cache = {};
   global.__cvbagus_pending_cache[pending.email.toLowerCase()] = pending;
 
@@ -155,6 +167,7 @@ export async function setPendingVerification(pending: PendingRecord): Promise<vo
 }
 
 export async function getPendingVerification(email: string): Promise<PendingRecord | null> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
 
   if (KV_URL && KV_TOKEN) {
@@ -178,6 +191,7 @@ export async function getPendingVerification(email: string): Promise<PendingReco
 }
 
 export async function removePendingVerification(email: string): Promise<void> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
   if (global.__cvbagus_pending_cache) {
     delete global.__cvbagus_pending_cache[cleanEmail];
@@ -199,6 +213,7 @@ export async function removePendingVerification(email: string): Promise<void> {
  * Pending Password Reset Store
  */
 export async function setPendingReset(reset: ResetRecord): Promise<void> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   if (!global.__cvbagus_reset_cache) global.__cvbagus_reset_cache = {};
   global.__cvbagus_reset_cache[reset.email.toLowerCase()] = reset;
 
@@ -219,6 +234,7 @@ export async function setPendingReset(reset: ResetRecord): Promise<void> {
 }
 
 export async function getPendingReset(email: string): Promise<ResetRecord | null> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
 
   if (KV_URL && KV_TOKEN) {
@@ -242,6 +258,7 @@ export async function getPendingReset(email: string): Promise<ResetRecord | null
 }
 
 export async function removePendingReset(email: string): Promise<void> {
+  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
   if (global.__cvbagus_reset_cache) {
     delete global.__cvbagus_reset_cache[cleanEmail];
