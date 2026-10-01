@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers, saveAllUsers, UserRecord } from '@/lib/serverDb';
+import { getAllUsers, saveAllUsers } from '@/lib/serverDb';
+import { verifyAdminRequest } from '@/lib/security';
 
-// GET: Retrieve all users for Admin Dashboard
-export async function GET() {
+// GET: Retrieve all users for Admin Dashboard (Protected by Admin Token)
+export async function GET(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json(
+        { success: false, error: 'Akses ditolak: sesi admin tidak valid atau telah kedaluwarsa.' },
+        { status: 401 }
+      );
+    }
+
     const users = await getAllUsers();
     // Return all users (masking passwords for safety)
     const safeUsers = users.map((u) => ({
@@ -27,9 +35,16 @@ export async function GET() {
   }
 }
 
-// POST: Admin toggle user subscription or delete user
+// POST: Admin toggle user subscription or delete user (Protected by Admin Token)
 export async function POST(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json(
+        { success: false, error: 'Akses ditolak: sesi admin tidak valid atau telah kedaluwarsa.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { action, userId, isPaid } = body;
 

@@ -6,9 +6,17 @@ import {
   saveAllUsers,
   UserRecord,
 } from '@/lib/serverDb';
+import {
+  checkRateLimit,
+  getClientIp,
+  createUserToken,
+  isPasswordHashed,
+  hashPassword,
+} from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
     const body = await request.json();
     const { email, code } = body;
 
@@ -20,6 +28,19 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Rate Limiting: Max 5 OTP verification attempts per 10 minutes to prevent brute forcing 6-digit codes
+    const rateLimit = await checkRateLimit(`verify-otp:${cleanEmail}:${ip}`, 5, 10 * 60);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Terlalu banyak percobaan kode verifikasi yang salah. Silakan minta kode baru.',
+        },
+        { status: 429 }
+      );
+    }
+
     const pending = await getPendingVerification(cleanEmail);
 
     if (!pending) {
@@ -52,11 +73,14 @@ export async function POST(request: Request) {
     const existingIdx = allUsers.findIndex((u) => u.email.toLowerCase() === cleanEmail);
     const userId = existingIdx >= 0 ? allUsers[existingIdx].id : `usr-${Date.now()}`;
 
+    // Ensure password is cryptographically hashed
+    const storedPass = isPasswordHashed(pending.pass) ? pending.pass : hashPassword(pending.pass);
+
     const newUser: UserRecord = {
       id: userId,
       name: pending.name,
       email: pending.email,
-      pass: pending.pass,
+      pass: storedPass,
       isVerified: true,
       isPaid: false,
       createdAt: new Date().toISOString(),
@@ -81,10 +105,14 @@ export async function POST(request: Request) {
       createdAt: newUser.createdAt,
     };
 
+    // Issue cryptographic session token
+    const token = createUserToken(safeUser.id, safeUser.email);
+
     return NextResponse.json({
       success: true,
       message: 'Akun Anda berhasil diverifikasi dan aktif!',
       user: safeUser,
+      token,
     });
   } catch (error: any) {
     console.error('Verification API error:', error);

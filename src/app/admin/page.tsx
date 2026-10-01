@@ -33,19 +33,40 @@ interface UserRecord extends User {
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [adminPin, setAdminPin] = useState('');
-  const [pinError, setPinError] = useState(false);
+  const [pinError, setPinError] = useState<string | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'free' | 'unverified'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load users from server API (with local storage fallback)
-  const loadUsers = async () => {
+  const getAdminHeaders = (overrideToken?: string) => {
+    const token = overrideToken || (typeof window !== 'undefined' ? sessionStorage.getItem('cvbagus_admin_token') : null);
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  };
+
+  // Load users from server API (with admin authorization)
+  const loadUsers = async (overrideToken?: string) => {
     try {
-      const res = await fetch('/api/auth/users');
+      const res = await fetch('/api/auth/users', {
+        headers: getAdminHeaders(overrideToken),
+      });
+
+      if (res.status === 401) {
+        handleAdminLogout();
+        setPinError('Sesi admin telah kedaluwarsa. Silakan masukkan PIN kembali.');
+        return;
+      }
+
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.users) && data.users.length > 0) {
+        if (data.success && Array.isArray(data.users)) {
           setUsers(data.users);
           return;
         }
@@ -70,11 +91,11 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    // Check if session admin key exists
-    const adminSession = sessionStorage.getItem('cvbagus_admin_auth');
-    if (adminSession === 'true') {
+    // Check if session admin token exists
+    const adminToken = sessionStorage.getItem('cvbagus_admin_token');
+    if (adminToken) {
       setIsAuthenticated(true);
-      loadUsers();
+      loadUsers(adminToken);
     }
   }, []);
 
@@ -83,24 +104,43 @@ export default function AdminDashboardPage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Default Master PIN: cvbagus2026 or 123456
-    if (adminPin === 'cvbagus2026' || adminPin === '123456' || adminPin === 'admin') {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('cvbagus_admin_auth', 'true');
-      setPinError(false);
-      loadUsers();
-      showToast('Selamat datang di Dashboard Admin cvbagus.id!');
-    } else {
-      setPinError(true);
+    if (!adminPin.trim()) return;
+
+    setIsAuthenticating(true);
+    setPinError(null);
+
+    try {
+      const res = await fetch('/api/auth/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: adminPin.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success && data.token) {
+        sessionStorage.setItem('cvbagus_admin_token', data.token);
+        setIsAuthenticated(true);
+        setPinError(null);
+        loadUsers(data.token);
+        showToast('Selamat datang di Dashboard Admin cvbagus.id!');
+      } else {
+        setPinError(data.error || 'Master PIN admin salah.');
+      }
+    } catch (err) {
+      setPinError('Gagal menghubungi server verifikasi admin.');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
   const handleAdminLogout = () => {
-    sessionStorage.removeItem('cvbagus_admin_auth');
+    sessionStorage.removeItem('cvbagus_admin_token');
     setIsAuthenticated(false);
     setAdminPin('');
+    setUsers([]);
   };
 
   // Toggle user 1-year subscription status
@@ -109,11 +149,17 @@ export default function AdminDashboardPage() {
     const nextPaid = targetUser ? !targetUser.isPaid : true;
 
     try {
-      await fetch('/api/auth/users', {
+      const res = await fetch('/api/auth/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminHeaders(),
         body: JSON.stringify({ action: 'toggle-subscription', userId, isPaid: nextPaid }),
       });
+
+      if (res.status === 401) {
+        handleAdminLogout();
+        showToast('Sesi kedaluwarsa. Silakan login kembali.');
+        return;
+      }
     } catch (e) {
       console.error('Server update failed', e);
     }
@@ -143,11 +189,17 @@ export default function AdminDashboardPage() {
   const handleDeleteUser = async (userId: string, userName: string) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus akun "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
       try {
-        await fetch('/api/auth/users', {
+        const res = await fetch('/api/auth/users', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAdminHeaders(),
           body: JSON.stringify({ action: 'delete-user', userId }),
         });
+
+        if (res.status === 401) {
+          handleAdminLogout();
+          showToast('Sesi kedaluwarsa. Silakan login kembali.');
+          return;
+        }
       } catch (e) {
         console.error('Server delete failed', e);
       }
@@ -241,11 +293,12 @@ export default function AdminDashboardPage() {
                   required
                   autoFocus
                   value={adminPin}
+                  disabled={isAuthenticating}
                   onChange={(e) => {
                     setAdminPin(e.target.value);
-                    setPinError(false);
+                    setPinError(null);
                   }}
-                  placeholder="Ketik PIN (contoh: cvbagus2026)"
+                  placeholder="Masukkan Master PIN..."
                   className={`w-full bg-slate-900/90 border text-white text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all ${
                     pinError
                       ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
@@ -255,16 +308,18 @@ export default function AdminDashboardPage() {
               </div>
               {pinError && (
                 <p className="text-[11px] text-red-400 mt-1.5 flex items-center gap-1 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" /> PIN salah. Gunakan PIN: <b>cvbagus2026</b>
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{pinError}</span>
                 </p>
               )}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-98 cursor-pointer"
+              disabled={isAuthenticating}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white font-bold text-sm py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-98 cursor-pointer disabled:cursor-not-allowed"
             >
-              Buka Dashboard Admin
+              {isAuthenticating ? 'Memverifikasi...' : 'Buka Dashboard Admin'}
             </button>
           </form>
 

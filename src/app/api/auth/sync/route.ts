@@ -1,8 +1,19 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers, saveAllUsers, UserRecord } from '@/lib/serverDb';
+import { getAllUsers, saveAllUsers } from '@/lib/serverDb';
+import { hashPassword, isPasswordHashed, checkRateLimit, getClientIp } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rateLimit = await checkRateLimit(`sync:${ip}`, 5, 10 * 60);
+
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: 'Terlalu banyak permintaan sinkronisasi.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { users } = body;
 
@@ -15,41 +26,26 @@ export async function POST(request: Request) {
     const merged = [...currentServerUsers];
 
     for (const clientUser of users) {
-      if (!clientUser?.email) continue;
+      if (!clientUser?.email || typeof clientUser.email !== 'string') continue;
       const cleanEmail = clientUser.email.trim().toLowerCase();
       const existingIdx = merged.findIndex((u) => u.email.toLowerCase() === cleanEmail);
 
+      // Only import user if they do NOT exist on server yet (legacy client migration)
       if (existingIdx === -1) {
-        // Add new user from client
+        const rawPass = clientUser.pass || '';
+        const hashedPass = rawPass ? (isPasswordHashed(rawPass) ? rawPass : hashPassword(rawPass)) : '';
+
+        // Security check: NEVER allow client sync to grant isPaid: true!
         merged.push({
           id: clientUser.id || `usr-${Date.now()}`,
           name: clientUser.name || 'Pengguna',
           email: cleanEmail,
-          pass: clientUser.pass || '',
-          isVerified: clientUser.isVerified ?? true,
-          isPaid: clientUser.isPaid ?? false,
-          subscriptionExpiresAt: clientUser.subscriptionExpiresAt,
+          pass: hashedPass,
+          isVerified: Boolean(clientUser.isVerified),
+          isPaid: false, // Disallow client-side privilege escalation
           createdAt: clientUser.createdAt || new Date().toISOString(),
         });
         hasChanges = true;
-      } else {
-        // Merge updates (e.g. isPaid or password)
-        const existing = merged[existingIdx];
-        if (clientUser.isPaid && !existing.isPaid) {
-          merged[existingIdx] = {
-            ...existing,
-            isPaid: true,
-            subscriptionExpiresAt: clientUser.subscriptionExpiresAt || existing.subscriptionExpiresAt,
-          };
-          hasChanges = true;
-        }
-        if (clientUser.pass && !existing.pass) {
-          merged[existingIdx] = {
-            ...existing,
-            pass: clientUser.pass,
-          };
-          hasChanges = true;
-        }
       }
     }
 

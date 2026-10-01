@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getAllUsers, setPendingReset } from '@/lib/serverDb';
 import { sendVerificationEmail } from '@/lib/email';
+import { checkRateLimit, getClientIp } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
     const body = await request.json();
     const { email } = body;
 
@@ -15,10 +17,24 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Rate Limiting: Max 3 reset requests per 15 minutes per IP/email to protect Gmail SMTP
+    const rateLimit = await checkRateLimit(`reset-pwd:${cleanEmail}:${ip}`, 3, 15 * 60);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Terlalu banyak permintaan reset kata sandi. Silakan tunggu 15 menit sebelum meminta kembali.',
+        },
+        { status: 429 }
+      );
+    }
+
     const allUsers = await getAllUsers();
     const user = allUsers.find((u) => u.email.toLowerCase() === cleanEmail);
 
     if (!user) {
+      // Return 404 or generic message
       return NextResponse.json(
         { success: false, error: 'Email ini belum terdaftar di cvbagus.id.' },
         { status: 404 }

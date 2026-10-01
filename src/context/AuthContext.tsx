@@ -46,8 +46,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const USERS_STORAGE_KEY = 'richi_users_db_v1';
 export const SESSION_STORAGE_KEY = 'richi_current_user_v1';
+export const AUTH_TOKEN_KEY = 'cvbagus_user_token_v1';
 const PENDING_STORAGE_KEY = 'richi_pending_verification_v1';
 const PENDING_RESET_STORAGE_KEY = 'richi_pending_reset_v1';
+
+export const getUserAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -120,7 +132,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // 2. Fetch latest from Cloud database (Upstash Redis)
     try {
-      const res = await fetch(`/api/cv?userId=${userId}`);
+      const res = await fetch(`/api/cv?userId=${userId}`, {
+        headers: getUserAuthHeaders(),
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.cvs) && data.cvs.length > 0) {
@@ -150,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       fetch('/api/cv', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getUserAuthHeaders(),
         body: JSON.stringify({ userId, cvs: [defaultCV] }),
       }).catch(() => {});
     }
@@ -239,6 +253,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setUser(newUser);
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newUser));
+      if (data.token) {
+        localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+      }
       loadUserCVs(newUser.id);
 
       return { success: true };
@@ -344,6 +361,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const loggedInUser: User = data.user;
         setUser(loggedInUser);
         localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
+        if (data.token) {
+          localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+        }
 
         // Cache in local storage for offline support
         try {
@@ -449,6 +469,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setUserCVs([]);
     localStorage.removeItem(SESSION_STORAGE_KEY);
+    localStorage.removeItem(AUTH_TOKEN_KEY);
   };
 
   // 8. Request Password Reset (Directly sent to registered email via server)
@@ -580,7 +601,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Auto-sync CV document to Cloud database (Upstash Redis)
     fetch('/api/cv', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getUserAuthHeaders(),
       body: JSON.stringify({ userId: user.id, cvs: updatedList }),
     }).catch((err) => console.warn('Cloud CV sync notice:', err));
 
@@ -597,7 +618,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Sync deletion to Cloud database
     fetch('/api/cv', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getUserAuthHeaders(),
       body: JSON.stringify({ userId: user.id, cvs: updated }),
     }).catch((err) => console.warn('Cloud CV delete notice:', err));
   };

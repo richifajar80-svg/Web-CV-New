@@ -1,14 +1,40 @@
 import { NextResponse } from 'next/server';
 import { getUserCVs, saveUserCVs } from '@/lib/serverDb';
+import { verifyUserToken, checkRateLimit, getClientIp } from '@/lib/security';
 
 // GET /api/cv?userId=...
 export async function GET(request: Request) {
   try {
+    const ip = getClientIp(request);
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const userId = searchParams.get('userId')?.trim();
 
     if (!userId) {
       return NextResponse.json({ success: false, error: 'userId is required' }, { status: 400 });
+    }
+
+    // Basic userId format validation
+    if (userId.length > 100 || !/^[a-zA-Z0-9_\-.:@]+$/.test(userId)) {
+      return NextResponse.json({ success: false, error: 'Invalid userId format' }, { status: 400 });
+    }
+
+    // Rate limit: max 60 GET requests per minute per IP
+    const rateLimit = await checkRateLimit(`cv-get:${ip}`, 60, 60);
+    if (!rateLimit.success) {
+      return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
+    }
+
+    // Cryptographic Session Verification (IDOR Mitigation)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+      const session = verifyUserToken(token);
+      if (!session || session.userId !== userId) {
+        return NextResponse.json(
+          { success: false, error: 'Akses ditolak: token otentikasi tidak cocok dengan userId.' },
+          { status: 403 }
+        );
+      }
     }
 
     const cvs = await getUserCVs(userId);
@@ -22,11 +48,39 @@ export async function GET(request: Request) {
 // POST /api/cv
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
     const body = await request.json();
     const { userId, cvs } = body;
 
     if (!userId || !Array.isArray(cvs)) {
       return NextResponse.json({ success: false, error: 'userId and cvs are required' }, { status: 400 });
+    }
+
+    // Rate limit: max 40 save requests per minute per IP
+    const rateLimit = await checkRateLimit(`cv-post:${ip}`, 40, 60);
+    if (!rateLimit.success) {
+      return NextResponse.json({ success: false, error: 'Too many save requests' }, { status: 429 });
+    }
+
+    // Prevent storage bloat / abuse: limit maximum 50 CVs per user
+    if (cvs.length > 50) {
+      return NextResponse.json(
+        { success: false, error: 'Jumlah CV melebihi batas maksimum (50 CV).' },
+        { status: 400 }
+      );
+    }
+
+    // Cryptographic Session Verification (IDOR Mitigation)
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+      const session = verifyUserToken(token);
+      if (!session || session.userId !== userId) {
+        return NextResponse.json(
+          { success: false, error: 'Akses ditolak: token otentikasi tidak cocok dengan userId.' },
+          { status: 403 }
+        );
+      }
     }
 
     await saveUserCVs(userId, cvs);

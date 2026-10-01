@@ -5,9 +5,15 @@ import {
   getPendingReset,
   removePendingReset,
 } from '@/lib/serverDb';
+import {
+  hashPassword,
+  checkRateLimit,
+  getClientIp,
+} from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
     const body = await request.json();
     const { email, code, newPass } = body;
 
@@ -18,6 +24,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Rate Limiting: Max 5 reset attempts per 10 minutes per IP/email
+    const rateLimit = await checkRateLimit(`confirm-reset:${cleanEmail}:${ip}`, 5, 10 * 60);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Terlalu banyak percobaan kode yang salah. Silakan minta kode baru.',
+        },
+        { status: 429 }
+      );
+    }
+
     if (newPass.length < 6) {
       return NextResponse.json(
         { success: false, error: 'Kata sandi baru minimal harus 6 karakter.' },
@@ -25,7 +45,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanEmail = email.trim().toLowerCase();
     const pending = await getPendingReset(cleanEmail);
 
     if (!pending) {
@@ -51,11 +70,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Hash the new password with salted Scrypt
+    const hashedPassword = hashPassword(newPass);
+
     // Update password in database
     const allUsers = await getAllUsers();
     const updatedUsers = allUsers.map((u) => {
       if (u.email.toLowerCase() === cleanEmail) {
-        return { ...u, pass: newPass };
+        return { ...u, pass: hashedPassword };
       }
       return u;
     });
