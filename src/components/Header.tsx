@@ -79,12 +79,12 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-[1700px] w-full mx-auto px-3 sm:px-5 lg:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           {/* Logo & Brand */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-base sm:text-lg shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-sm sm:text-lg shrink-0">
               CB
             </div>
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight shrink-0">
+                <span className="font-extrabold text-slate-900 text-sm sm:text-lg tracking-tight shrink-0">
                   cvbagus<span className="text-emerald-600">.id</span>
                 </span>
                 {isSubscriptionActive ? (
@@ -97,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     type="button"
                     onClick={onOpenPayment}
-                    className="text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
+                    className="hidden sm:inline-flex text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
                   >
                     Rp 25.000 / Thn
                   </button>
@@ -108,31 +108,33 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Mode Switcher: CV Editor vs Cover Letter Generator */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0">
+          <div className="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-200/80 shrink-0">
             <button
               type="button"
               onClick={() => onSwitchMode?.('cv')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeMode === 'cv'
                   ? 'bg-white text-emerald-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>Editor CV</span>
+              <span className="hidden xs:inline">Editor CV</span>
+              <span className="xs:hidden">CV</span>
             </button>
             <button
               type="button"
               onClick={() => onSwitchMode?.('cover_letter')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeMode === 'cover_letter'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-emerald-700'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Surat Lamaran</span>
-              <span className="hidden sm:inline text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase">
+              <span className="hidden xs:inline">Surat Lamaran</span>
+              <span className="xs:hidden">Surat</span>
+              <span className="hidden md:inline text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase">
                 Bonus
               </span>
             </button>

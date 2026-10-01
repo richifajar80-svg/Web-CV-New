@@ -213,22 +213,23 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       {/* 1. TOP NAVBAR */}
       <header className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20 font-bold text-lg">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
+          {/* Logo & Brand */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20 font-bold text-sm sm:text-lg shrink-0">
               CB
             </div>
-            <div>
-              <span className="font-extrabold text-slate-900 text-lg tracking-tight">
+            <div className="flex items-center">
+              <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight shrink-0">
                 cvbagus<span className="text-emerald-600">.id</span>
               </span>
-              <span className="ml-2 text-[11px] font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-300">
+              <span className="hidden md:inline-flex ml-2.5 text-[11px] font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-300 shrink-0">
                 Rp 25.000 / 1 Tahun
               </span>
             </div>
           </div>
 
-          {/* Center Navigation Links (Tips Karir, News, Contact Us) */}
+          {/* Center Navigation Links (Tips Karir, News, Contact Us) - Desktop Only */}
           <nav className="hidden md:flex items-center gap-2 lg:gap-3">
             <button
               type="button"
@@ -264,10 +265,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             </button>
           </nav>
 
-          <div className="flex items-center gap-2">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {!pendingVerification && (
               <>
-                <span className="text-xs text-slate-500 hidden sm:inline">
+                <span className="text-xs text-slate-500 hidden lg:inline">
                   {mode === 'register' ? 'Sudah punya akun?' : 'Belum punya akun?'}
                 </span>
                 <button
@@ -276,9 +278,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     setMode(mode === 'register' ? 'login' : 'register');
                     setError(null);
                   }}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors"
+                  className="text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors shrink-0"
                 >
-                  {mode === 'register' ? 'Masuk' : 'Daftar Akun Baru'}
+                  {mode === 'register' ? 'Masuk' : 'Daftar'}
                 </button>
                 <button
                   type="button"
@@ -286,12 +288,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     await loginDemoUser();
                     if (onSuccess) onSuccess();
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer hover:shadow"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer hover:shadow shrink-0"
                   title="Langsung coba buka workspace Editor CV dan Surat Lamaran Kerja"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Buka Editor & Surat Lamaran</span>
-                  <span className="sm:hidden">Editor CV & Surat</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Buka Editor & Surat</span>
                 </button>
               </>
             )}
@@ -300,17 +301,34 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             <button
               type="button"
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="md:hidden p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer shrink-0"
               title="Menu Navigasi Tambahan"
             >
-              <MoreHorizontal className="w-5 h-5" />
+              <MoreHorizontal className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation Dropdown */}
         {mobileNavOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white/95 px-4 py-3 space-y-1.5 shadow-md animate-in slide-in-from-top-2">
+          <div className="md:hidden border-t border-slate-200 bg-white/98 px-3 py-2.5 space-y-1.5 shadow-xl animate-in slide-in-from-top-2">
+            <button
+              type="button"
+              onClick={async () => {
+                setMobileNavOpen(false);
+                await loginDemoUser();
+                if (onSuccess) onSuccess();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs text-left transition-colors cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                Coba Langsung Editor CV & Surat
+              </span>
+              <span className="text-[10px] bg-emerald-700 px-2 py-0.5 rounded-full font-bold uppercase">
+                Demo
+              </span>
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -321,7 +339,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             >
               <span className="flex items-center gap-2">
                 <Lightbulb className="w-4 h-4 text-amber-500" />
-                Tips Karir & Lamaran
+                Tips Karir & Artikel Lamaran
               </span>
               <span className="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-black uppercase">
                 Artikel
@@ -336,7 +354,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-blue-50 text-left transition-colors cursor-pointer"
             >
               <Newspaper className="w-4 h-4 text-blue-500" />
-              Portal Berita Resmi
+              Portal Berita BUMN & Lowongan
             </button>
             <button
               type="button"
@@ -354,51 +372,52 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
       </header>
 
       {/* 2. HERO SECTION */}
-      <section className="relative bg-gradient-to-b from-emerald-600 via-emerald-600 to-emerald-700 text-white pt-12 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative bg-gradient-to-b from-emerald-600 via-emerald-600 to-emerald-700 text-white pt-6 sm:pt-12 pb-14 sm:pb-24 px-3 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-center relative z-10">
           {/* Left Column: Value Proposition */}
-          <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 bg-emerald-800/60 backdrop-blur-xs text-emerald-100 px-3 py-1 rounded-full text-xs font-medium border border-emerald-500/40">
+          <div className="lg:col-span-7 space-y-3.5 sm:space-y-5 text-center lg:text-left">
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-800/60 backdrop-blur-xs text-emerald-100 px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-medium border border-emerald-500/40">
               <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
               <span>Platform Pembuat CV Online Standar ATS Modern</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-snug sm:leading-tight">
               Buat CV ATS Friendly &{' '}
               <span className="underline decoration-emerald-300 decoration-wavy decoration-2">
                 Profesional Online
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg text-emerald-100 max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
-              Solusi pembuatan CV dan resume standar HRD terdepan di Indonesia. Evaluasi skor ATS secara otomatis, susun pengalaman kerja dengan drag & drop, dan nikmati akses unduh PDF resolusi tinggi selama 1 tahun penuh hanya dengan <b>Rp 25.000 sekali bayar</b>.
+            <p className="text-xs sm:text-base lg:text-lg text-emerald-100 max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
+              Solusi pembuatan CV standar HRD terdepan di Indonesia. Evaluasi skor ATS otomatis, susun pengalaman kerja cepat, dan unduh PDF A4 resolusi tinggi 1 tahun penuh hanya <b>Rp 25.000 sekali bayar</b>.
             </p>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start text-xs text-emerald-100">
-              <div className="flex items-center gap-1.5">
+            {/* Feature Highlights Grid */}
+            <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-md mx-auto lg:mx-0 text-xs text-emerald-100">
+              <div className="flex items-center gap-2 bg-emerald-800/40 sm:bg-transparent border border-emerald-500/30 sm:border-none rounded-xl px-3 py-1.5 sm:p-0">
                 <CheckCircle className="w-4 h-4 text-emerald-300 shrink-0" />
-                <span>Format Standar ATS Lolos Seleksi HRD</span>
+                <span className="font-medium">Format ATS Lolos HRD</span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 bg-emerald-800/40 sm:bg-transparent border border-emerald-500/30 sm:border-none rounded-xl px-3 py-1.5 sm:p-0">
                 <CreditCard className="w-4 h-4 text-emerald-300 shrink-0" />
-                <span>Sekali Bayar Rp 25rb (1 Tahun Penuh)</span>
+                <span className="font-medium">Sekali Bayar Rp 25rb (1 Thn)</span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 bg-emerald-800/40 sm:bg-transparent border border-emerald-500/30 sm:border-none rounded-xl px-3 py-1.5 sm:p-0">
                 <CheckCircle className="w-4 h-4 text-emerald-300 shrink-0" />
-                <span>Unduh PDF A4 Tanpa Watermark</span>
+                <span className="font-medium">Unduh PDF A4 Tanpa Watermark</span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2 bg-emerald-800/40 sm:bg-transparent border border-emerald-500/30 sm:border-none rounded-xl px-3 py-1.5 sm:p-0 text-amber-200">
                 <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
-                <span className="text-amber-200 font-semibold">GRATIS: Generator Surat Lamaran Kerja (Cover Letter)</span>
+                <span className="font-semibold">Bonus: Generator Surat Lamaran</span>
               </div>
             </div>
           </div>
 
           {/* Right Column: Dynamic Card (Register / Login / OTP Verification) */}
           <div className="lg:col-span-5 w-full max-w-md mx-auto">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-7 text-slate-800 border border-emerald-100">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-7 text-slate-800 border border-emerald-100">
               {/* IF PENDING VERIFICATION */}
               {pendingVerification ? (
                 <div className="space-y-4">
