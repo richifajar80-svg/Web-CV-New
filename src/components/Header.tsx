@@ -1,7 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Download, RefreshCw, LogIn, UserPlus, ShieldCheck, LayoutTemplate, ChevronDown, Sparkles, Languages, Type, Eraser, FileText, Loader2, Mail, MoreHorizontal } from 'lucide-react';
+import {
+  Download,
+  RefreshCw,
+  LogIn,
+  UserPlus,
+  ShieldCheck,
+  LayoutTemplate,
+  ChevronDown,
+  Sparkles,
+  Languages,
+  Type,
+  Eraser,
+  FileText,
+  Loader2,
+  Mail,
+  MoreHorizontal,
+  Palette,
+  CreditCard,
+} from 'lucide-react';
 import { CVTheme, CVData, TemplateId } from '@/types/cv';
 import { useAuth } from '@/context/AuthContext';
 import { UserMenu } from '@/components/Auth/UserMenu';
@@ -76,43 +94,43 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div className="max-w-[1700px] w-full mx-auto px-3 sm:px-5 lg:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
-          {/* Logo & Brand */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-base sm:text-lg shrink-0">
+        <div className="max-w-[1700px] w-full mx-auto px-2.5 sm:px-5 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-4 min-w-0">
+          
+          {/* 1. Logo & Brand */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-sm sm:text-lg shrink-0">
               CB
             </div>
             <div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight shrink-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-slate-900 text-sm sm:text-lg tracking-tight shrink-0">
                   cvbagus<span className="text-emerald-600">.id</span>
                 </span>
                 {isSubscriptionActive ? (
-                  <span className="text-[10px] sm:text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1 shrink-0">
+                  <span className="hidden lg:inline-flex text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300 items-center gap-1 shrink-0">
                     <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    <span className="hidden xs:inline">Akses 1 Thn Aktif</span>
-                    <span className="xs:hidden">Aktif</span>
+                    <span>Akses 1 Thn Aktif</span>
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={onOpenPayment}
-                    className="text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
+                    className="hidden lg:inline-flex text-[11px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
                   >
                     Rp 25.000 / Thn
                   </button>
                 )}
               </div>
-              <p className="text-xs text-slate-500 hidden xl:block truncate">Editor CV Profesional & Ramah ATS</p>
+              <p className="text-xs text-slate-500 hidden 2xl:block truncate">Editor CV Profesional & Ramah ATS</p>
             </div>
           </div>
 
-          {/* Mode Switcher: CV Editor vs Cover Letter Generator */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0">
+          {/* 2. Desktop Mode Switcher: CV Editor vs Cover Letter Generator */}
+          <div className="hidden lg:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0">
             <button
               type="button"
               onClick={() => onSwitchMode?.('cv')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeMode === 'cv'
                   ? 'bg-white text-emerald-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -124,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onSwitchMode?.('cover_letter')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeMode === 'cover_letter'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-emerald-700'
@@ -132,89 +150,49 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Surat Lamaran</span>
-              <span className="hidden sm:inline text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase">
+              <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase">
                 Bonus
               </span>
             </button>
           </div>
 
-          {/* Contact Us Support Link */}
-          <div className="hidden md:flex items-center ml-1 shrink-0">
+          {/* 3. Contact Us Link (Desktop Large only) */}
+          <div className="hidden xl:flex items-center shrink-0">
             <button
               type="button"
               onClick={onOpenContact}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50/80 transition-all cursor-pointer border border-transparent hover:border-emerald-200"
-              title="Hubungi tim support & layanan bantuan resmi cvbagus.id"
+              title="Hubungi tim support & bantuan resmi cvbagus.id"
             >
               <Mail className="w-3.5 h-3.5 text-emerald-600" />
               <span>Contact Us</span>
             </button>
           </div>
 
-          {/* Action Controls */}
+          {/* 4. Action Controls Bar (Carefully responsive on mobile & desktop) */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {/* Mobile Navigation Dropdown Button */}
-            <div className="lg:hidden relative">
-              <button
-                type="button"
-                onClick={() => setMobileNavOpen(!mobileNavOpen)}
-                className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer border border-slate-200 shadow-2xs"
-                title="Menu Navigasi Tambahan"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
 
-              {mobileNavOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileNavOpen(false);
-                      onSwitchMode?.(activeMode === 'cv' ? 'cover_letter' : 'cv');
-                    }}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition-colors text-left cursor-pointer border border-emerald-200/60"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-emerald-600" />
-                      <span>{activeMode === 'cv' ? 'Surat Lamaran (Bonus)' : 'Kembali ke Editor CV'}</span>
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileNavOpen(false);
-                      onOpenContact?.();
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors text-left cursor-pointer"
-                  >
-                    <Mail className="w-4 h-4 text-emerald-600" />
-                    <span>Contact Us (Email)</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* ONLY IN CV MODE: Show Template Gallery, Theme Popover, Language, Reset, and Download */}
+            {/* ONLY IN CV MODE: Template Gallery, Theme Popover, Language, Reset, and Download */}
             {activeMode === 'cv' && (
               <>
-                {/* 10-Template Gallery Button */}
+                {/* Template Gallery Picker (Always visible on mobile & desktop) */}
                 <button
                   type="button"
                   onClick={handleOpenGalleryClick}
-                  className="flex items-center gap-1.5 p-1 sm:p-1.5 pr-2 sm:pr-2.5 rounded-xl border border-emerald-500/50 bg-emerald-50/50 hover:bg-emerald-50 text-xs font-semibold text-slate-800 shrink-0 cursor-pointer transition-all"
+                  className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 pr-2 sm:pr-2.5 rounded-xl border border-emerald-500/40 bg-emerald-50/60 hover:bg-emerald-100/70 text-xs font-bold text-slate-800 shrink-0 cursor-pointer transition-all"
                   title="Klik untuk memilih dari 10 templat CV"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
-                    <LayoutTemplate className="w-3.5 h-3.5" />
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                    <LayoutTemplate className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-bold text-slate-800 text-xs truncate max-w-[70px] sm:max-w-[95px]">
+                  <span className="font-bold text-slate-800 text-[11px] sm:text-xs truncate max-w-[50px] xs:max-w-[75px] sm:max-w-[95px]">
                     {currentTemplate.name}
                   </span>
                   <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
                 </button>
 
-                {/* Theme (Color & Font) Compact Popover */}
-                <div className="relative shrink-0">
+                {/* Theme (Color & Font) Compact Popover - Hidden on mobile, accessible in ... menu */}
+                <div className="hidden md:block relative shrink-0">
                   <button
                     type="button"
                     onClick={() => setThemeMenuOpen(!themeMenuOpen)}
@@ -304,8 +282,8 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 </div>
 
-                {/* Language Selector (Bilingual: ID / EN) */}
-                <div className="flex items-center bg-slate-100/90 p-0.5 rounded-xl border border-slate-200/90 shrink-0">
+                {/* Language Selector (Bilingual: ID / EN) - Hidden on mobile, in ... menu */}
+                <div className="hidden md:flex items-center bg-slate-100/90 p-0.5 rounded-xl border border-slate-200/90 shrink-0">
                   <button
                     type="button"
                     onClick={() => onUpdateTheme({ language: 'id' })}
@@ -330,8 +308,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
                 </div>
 
-                {/* Reset & Clear Form Dropdown */}
-                <div className="relative shrink-0">
+                {/* Reset & Clear Form Dropdown - Hidden on mobile, in ... menu */}
+                <div className="hidden lg:block relative shrink-0">
                   <button
                     type="button"
                     onClick={() => setResetMenuOpen(!resetMenuOpen)}
@@ -386,31 +364,31 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 </div>
 
-                {/* Download / Print PDF Button */}
+                {/* Download / Print PDF Button (ALWAYS VISIBLE!) */}
                 <button
                   type="button"
                   disabled={isDownloading}
                   onClick={onDownloadClick}
-                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-3 sm:px-3.5 py-1.5 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
+                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-2.5 sm:px-3.5 py-1.5 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
                   title="Unduh file CV Anda dalam format PDF standar A4 siap cetak"
                 >
                   {isDownloading ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" />
-                      <span className="hidden md:inline">Membuat...</span>
+                      <span className="hidden sm:inline">Membuat...</span>
                     </>
                   ) : (
                     <>
                       <Download className="w-3.5 h-3.5 shrink-0" />
-                      <span className="hidden md:inline">Unduh PDF</span>
+                      <span className="text-[11px] sm:text-xs font-bold">PDF</span>
                     </>
                   )}
                 </button>
               </>
             )}
 
-            {/* Auth Section */}
-            <div className="pl-1 sm:pl-2 border-l border-slate-200">
+            {/* User Profile Avatar Section */}
+            <div className="pl-1 sm:pl-1.5 border-l border-slate-200 shrink-0">
               {isAuthenticated ? (
                 <UserMenu
                   currentCV={currentCV}
@@ -421,26 +399,192 @@ export const Header: React.FC<HeaderProps> = ({
                   onOpenPayment={onOpenPayment}
                 />
               ) : (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => onOpenAuth('login')}
-                    className="flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-emerald-700 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-emerald-700 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors"
                   >
                     <LogIn className="w-3.5 h-3.5" />
                     <span>Masuk</span>
                   </button>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Navigation Dropdown Button (•••) */}
+            <div className="lg:hidden relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer border border-slate-200 shadow-2xs"
+                title="Menu Navigasi Tambahan"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+
+              {mobileNavOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 space-y-2">
+                  {/* Switch to Cover Letter or CV */}
                   <button
                     type="button"
-                    onClick={() => onOpenAuth('register')}
-                    className="hidden sm:flex items-center gap-1 text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg transition-colors shadow-xs"
+                    onClick={() => {
+                      setMobileNavOpen(false);
+                      onSwitchMode?.(activeMode === 'cv' ? 'cover_letter' : 'cv');
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 transition-colors text-left cursor-pointer border border-emerald-200/80"
                   >
-                    <UserPlus className="w-3.5 h-3.5" />
-                    <span>Daftar</span>
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-emerald-600" />
+                      <span>{activeMode === 'cv' ? 'Buka Surat Lamaran (Bonus)' : 'Kembali ke Editor CV'}</span>
+                    </span>
+                  </button>
+
+                  {/* Mobile Theme Colors */}
+                  {activeMode === 'cv' && (
+                    <div className="p-2 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          Warna Aksen CV
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {COLOR_PRESETS.map((color) => (
+                            <button
+                              key={color.value}
+                              type="button"
+                              title={color.name}
+                              onClick={() => {
+                                onUpdateTheme({ accentColor: color.value });
+                              }}
+                              className="w-5 h-5 rounded-full transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-2xs"
+                              style={{ backgroundColor: color.value }}
+                            >
+                              {theme.accentColor === color.value && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Mobile Font Selector */}
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          Font
+                        </span>
+                        <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
+                          {(['sans', 'serif', 'mono'] as const).map((font) => (
+                            <button
+                              key={font}
+                              type="button"
+                              onClick={() => onUpdateTheme({ fontFamily: font })}
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase transition-all ${
+                                (theme.fontFamily || 'sans') === font
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'text-slate-600'
+                              }`}
+                            >
+                              {font}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Mobile Language Selector */}
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          Bahasa CV
+                        </span>
+                        <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
+                          <button
+                            type="button"
+                            onClick={() => onUpdateTheme({ language: 'id' })}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                              (theme.language || 'id') === 'id'
+                                ? 'bg-emerald-600 text-white'
+                                : 'text-slate-600'
+                            }`}
+                          >
+                            Indonesia
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onUpdateTheme({ language: 'en' })}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                              theme.language === 'en'
+                                ? 'bg-emerald-600 text-white'
+                                : 'text-slate-600'
+                            }`}
+                          >
+                            English
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reset Actions */}
+                  {activeMode === 'cv' && (
+                    <div className="space-y-1 pt-1 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileNavOpen(false);
+                          onReset();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 text-left"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Isi Ulang Data Contoh (Demo)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileNavOpen(false);
+                          onClearAll();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 text-left"
+                      >
+                        <Eraser className="w-3.5 h-3.5 text-red-500" />
+                        <span>Kosongkan Formulir CV</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Activation button if not pro */}
+                  {!isSubscriptionActive && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileNavOpen(false);
+                        onOpenPayment();
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-left"
+                    >
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Aktivasi 1 Tahun Penuh</span>
+                      </span>
+                      <span className="font-extrabold text-[11px]">Rp 25rb</span>
+                    </button>
+                  )}
+
+                  {/* Contact Us */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileNavOpen(false);
+                      onOpenContact?.();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors text-left cursor-pointer pt-1 border-t border-slate-100"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Contact Us (Layanan Bantuan)</span>
                   </button>
                 </div>
               )}
             </div>
+
           </div>
         </div>
       </header>
@@ -458,3 +602,4 @@ export const Header: React.FC<HeaderProps> = ({
     </>
   );
 };
+

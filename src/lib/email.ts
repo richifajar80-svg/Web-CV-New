@@ -165,3 +165,4 @@ export async function sendVerificationEmail({ to, name, code, type }: SendEmailP
     };
   }
 }
+

@@ -105,7 +105,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
   return (
     <div className="bg-white rounded-3xl shadow-xs border border-slate-200/90 overflow-hidden flex flex-col transition-all">
       {/* Tab Navigation Bar with Progress Indicators */}
-      <div className="flex border-b border-slate-200/80 bg-slate-50/70 overflow-x-auto scrollbar-none px-2 sm:px-3 pt-2.5 gap-1.5 shrink-0">
+      <div className="flex border-b border-slate-200/80 bg-slate-50/70 overflow-x-auto scrollbar-none px-1.5 sm:px-3 pt-2 sm:pt-2.5 gap-1 sm:gap-1.5 shrink-0 touch-pan-x">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -114,7 +114,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
               key={tab.key}
               type="button"
               onClick={() => switchTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2.5 text-xs font-bold rounded-t-xl transition-all border-b-2 whitespace-nowrap cursor-pointer group ${
+              className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold rounded-t-xl transition-all border-b-2 whitespace-nowrap cursor-pointer group ${
                 isActive
                   ? 'bg-white text-emerald-700 border-emerald-600 shadow-2xs'
                   : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-100/80'
