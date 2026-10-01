@@ -1,3 +1,4 @@
+import { Redis } from '@upstash/redis';
 import fs from 'fs';
 import path from 'path';
 import { User } from '@/types/auth';
@@ -20,17 +21,25 @@ export interface ResetRecord {
   createdAt: number;
 }
 
-// Environment variables for Vercel KV / Upstash Redis (Dynamic lookup)
-const getKvConfig = () => {
+// Initialize Upstash Redis instance dynamically
+export function getRedisClient(): Redis | null {
   const url =
-    process.env.KV_REST_API_URL ||
     process.env.UPSTASH_REDIS_REST_URL ||
+    process.env.KV_REST_API_URL ||
     process.env.KV_URL;
   const token =
-    process.env.KV_REST_API_TOKEN ||
-    process.env.UPSTASH_REDIS_REST_TOKEN;
-  return { url, token };
-};
+    process.env.UPSTASH_REDIS_REST_TOKEN ||
+    process.env.KV_REST_API_TOKEN;
+
+  if (url && token) {
+    try {
+      return new Redis({ url, token });
+    } catch (e) {
+      console.error('Failed to initialize Upstash Redis client:', e);
+    }
+  }
+  return null;
+}
 
 // Local fallback file path
 const getFilePath = () => {
@@ -58,30 +67,21 @@ if (!global.__cvbagus_reset_cache) {
 }
 
 /**
- * Read all registered users from Cloud Storage (Vercel KV / Upstash) or Fallback
+ * Read all registered users from Cloud Storage (Upstash Redis) or Fallback
  */
 export async function getAllUsers(): Promise<UserRecord[]> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+  const redis = getRedisClient();
 
-  // 1. Try Cloud KV if configured
-  if (KV_URL && KV_TOKEN) {
+  // 1. Try Upstash Redis
+  if (redis) {
     try {
-      const res = await fetch(`${KV_URL}/get/cvbagus_users_v1`, {
-        headers: { Authorization: `Bearer ${KV_TOKEN}` },
-        cache: 'no-store',
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.result) {
-          const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
-          if (Array.isArray(parsed)) {
-            global.__cvbagus_users_cache = parsed;
-            return parsed;
-          }
-        }
+      const data = await redis.get<UserRecord[]>('cvbagus_users_v1');
+      if (Array.isArray(data)) {
+        global.__cvbagus_users_cache = data;
+        return data;
       }
     } catch (err) {
-      console.error('Error fetching users from KV:', err);
+      console.error('Error fetching users from Upstash Redis:', err);
     }
   }
 
@@ -109,29 +109,21 @@ export async function getAllUsers(): Promise<UserRecord[]> {
 }
 
 /**
- * Save all registered users to Cloud Storage (Vercel KV / Upstash) and Fallback
+ * Save all registered users to Cloud Storage (Upstash Redis) and Fallback
  */
 export async function saveAllUsers(users: UserRecord[]): Promise<boolean> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   global.__cvbagus_users_cache = users;
 
-  // 1. Save to Cloud KV if configured
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      await fetch(`${KV_URL}/set/cvbagus_users_v1`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${KV_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(users),
-      });
+      await redis.set('cvbagus_users_v1', users);
     } catch (err) {
-      console.error('Error saving users to KV:', err);
+      console.error('Error saving users to Upstash Redis:', err);
     }
   }
 
-  // 2. Save to local fallback file
+  // Also save to local fallback file
   try {
     const filePath = getFilePath();
     fs.writeFileSync(filePath, JSON.stringify(users, null, 2), 'utf-8');
@@ -146,44 +138,31 @@ export async function saveAllUsers(users: UserRecord[]): Promise<boolean> {
  * Pending Verifications Store
  */
 export async function setPendingVerification(pending: PendingRecord): Promise<void> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+  const cleanEmail = pending.email.toLowerCase();
   if (!global.__cvbagus_pending_cache) global.__cvbagus_pending_cache = {};
-  global.__cvbagus_pending_cache[pending.email.toLowerCase()] = pending;
+  global.__cvbagus_pending_cache[cleanEmail] = pending;
 
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      await fetch(`${KV_URL}/set/pending_${pending.email.toLowerCase()}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${KV_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(pending),
-      });
+      // Auto expire in 15 minutes (900 seconds)
+      await redis.set(`pending_${cleanEmail}`, pending, { ex: 900 });
     } catch (e) {
-      console.error('Error saving pending verification to KV:', e);
+      console.error('Error saving pending verification to Redis:', e);
     }
   }
 }
 
 export async function getPendingVerification(email: string): Promise<PendingRecord | null> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
 
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      const res = await fetch(`${KV_URL}/get/pending_${cleanEmail}`, {
-        headers: { Authorization: `Bearer ${KV_TOKEN}` },
-        cache: 'no-store',
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.result) {
-          return typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
-        }
-      }
+      const data = await redis.get<PendingRecord>(`pending_${cleanEmail}`);
+      if (data) return data;
     } catch (e) {
-      console.error('Error getting pending from KV:', e);
+      console.error('Error getting pending from Redis:', e);
     }
   }
 
@@ -191,20 +170,17 @@ export async function getPendingVerification(email: string): Promise<PendingReco
 }
 
 export async function removePendingVerification(email: string): Promise<void> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
   if (global.__cvbagus_pending_cache) {
     delete global.__cvbagus_pending_cache[cleanEmail];
   }
 
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      await fetch(`${KV_URL}/del/pending_${cleanEmail}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${KV_TOKEN}` },
-      });
+      await redis.del(`pending_${cleanEmail}`);
     } catch (e) {
-      console.error('Error removing pending from KV:', e);
+      console.error('Error removing pending from Redis:', e);
     }
   }
 }
@@ -213,44 +189,30 @@ export async function removePendingVerification(email: string): Promise<void> {
  * Pending Password Reset Store
  */
 export async function setPendingReset(reset: ResetRecord): Promise<void> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
+  const cleanEmail = reset.email.toLowerCase();
   if (!global.__cvbagus_reset_cache) global.__cvbagus_reset_cache = {};
-  global.__cvbagus_reset_cache[reset.email.toLowerCase()] = reset;
+  global.__cvbagus_reset_cache[cleanEmail] = reset;
 
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      await fetch(`${KV_URL}/set/reset_${reset.email.toLowerCase()}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${KV_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reset),
-      });
+      await redis.set(`reset_${cleanEmail}`, reset, { ex: 900 });
     } catch (e) {
-      console.error('Error saving pending reset to KV:', e);
+      console.error('Error saving pending reset to Redis:', e);
     }
   }
 }
 
 export async function getPendingReset(email: string): Promise<ResetRecord | null> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
 
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      const res = await fetch(`${KV_URL}/get/reset_${cleanEmail}`, {
-        headers: { Authorization: `Bearer ${KV_TOKEN}` },
-        cache: 'no-store',
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.result) {
-          return typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
-        }
-      }
+      const data = await redis.get<ResetRecord>(`reset_${cleanEmail}`);
+      if (data) return data;
     } catch (e) {
-      console.error('Error getting pending reset from KV:', e);
+      console.error('Error getting pending reset from Redis:', e);
     }
   }
 
@@ -258,66 +220,46 @@ export async function getPendingReset(email: string): Promise<ResetRecord | null
 }
 
 export async function removePendingReset(email: string): Promise<void> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
   const cleanEmail = email.trim().toLowerCase();
   if (global.__cvbagus_reset_cache) {
     delete global.__cvbagus_reset_cache[cleanEmail];
   }
 
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      await fetch(`${KV_URL}/del/reset_${cleanEmail}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${KV_TOKEN}` },
-      });
+      await redis.del(`reset_${cleanEmail}`);
     } catch (e) {
-      console.error('Error removing reset from KV:', e);
+      console.error('Error removing reset from Redis:', e);
     }
   }
 }
 
 /**
- * Customer CV Cloud Storage (Upstash / Vercel KV)
+ * Customer CV Cloud Storage (Upstash Redis)
  */
 export async function getUserCVs(userId: string): Promise<any[]> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      const res = await fetch(`${KV_URL}/get/cvbagus_cvs_${userId}`, {
-        headers: { Authorization: `Bearer ${KV_TOKEN}` },
-        cache: 'no-store',
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.result) {
-          const parsed = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
-          if (Array.isArray(parsed)) return parsed;
-        }
-      }
+      const data = await redis.get<any[]>(`cvbagus_cvs_${userId}`);
+      if (Array.isArray(data)) return data;
     } catch (e) {
-      console.error('Error fetching CVs from KV:', e);
+      console.error('Error fetching CVs from Redis:', e);
     }
   }
   return [];
 }
 
 export async function saveUserCVs(userId: string, cvs: any[]): Promise<boolean> {
-  const { url: KV_URL, token: KV_TOKEN } = getKvConfig();
-  if (KV_URL && KV_TOKEN) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
-      await fetch(`${KV_URL}/set/cvbagus_cvs_${userId}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${KV_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(cvs),
-      });
+      await redis.set(`cvbagus_cvs_${userId}`, cvs);
       return true;
     } catch (e) {
-      console.error('Error saving CVs to KV:', e);
+      console.error('Error saving CVs to Redis:', e);
     }
   }
   return false;
 }
-

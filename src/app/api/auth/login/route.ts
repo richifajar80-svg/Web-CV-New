@@ -14,16 +14,19 @@ export async function POST(request: Request) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = pass.trim();
     const allUsers = await getAllUsers();
+
+    console.log(`[LOGIN] Attempt for email "${cleanEmail}". Total registered users found: ${allUsers.length}`);
 
     // Look for matching user
     const found = allUsers.find(
-      (u) => u.email.toLowerCase() === cleanEmail && u.pass === pass
+      (u) => u.email.trim().toLowerCase() === cleanEmail && (u.pass?.trim() === cleanPass)
     );
 
     if (!found) {
       // Check if user exists but wrong password vs user doesn't exist
-      const userExists = allUsers.some((u) => u.email.toLowerCase() === cleanEmail);
+      const userExists = allUsers.some((u) => u.email.trim().toLowerCase() === cleanEmail);
       if (userExists) {
         return NextResponse.json(
           { success: false, error: 'Kata sandi salah. Silakan periksa kembali atau gunakan fitur Lupa Kata Sandi.' },
@@ -31,7 +34,7 @@ export async function POST(request: Request) {
         );
       }
       return NextResponse.json(
-        { success: false, error: 'Akun dengan email ini belum terdaftar. Silakan daftar akun baru terlebih dahulu.' },
+        { success: false, error: 'Akun dengan email ini belum terdaftar di database online. Silakan daftar akun baru terlebih dahulu.' },
         { status: 404 }
       );
     }
