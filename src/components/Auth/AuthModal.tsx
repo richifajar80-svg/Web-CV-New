@@ -66,7 +66,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetStep, setResetStep] = useState<'request' | 'verify'>('request');
   const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
-  const [simulatedEmailNotification, setSimulatedEmailNotification] = useState<{ email: string; code: string } | null>(null);
 
   // Close modal on Escape key
   React.useEffect(() => {
@@ -100,7 +99,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       setResetStep('verify');
       setResetCode('');
-      setSimulatedEmailNotification({ email: resetEmail, code: res.code || '' });
       setLoading(false);
     } catch (err) {
       setError('Gagal mengirim kode reset ke email.');
@@ -133,7 +131,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       setLoading(false);
-      setSimulatedEmailNotification(null);
       setResetSuccessMessage('Kata sandi berhasil diperbarui! Silakan masuk.');
       setMode('login');
       setEmail(resetEmail);
@@ -258,7 +255,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   onClick={() => {
                     setMode('login');
                     setError(null);
-                    setSimulatedEmailNotification(null);
                   }}
                   className="p-1 -ml-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                 >
@@ -400,35 +396,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ) : mode === 'forgot' ? (
             /* FORGOT PASSWORD FORM */
             <div className="space-y-4">
-              {simulatedEmailNotification && (
-                <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl text-xs text-amber-900 shadow-xs">
-                  <div className="flex items-center justify-between pb-1 border-b border-amber-200/60 font-semibold">
-                    <span className="flex items-center gap-1 text-amber-950">
-                      <MailCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      Simulasi Email Terkirim
-                    </span>
-                    <span className="text-[10px] bg-amber-200/70 text-amber-900 px-1.5 py-0.5 rounded font-mono font-bold">
-                      {simulatedEmailNotification.email}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-slate-700 text-[11px]">
-                    Kode konfirmasi reset kata sandi Anda:
-                  </p>
-                  <div className="mt-1.5 flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-amber-300">
-                    <span className="text-lg font-black font-mono tracking-widest text-emerald-800">
-                      {simulatedEmailNotification.code}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setResetCode(simulatedEmailNotification.code)}
-                      className="text-[10px] font-bold text-emerald-800 hover:text-emerald-950 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200"
-                    >
-                      Isi Otomatis
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {error && (
                 <div className="flex items-center gap-2 p-3 text-xs bg-red-50 text-red-700 border border-red-200 rounded-xl">
                   <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />

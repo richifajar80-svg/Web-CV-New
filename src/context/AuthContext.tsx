@@ -98,18 +98,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPendingReset(JSON.parse(savedReset));
       }
 
-      // Auto-sync any existing local users to server database for cross-device access
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      if (rawUsers) {
-        const localUsers = JSON.parse(rawUsers);
-        if (Array.isArray(localUsers) && localUsers.length > 0) {
-          fetch('/api/auth/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ users: localUsers }),
-          }).catch(() => {});
+      // Automatically purge any legacy plaintext credentials from browser localStorage
+      try {
+        localStorage.removeItem(USERS_STORAGE_KEY);
+        const rawPending = localStorage.getItem(PENDING_STORAGE_KEY);
+        if (rawPending) {
+          const parsed = JSON.parse(rawPending);
+          if (parsed && parsed.pass) {
+            delete parsed.pass;
+            localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(parsed));
+          }
         }
-      }
+      } catch {}
     } catch (e) {
       console.error('Failed to restore auth session', e);
     } finally {
@@ -201,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const pending: PendingVerification = {
         name: name.trim(),
         email: cleanEmail,
-        pass,
+        pass: '',
         code: '',
         createdAt: Date.now(),
       };
@@ -237,16 +237,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const newUser: User = data.user;
-
-      // Also cache user locally
-      try {
-        const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-        const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
-        if (!users.some((u) => u.email.toLowerCase() === newUser.email.toLowerCase())) {
-          users.push({ ...newUser, pass: pendingVerification.pass });
-          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-        }
-      } catch {}
 
       setPendingVerification(null);
       localStorage.removeItem(PENDING_STORAGE_KEY);
@@ -324,19 +314,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to sync payment with server', e);
     }
 
-    // Update local cache
+    // Clean up local cache
     try {
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      if (rawUsers) {
-        const users: Array<User & { pass: string }> = JSON.parse(rawUsers);
-        const updatedUsers = users.map((u) =>
-          u.id === user.id ? { ...u, isPaid: true, subscriptionExpiresAt: expiresAt } : u
-        );
-        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-      }
-    } catch (e) {
-      console.error('Failed to update users db with payment', e);
-    }
+      localStorage.removeItem(USERS_STORAGE_KEY);
+    } catch {}
   };
 
   // 6. Login (Checks Central Server Database first, works across ALL devices)
@@ -365,14 +346,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem(AUTH_TOKEN_KEY, data.token);
         }
 
-        // Cache in local storage for offline support
+        // Clean up legacy local user cache so no passwords remain in F12 LocalStorage
         try {
-          const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-          const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
-          if (!users.some((u) => u.email.toLowerCase() === cleanEmail)) {
-            users.push({ ...loggedInUser, pass });
-            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-          }
+          localStorage.removeItem(USERS_STORAGE_KEY);
         } catch {}
 
         loadUserCVs(loggedInUser.id);
@@ -380,67 +356,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // If server returned specific rejection (e.g. wrong password or not found)
-      if (data.error) {
-        // Check if there is a local account that can be synced to server
-        try {
-          const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-          if (rawUsers) {
-            const localUsers: Array<User & { pass: string }> = JSON.parse(rawUsers);
-            const localMatch = localUsers.find(
-              (u) => u.email.toLowerCase() === cleanEmail && u.pass === pass
-            );
-            if (localMatch) {
-              // Sync local users to server
-              await fetch('/api/auth/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ users: localUsers }),
-              });
-
-              setUser(localMatch);
-              localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(localMatch));
-              loadUserCVs(localMatch.id);
-              return { success: true };
-            }
-          }
-        } catch {}
-
-        return { success: false, error: data.error };
-      }
+      return { success: false, error: data.error || 'Email atau kata sandi tidak cocok.' };
     } catch (networkErr) {
-      console.warn('Network issue during cloud login, falling back to local cache:', networkErr);
-    }
-
-    // 2. Fallback to LocalStorage (Offline only)
-    try {
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
-
-      const found = users.find(
-        (u) => u.email.toLowerCase() === cleanEmail && u.pass === pass
-      );
-
-      if (!found) {
-        return { success: false, error: 'Email atau kata sandi tidak cocok.' };
-      }
-
-      const loggedInUser: User = {
-        id: found.id,
-        name: found.name,
-        email: found.email,
-        isVerified: found.isVerified ?? true,
-        isPaid: found.isPaid ?? false,
-        subscriptionExpiresAt: found.subscriptionExpiresAt,
-        createdAt: found.createdAt,
-      };
-
-      setUser(loggedInUser);
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
-      loadUserCVs(loggedInUser.id);
-
-      return { success: true };
-    } catch (e) {
-      return { success: false, error: 'Gagal melakukan login.' };
+      console.warn('Network issue during cloud login:', networkErr);
+      return { success: false, error: 'Tidak dapat terhubung ke server autentikasi. Silakan periksa koneksi internet Anda.' };
     }
   };
 
@@ -537,17 +456,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || 'Kode verifikasi tidak sesuai atau telah kedaluwarsa.' };
       }
 
-      // Update local storage cache as well
+      // Clean up local cache
       try {
-        const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-        if (rawUsers) {
-          const users: Array<User & { pass: string }> = JSON.parse(rawUsers);
-          const userIdx = users.findIndex((u) => u.email.toLowerCase() === pendingReset.email);
-          if (userIdx >= 0) {
-            users[userIdx].pass = newPass.trim();
-            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-          }
-        }
+        localStorage.removeItem(USERS_STORAGE_KEY);
       } catch {}
 
       setPendingReset(null);

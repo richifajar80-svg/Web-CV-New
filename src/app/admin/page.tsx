@@ -24,7 +24,6 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { User } from '@/types/auth';
-import { USERS_STORAGE_KEY } from '@/context/AuthContext';
 
 interface UserRecord extends User {
   pass?: string;
@@ -72,20 +71,7 @@ export default function AdminDashboardPage() {
         }
       }
     } catch (e) {
-      console.warn('Failed to fetch users from server, falling back to local storage', e);
-    }
-
-    // Fallback to local storage
-    try {
-      const raw = localStorage.getItem(USERS_STORAGE_KEY);
-      if (raw) {
-        const parsed: UserRecord[] = JSON.parse(raw);
-        setUsers(parsed);
-      } else {
-        setUsers([]);
-      }
-    } catch (e) {
-      console.error('Failed to parse users db', e);
+      console.warn('Failed to fetch users from server:', e);
       setUsers([]);
     }
   };
@@ -179,9 +165,6 @@ export default function AdminDashboardPage() {
     });
 
     setUsers(updated);
-    try {
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
-    } catch {}
     showToast('Status langganan pengguna berhasil diperbarui!');
   };
 
@@ -206,9 +189,6 @@ export default function AdminDashboardPage() {
 
       const updated = users.filter((u) => u.id !== userId);
       setUsers(updated);
-      try {
-        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
-      } catch {}
       showToast(`Akun "${userName}" berhasil dihapus.`);
     }
   };
