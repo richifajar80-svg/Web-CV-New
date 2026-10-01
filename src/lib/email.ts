@@ -7,23 +7,29 @@ interface SendEmailParams {
   type: 'register' | 'reset';
 }
 
-const GMAIL_SENDER = process.env.GMAIL_USER || 'no-reply.cvbagus@gmail.com';
+const GMAIL_SENDER = process.env.GMAIL_USER || 'admin.cvbagusid@gmail.com';
 const GMAIL_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 
 /**
- * Send OTP Verification or Password Reset email using Gmail SMTP (no-reply.cvbagus@gmail.com)
+ * Send OTP Verification or Password Reset email using Gmail SMTP
+ * Optimized for high deliverability (multipart/alternative text + HTML, anti-spam headers)
  */
 export async function sendVerificationEmail({ to, name, code, type }: SendEmailParams) {
   const isReset = type === 'reset';
   const subject = isReset
-    ? `[cvbagus.id] Kode Reset Kata Sandi Anda: ${code}`
-    : `[cvbagus.id] Kode Verifikasi Pendaftaran: ${code}`;
+    ? `${code} adalah kode reset kata sandi cvbagus.id Anda`
+    : `${code} adalah kode verifikasi akun cvbagus.id Anda`;
 
   const greeting = name ? `Halo, <b>${name}</b>!` : 'Halo!';
   const title = isReset ? 'Reset Kata Sandi Akun' : 'Verifikasi Akun Baru';
   const description = isReset
     ? 'Kami menerima permintaan untuk mereset kata sandi akun Anda di <b>cvbagus.id</b>. Gunakan kode 6 digit berikut untuk membuat kata sandi baru:'
     : 'Terima kasih telah mendaftar di <b>cvbagus.id</b>. Gunakan kode 6 digit di bawah ini untuk memverifikasi alamat email Anda dan mulai membuat CV profesional:';
+
+  // Plain Text Version (Essential for spam filter heuristics: ensures multipart/alternative scoring)
+  const plainText = isReset
+    ? `Halo${name ? ` ${name}` : ''},\n\nKode verifikasi untuk mereset kata sandi akun cvbagus.id Anda adalah:\n\n${code}\n\nKode ini berlaku selama 15 menit. Jangan berikan kode ini kepada siapa pun demi keamanan akun Anda.\n\nJika Anda tidak merasa meminta reset kata sandi di cvbagus.id, silakan abaikan email ini.\n\nSalam hangat,\nTim cvbagus.id\nhttps://cvbagusid.vercel.app`
+    : `Halo${name ? ` ${name}` : ''},\n\nTerima kasih telah mendaftar di cvbagus.id!\n\nKode verifikasi 6 digit akun Anda adalah:\n\n${code}\n\nMasukkan kode di atas untuk mengaktifkan akun dan mulai menyusun CV ATS profesional Anda. Kode ini berlaku selama 15 menit.\n\nJika Anda tidak merasa mendaftar di cvbagus.id, silakan abaikan email ini.\n\nSalam hangat,\nTim cvbagus.id\nhttps://cvbagusid.vercel.app`;
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -92,8 +98,11 @@ export async function sendVerificationEmail({ to, name, code, type }: SendEmailP
                   <p style="margin: 0 0 4px 0;">
                     Dikirim secara otomatis dari <b>${GMAIL_SENDER}</b>
                   </p>
-                  <p style="margin: 0;">
+                  <p style="margin: 0 0 6px 0;">
                     © 2026 cvbagus.id — Solusi Pembuatan CV Profesional & Ramah ATS.
+                  </p>
+                  <p style="margin: 0; color: #94a3b8; font-size: 10px;">
+                    Anda menerima email ini karena pendaftaran akun baru pada layanan cvbagus.id.
                   </p>
                 </td>
               </tr>
@@ -134,8 +143,14 @@ export async function sendVerificationEmail({ to, name, code, type }: SendEmailP
     const info = await transporter.sendMail({
       from: `"cvbagus.id" <${GMAIL_SENDER}>`,
       to,
+      replyTo: GMAIL_SENDER,
       subject,
+      text: plainText,
       html: htmlContent,
+      headers: {
+        'X-Entity-Ref-ID': `${Date.now()}-${code}`,
+        'X-Auto-Response-Suppress': 'OOF, AutoReply',
+      },
     });
 
     return {
