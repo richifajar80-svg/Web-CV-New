@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CVData } from '@/types/cv';
 import { CoverLetterData, CoverLetterTemplateType } from '@/types/coverLetter';
 import {
@@ -58,6 +58,46 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
   // Preview zoom & mobile switcher
   const [zoom, setZoom] = useState(90);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const docRef = useRef<HTMLDivElement>(null);
+  const [docHeight, setDocHeight] = useState<number>(1123);
+
+  const calculateFitZoom = () => {
+    if (typeof window === 'undefined') return 90;
+    const w = window.innerWidth;
+    if (w < 640) {
+      const available = Math.max(280, w - 24);
+      return Math.min(100, Math.max(35, Math.floor((available / 794) * 100)));
+    } else if (w < 1024) {
+      return 65;
+    } else if (w < 1280) {
+      return 75;
+    } else if (w < 1536) {
+      return 85;
+    }
+    return 90;
+  };
+
+  useEffect(() => {
+    setZoom(calculateFitZoom());
+  }, []);
+
+  useEffect(() => {
+    if (!docRef.current) return;
+    const updateHeight = () => {
+      if (docRef.current) {
+        const height = docRef.current.offsetHeight;
+        if (height > 0) {
+          setDocHeight(Math.max(1123, height));
+        }
+      }
+    };
+    updateHeight();
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+    observer.observe(docRef.current);
+    return () => observer.disconnect();
+  }, [letterData]);
 
   // Export / copy states
   const [isExportingPDF, setIsExportingPDF] = useState(false);
@@ -551,16 +591,16 @@ ${letterData.applicantLinkedIn ? `${letterData.applicantLinkedIn}` : ''}
           }`}
         >
           {/* Zoom controls */}
-          <div className="sticky top-2 z-20 self-end bg-white/95 backdrop-blur-xs border border-slate-300 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm text-xs font-bold text-slate-700 mb-4">
+          <div className="sticky top-2 z-20 self-end bg-white/95 backdrop-blur-xs border border-slate-300 rounded-full px-3 py-1 flex items-center gap-1.5 shadow-sm text-xs font-bold text-slate-700 mb-4">
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.max(z - 10, 60))}
+              onClick={() => setZoom((z) => Math.max(z - 10, 35))}
               className="p-1 hover:text-emerald-700 cursor-pointer"
               title="Perkecil"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <span className="w-10 text-center">{zoom}%</span>
+            <span className="w-9 text-center text-[11px]">{zoom}%</span>
             <button
               type="button"
               onClick={() => setZoom((z) => Math.min(z + 10, 130))}
@@ -568,6 +608,14 @@ ${letterData.applicantLinkedIn ? `${letterData.applicantLinkedIn}` : ''}
               title="Perbesar"
             >
               <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(calculateFitZoom())}
+              className="px-2 py-0.5 text-[10px] text-emerald-700 font-bold hover:bg-emerald-50 rounded-full transition-colors cursor-pointer"
+              title="Paskan Layar"
+            >
+              Paskan
             </button>
           </div>
 
@@ -581,17 +629,26 @@ ${letterData.applicantLinkedIn ? `${letterData.applicantLinkedIn}` : ''}
 
           {/* A4 Paper Document Container */}
           <div
+            className="flex justify-center items-start min-w-0 mx-auto transition-all duration-150 mb-12"
             style={{
-              transform: `scale(${zoom / 100})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.15s ease-out',
+              width: `${Math.round(794 * (zoom / 100))}px`,
+              height: `${Math.round(docHeight * (zoom / 100))}px`,
+              maxWidth: '100%',
+              position: 'relative',
             }}
-            className="mb-12"
           >
             <div
+              ref={docRef}
               id="cover-letter-paper-document"
-              className={`w-[210mm] min-h-[297mm] bg-white shadow-2xl p-[20mm] sm:p-[25mm] text-slate-800 flex flex-col justify-between ${letterData.fontFamily}`}
+              className={`cv-a4-page bg-white shadow-2xl p-[20mm] sm:p-[25mm] text-slate-800 flex flex-col justify-between ${letterData.fontFamily}`}
               style={{
+                width: '794px',
+                minHeight: '1123px',
+                transform: zoom !== 100 ? `scale(${zoom / 100})` : undefined,
+                transformOrigin: 'top left',
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 boxSizing: 'border-box',
               }}
             >

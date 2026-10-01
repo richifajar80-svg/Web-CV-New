@@ -94,8 +94,18 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
     },
   ];
 
+  const tabRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
+
   const switchTab = (tabKey: TabKey) => {
     setActiveTab(tabKey);
+    // Smooth scroll active tab into view on mobile
+    if (typeof window !== 'undefined' && tabRefs.current[tabKey]) {
+      tabRefs.current[tabKey]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
   };
 
   const currentTabIndex = tabs.findIndex((t) => t.key === activeTab);
@@ -104,6 +114,27 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
 
   return (
     <div className="bg-white rounded-3xl shadow-xs border border-slate-200/90 overflow-hidden flex flex-col transition-all">
+      {/* Mobile-First Step Status Header (Compact on smartphones) */}
+      <div className="sm:hidden px-3.5 pt-3 pb-2.5 bg-gradient-to-r from-slate-50 to-emerald-50/40 border-b border-slate-200/80 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-300">
+            Langkah {currentTabIndex + 1} dari {tabs.length}
+          </span>
+          <span className="text-xs font-bold text-slate-800">{tabs[currentTabIndex].label}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-16 bg-slate-200 h-1.5 rounded-full overflow-hidden">
+            <div
+              className="bg-emerald-600 h-full rounded-full transition-all duration-300"
+              style={{ width: `${((currentTabIndex + 1) / tabs.length) * 100}%` }}
+            />
+          </div>
+          <span className="text-[10px] font-bold text-slate-500">
+            {Math.round(((currentTabIndex + 1) / tabs.length) * 100)}%
+          </span>
+        </div>
+      </div>
+
       {/* Tab Navigation Bar with Progress Indicators */}
       <div className="flex border-b border-slate-200/80 bg-slate-50/70 overflow-x-auto scrollbar-none px-1.5 sm:px-3 pt-2 sm:pt-2.5 gap-1 sm:gap-1.5 shrink-0 touch-pan-x">
         {tabs.map((tab) => {
@@ -112,6 +143,9 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
           return (
             <button
               key={tab.key}
+              ref={(el) => {
+                tabRefs.current[tab.key] = el;
+              }}
               type="button"
               onClick={() => switchTab(tab.key)}
               className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold rounded-t-xl transition-all border-b-2 whitespace-nowrap cursor-pointer group ${
@@ -196,25 +230,25 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
         )}
 
         {/* Step-by-Step Navigation Footer */}
-        <div className="pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
+        <div className="pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           {prevTab ? (
             <button
               type="button"
               onClick={() => switchTab(prevTab.key)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200 cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors border border-slate-200 cursor-pointer order-2 sm:order-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Sebelumnya: {prevTab.label}</span>
             </button>
           ) : (
-            <div />
+            <div className="order-2 sm:order-1" />
           )}
 
           {nextTab ? (
             <button
               type="button"
               onClick={() => switchTab(nextTab.key)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all cursor-pointer active:scale-98"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all cursor-pointer active:scale-98 order-1 sm:order-2"
             >
               <span>Lanjut: {nextTab.label}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -225,7 +259,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
               onClick={() => {
                 if (onViewPreview) onViewPreview();
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer active:scale-98"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer active:scale-98 order-1 sm:order-2"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
               <span>Selesai! Lihat Pratinjau & Unduh</span>

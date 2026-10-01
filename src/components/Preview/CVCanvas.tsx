@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { CVData } from '@/types/cv';
 import { ModernTemplate } from './templates/ModernTemplate';
 import { ATSClassicTemplate } from './templates/ATSClassicTemplate';
@@ -15,10 +15,33 @@ import { AcademicTemplate } from './templates/AcademicTemplate';
 
 interface CVCanvasProps {
   data: CVData;
-  zoom?: number; // Zoom level in percentage: 70, 85, 100, 115, etc.
+  zoom?: number; // Zoom level in percentage: 35, 45, 75, 100, etc.
 }
 
 export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
+  const docRef = useRef<HTMLDivElement>(null);
+  const [docHeight, setDocHeight] = useState<number>(1123);
+
+  // Measure natural document height to size outer container perfectly
+  useEffect(() => {
+    if (!docRef.current) return;
+    const updateHeight = () => {
+      if (docRef.current) {
+        const height = docRef.current.offsetHeight;
+        if (height > 0) {
+          setDocHeight(Math.max(1123, height));
+        }
+      }
+    };
+
+    updateHeight();
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+    observer.observe(docRef.current);
+    return () => observer.disconnect();
+  }, [data]);
+
   const renderTemplate = () => {
     switch (data.theme.template) {
       case 'ats_classic':
@@ -53,22 +76,31 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
       : 'font-sans';
 
   const scale = zoom / 100;
+  const scaledWidth = Math.round(794 * scale);
+  const scaledHeight = Math.round(docHeight * scale);
 
   return (
     <div
-      className="flex justify-center w-full transition-all duration-150"
+      className="flex justify-center items-start min-w-0 mx-auto transition-all duration-150"
       style={{
-        width: `${scale * 100}%`,
+        width: `${scaledWidth}px`,
+        height: `${scaledHeight}px`,
         maxWidth: '100%',
+        position: 'relative',
       }}
     >
       <div
+        ref={docRef}
         id="cv-paper-document"
-        className={`cv-a4-page w-full max-w-[210mm] min-h-[297mm] bg-white shadow-xl rounded-lg overflow-hidden border border-slate-200/60 transition-all duration-200 origin-top ${fontClass}`}
+        className={`cv-a4-page bg-white shadow-xl rounded-lg border border-slate-200/60 ${fontClass}`}
         style={{
+          width: '794px',
+          minHeight: '1123px',
           transform: scale !== 1 ? `scale(${scale})` : undefined,
-          transformOrigin: 'top center',
-          marginBottom: scale < 1 ? `calc((1 - ${scale}) * -297mm)` : undefined,
+          transformOrigin: 'top left',
+          position: 'absolute',
+          top: 0,
+          left: 0,
         }}
       >
         {renderTemplate()}

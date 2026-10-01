@@ -81,15 +81,32 @@ export default function Home() {
     }
   }, [user, userCVs]);
 
-  // Auto-fit preview zoom on client mount based on viewport width
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth < 1200) {
-        setZoom(75);
-      } else if (window.innerWidth < 1440) {
-        setZoom(85);
-      }
+  // Dynamic screen-fitting zoom calculation
+  const calculateFitZoom = () => {
+    if (typeof window === 'undefined') return 100;
+    const w = window.innerWidth;
+    if (w < 640) {
+      // Mobile phone screen: fit within screen width minus margins
+      const available = Math.max(280, w - 24);
+      return Math.min(100, Math.max(35, Math.floor((available / 794) * 100)));
+    } else if (w < 1024) {
+      return 60;
+    } else if (w < 1280) {
+      return 75;
+    } else if (w < 1536) {
+      return 85;
     }
+    return 100;
+  };
+
+  // Auto-fit preview zoom on client mount & window resize
+  useEffect(() => {
+    setZoom(calculateFitZoom());
+    const handleResize = () => {
+      // keep zoom comfortable on orientation change or screen resize
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Loading Screen while verifying session
@@ -266,7 +283,7 @@ export default function Home() {
       )}
 
       {/* Main Split-Screen Workspace */}
-      <main className="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-5 lg:p-6 pb-12 min-w-0 overflow-x-hidden">
+      <main className="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-5 lg:p-6 pb-28 lg:pb-12 min-w-0 overflow-x-hidden">
         {activeMode === 'cover_letter' ? (
           <CoverLetterView
             cvData={cvData}
@@ -440,7 +457,7 @@ export default function Home() {
                 <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px] font-bold">
                   <button
                     type="button"
-                    onClick={() => setZoom((prev) => Math.max(65, prev - 15))}
+                    onClick={() => setZoom((prev) => Math.max(35, prev - 10))}
                     className="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
                     title="Perkecil Pratinjau (Zoom Out)"
                   >
@@ -449,7 +466,7 @@ export default function Home() {
                   <span className="px-1.5 text-slate-700 min-w-[38px] text-center select-none text-[10px]">{zoom}%</span>
                   <button
                     type="button"
-                    onClick={() => setZoom((prev) => Math.min(130, prev + 15))}
+                    onClick={() => setZoom((prev) => Math.min(130, prev + 10))}
                     className="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
                     title="Perbesar Pratinjau (Zoom In)"
                   >
@@ -457,11 +474,7 @@ export default function Home() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (typeof window !== 'undefined') {
-                        setZoom(window.innerWidth < 1200 ? 75 : window.innerWidth < 1440 ? 85 : 100);
-                      }
-                    }}
+                    onClick={() => setZoom(calculateFitZoom())}
                     className="px-1.5 py-0.5 text-[10px] text-emerald-700 hover:bg-white rounded transition-all cursor-pointer font-bold"
                     title="Sesuaikan ukuran lembar A4 agar pas di layar tanpa geser"
                   >
@@ -494,6 +507,99 @@ export default function Home() {
           </>
         )}
       </main>
+
+      {/* FIXED MOBILE BOTTOM ACTION BAR (Native App Feel UX) */}
+      <nav
+        aria-label="Navigasi Aksi Mobile"
+        className="lg:hidden no-print fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-3 py-2"
+      >
+        <div className="flex items-center justify-between gap-2 max-w-lg mx-auto">
+          {activeMode === 'cv' ? (
+            <>
+              {/* 1. Toggle View: Form vs Preview */}
+              {mobileView === 'editor' ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileView('preview');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 text-xs font-bold border border-slate-200/80 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Eye className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="truncate">Lihat Pratinjau</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileView('editor');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-800 text-xs font-bold border border-slate-200/80 transition-all cursor-pointer shadow-2xs"
+                >
+                  <ArrowLeft className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="truncate">Edit Formulir</span>
+                </button>
+              )}
+
+              {/* 2. Quick Template Selector */}
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 active:scale-95 text-xs font-bold border border-emerald-200/80 transition-all cursor-pointer shadow-2xs shrink-0"
+                title="Pilih Templat CV"
+              >
+                <LayoutTemplate className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="max-w-[70px] truncate">{currentTemplate.name}</span>
+              </button>
+
+              {/* 3. Direct Download Button */}
+              <button
+                type="button"
+                disabled={isGeneratingPDF}
+                onClick={handleDownloadClick}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs font-bold shadow-md shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-75"
+              >
+                {isGeneratingPDF ? (
+                  <>
+                    <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+                    <span className="truncate">Membuat...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 shrink-0" />
+                    <span className="truncate">Unduh PDF</span>
+                  </>
+                )}
+              </button>
+            </>
+          ) : (
+            /* Cover letter mode mobile bottom actions */
+            <div className="flex items-center justify-between gap-2 w-full">
+              <button
+                type="button"
+                onClick={() => setActiveMode('cv')}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold border border-slate-200 transition-all cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4 text-slate-600" />
+                <span>Kembali ke CV</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const btn = document.getElementById('cover-letter-download-btn');
+                  if (btn) btn.click();
+                }}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Unduh Surat PDF</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
 
       {/* 10-Template Gallery Modal */}
       <TemplateGalleryModal

@@ -24,12 +24,18 @@ export async function exportCVToPDF(
 
     // Save previous inline styles
     const prevTransform = element.style.transform;
+    const prevTransformOrigin = element.style.transformOrigin;
+    const prevPosition = element.style.position;
+    const prevTop = element.style.top;
+    const prevLeft = element.style.left;
     const prevBoxShadow = element.style.boxShadow;
     const prevBorder = element.style.border;
     const prevBorderRadius = element.style.borderRadius;
 
     // Reset scaling and styling for clean capture at exact full A4 dimensions
     element.style.transform = 'none';
+    element.style.transformOrigin = 'initial';
+    element.style.position = 'static';
     element.style.boxShadow = 'none';
     element.style.border = 'none';
     element.style.borderRadius = '0';
@@ -51,6 +57,10 @@ export async function exportCVToPDF(
 
     // Restore original styles immediately
     element.style.transform = prevTransform;
+    element.style.transformOrigin = prevTransformOrigin;
+    element.style.position = prevPosition;
+    element.style.top = prevTop;
+    element.style.left = prevLeft;
     element.style.boxShadow = prevBoxShadow;
     element.style.border = prevBorder;
     element.style.borderRadius = prevBorderRadius;
