@@ -85,6 +85,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (savedReset) {
         setPendingReset(JSON.parse(savedReset));
       }
+
+      // Auto-sync any existing local users to server database for cross-device access
+      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+      if (rawUsers) {
+        const localUsers = JSON.parse(rawUsers);
+        if (Array.isArray(localUsers) && localUsers.length > 0) {
+          fetch('/api/auth/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ users: localUsers }),
+          }).catch(() => {});
+        }
+      }
     } catch (e) {
       console.error('Failed to restore auth session', e);
     } finally {
@@ -121,86 +134,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return Math.floor(100000 + Math.random() * 900000).toString();
   };
 
-  // 2. Register: creates pending verification with OTP
+  // 2. Register: creates pending verification with OTP via server API
   const register = async (name: string, email: string, pass: string) => {
     if (!name.trim() || !email.trim() || !pass.trim()) {
       return { success: false, error: 'Harap isi semua kolom pendaftaran.' };
     }
 
-    try {
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
+    const cleanEmail = email.trim().toLowerCase();
 
-      const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (existing) {
-        return { success: false, error: 'Email ini sudah terdaftar. Silakan masuk.' };
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: cleanEmail,
+          pass,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Gagal mendaftarkan akun.' };
       }
 
-      const otp = generateOTP();
       const pending: PendingVerification = {
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        email: cleanEmail,
         pass,
-        code: otp,
+        code: '',
         createdAt: Date.now(),
       };
 
       setPendingVerification(pending);
       localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(pending));
 
-      // Trigger email sending via admin.cvbagusid@gmail.com
-      try {
-        await fetch('/api/auth/send-verification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: pending.email,
-            name: pending.name,
-            code: otp,
-            type: 'register',
-          }),
-        });
-      } catch (sendErr) {
-        console.error('Email API send notice:', sendErr);
-      }
-
-      return { success: true, code: otp };
+      return { success: true };
     } catch (e) {
-      return { success: false, error: 'Terjadi kesalahan sistem saat mendaftar.' };
+      return { success: false, error: 'Terjadi kesalahan koneksi saat mendaftar.' };
     }
   };
 
-  // 3. Verify Email Code
+  // 3. Verify Email Code via server API
   const verifyEmail = async (code: string) => {
     if (!pendingVerification) {
       return { success: false, error: 'Tidak ada sesi pendaftaran yang menunggu verifikasi.' };
     }
 
-    if (code.trim() !== pendingVerification.code) {
-      return { success: false, error: 'Kode verifikasi salah. Harap periksa kembali.' };
-    }
-
     try {
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
+      const res = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: pendingVerification.email,
+          code: code.trim(),
+        }),
+      });
 
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        name: pendingVerification.name,
-        email: pendingVerification.email,
-        isVerified: true,
-        isPaid: false, // Will be activated upon Rp 25rb payment
-        createdAt: new Date().toISOString(),
-      };
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.user) {
+        return { success: false, error: data.error || 'Kode verifikasi salah atau kedaluwarsa.' };
+      }
 
-      users.push({ ...newUser, pass: pendingVerification.pass });
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      const newUser: User = data.user;
 
-      // Clear pending verification
+      // Also cache user locally
+      try {
+        const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+        const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
+        if (!users.some((u) => u.email.toLowerCase() === newUser.email.toLowerCase())) {
+          users.push({ ...newUser, pass: pendingVerification.pass });
+          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+        }
+      } catch {}
+
       setPendingVerification(null);
       localStorage.removeItem(PENDING_STORAGE_KEY);
 
-      // Log in user
       setUser(newUser);
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newUser));
       loadUserCVs(newUser.id);
@@ -217,33 +227,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false };
     }
 
-    const newOtp = generateOTP();
-    const updated: PendingVerification = {
-      ...pendingVerification,
-      code: newOtp,
-      createdAt: Date.now(),
-    };
-
-    setPendingVerification(updated);
-    localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(updated));
-
-    // Trigger email sending via admin.cvbagusid@gmail.com
     try {
-      await fetch('/api/auth/send-verification', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: updated.email,
-          name: updated.name,
-          code: newOtp,
-          type: 'register',
+          name: pendingVerification.name,
+          email: pendingVerification.email,
+          pass: pendingVerification.pass,
         }),
       });
-    } catch (sendErr) {
-      console.error('Email API resend notice:', sendErr);
+      return { success: res.ok };
+    } catch (e) {
+      return { success: false };
     }
-
-    return { success: true, code: newOtp };
   };
 
   const cancelVerification = () => {
@@ -269,7 +266,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(updatedUser);
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser));
 
-    // Update in users database
+    // Update in cloud server database
+    try {
+      await fetch('/api/auth/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'toggle-subscription',
+          userId: user.id,
+          isPaid: true,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to sync payment with server', e);
+    }
+
+    // Update local cache
     try {
       const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
       if (rawUsers) {
@@ -284,18 +296,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 6. Login
+  // 6. Login (Checks Central Server Database first, works across ALL devices)
   const login = async (email: string, pass: string) => {
     if (!email.trim() || !pass.trim()) {
       return { success: false, error: 'Harap masukkan email dan kata sandi.' };
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Check Server Database First (Cross-Device Cloud Auth)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, pass }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success && data.user) {
+        const loggedInUser: User = data.user;
+        setUser(loggedInUser);
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
+
+        // Cache in local storage for offline support
+        try {
+          const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+          const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
+          if (!users.some((u) => u.email.toLowerCase() === cleanEmail)) {
+            users.push({ ...loggedInUser, pass });
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+          }
+        } catch {}
+
+        loadUserCVs(loggedInUser.id);
+        return { success: true };
+      }
+
+      // If server returned specific rejection (e.g. wrong password or not found)
+      if (data.error) {
+        // Check if there is a local account that can be synced to server
+        try {
+          const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+          if (rawUsers) {
+            const localUsers: Array<User & { pass: string }> = JSON.parse(rawUsers);
+            const localMatch = localUsers.find(
+              (u) => u.email.toLowerCase() === cleanEmail && u.pass === pass
+            );
+            if (localMatch) {
+              // Sync local users to server
+              await fetch('/api/auth/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ users: localUsers }),
+              });
+
+              setUser(localMatch);
+              localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(localMatch));
+              loadUserCVs(localMatch.id);
+              return { success: true };
+            }
+          }
+        } catch {}
+
+        return { success: false, error: data.error };
+      }
+    } catch (networkErr) {
+      console.warn('Network issue during cloud login, falling back to local cache:', networkErr);
+    }
+
+    // 2. Fallback to LocalStorage (Offline only)
     try {
       const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
       const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
 
       const found = users.find(
-        (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.pass === pass
+        (u) => u.email.toLowerCase() === cleanEmail && u.pass === pass
       );
 
       if (!found) {
@@ -349,66 +425,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(SESSION_STORAGE_KEY);
   };
 
-  // 8. Request Password Reset (Directly sent to registered email)
+  // 8. Request Password Reset (Directly sent to registered email via server)
   const requestPasswordReset = async (email: string) => {
     if (!email.trim()) {
       return { success: false, error: 'Harap masukkan alamat email Anda.' };
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      const users: Array<User & { pass: string }> = rawUsers ? JSON.parse(rawUsers) : [];
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail }),
+      });
 
-      const targetEmail = email.trim().toLowerCase();
-      const userExists = users.some((u) => u.email.toLowerCase() === targetEmail);
-
-      if (!userExists) {
-        return {
-          success: false,
-          error: 'Alamat email ini belum terdaftar. Silakan periksa kembali atau buat akun baru.',
-        };
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Gagal memproses reset kata sandi.' };
       }
 
-      // Generate 6-digit confirmation code
-      const code = generateOTP();
       const pending: PendingPasswordReset = {
-        email: targetEmail,
-        code,
+        email: cleanEmail,
+        code: '',
         createdAt: Date.now(),
       };
 
       setPendingReset(pending);
       localStorage.setItem(PENDING_RESET_STORAGE_KEY, JSON.stringify(pending));
 
-      // Trigger email sending via admin.cvbagusid@gmail.com
-      try {
-        await fetch('/api/auth/send-verification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: targetEmail,
-            code,
-            type: 'reset',
-          }),
-        });
-      } catch (sendErr) {
-        console.error('Email API reset notice:', sendErr);
-      }
-
-      return { success: true, code };
+      return { success: true };
     } catch (e) {
-      return { success: false, error: 'Gagal memproses permintaan reset kata sandi.' };
+      return { success: false, error: 'Terjadi kesalahan sistem saat meminta reset kata sandi.' };
     }
   };
 
-  // 9. Confirm Password Reset
+  // 9. Confirm Password Reset via server
   const confirmPasswordReset = async (code: string, newPass: string) => {
     if (!pendingReset) {
       return { success: false, error: 'Tidak ada permintaan reset kata sandi yang aktif.' };
     }
 
-    if (!code.trim() || code.trim() !== pendingReset.code) {
-      return { success: false, error: 'Kode verifikasi tidak sesuai atau telah kedaluwarsa.' };
+    if (!code.trim()) {
+      return { success: false, error: 'Kode verifikasi wajib diisi.' };
     }
 
     if (!newPass.trim() || newPass.trim().length < 4) {
@@ -416,22 +475,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
-      if (!rawUsers) {
-        return { success: false, error: 'Basis data pengguna tidak ditemukan.' };
+      const res = await fetch('/api/auth/confirm-reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: pendingReset.email,
+          code: code.trim(),
+          newPass: newPass.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return { success: false, error: data.error || 'Kode verifikasi tidak sesuai atau telah kedaluwarsa.' };
       }
 
-      const users: Array<User & { pass: string }> = JSON.parse(rawUsers);
-      const userIdx = users.findIndex((u) => u.email.toLowerCase() === pendingReset.email);
+      // Update local storage cache as well
+      try {
+        const rawUsers = localStorage.getItem(USERS_STORAGE_KEY);
+        if (rawUsers) {
+          const users: Array<User & { pass: string }> = JSON.parse(rawUsers);
+          const userIdx = users.findIndex((u) => u.email.toLowerCase() === pendingReset.email);
+          if (userIdx >= 0) {
+            users[userIdx].pass = newPass.trim();
+            localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+          }
+        }
+      } catch {}
 
-      if (userIdx === -1) {
-        return { success: false, error: 'Pengguna tidak ditemukan.' };
-      }
-
-      users[userIdx].pass = newPass.trim();
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-
-      // Clear pending reset
       setPendingReset(null);
       localStorage.removeItem(PENDING_RESET_STORAGE_KEY);
 

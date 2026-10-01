@@ -39,8 +39,22 @@ export default function AdminDashboardPage() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'free' | 'unverified'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load users from storage
-  const loadUsers = () => {
+  // Load users from server API (with local storage fallback)
+  const loadUsers = async () => {
+    try {
+      const res = await fetch('/api/auth/users');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.users) && data.users.length > 0) {
+          setUsers(data.users);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch users from server, falling back to local storage', e);
+    }
+
+    // Fallback to local storage
     try {
       const raw = localStorage.getItem(USERS_STORAGE_KEY);
       if (raw) {
@@ -90,13 +104,25 @@ export default function AdminDashboardPage() {
   };
 
   // Toggle user 1-year subscription status
-  const handleToggleSubscription = (userId: string) => {
+  const handleToggleSubscription = async (userId: string) => {
+    const targetUser = users.find((u) => u.id === userId);
+    const nextPaid = targetUser ? !targetUser.isPaid : true;
+
+    try {
+      await fetch('/api/auth/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle-subscription', userId, isPaid: nextPaid }),
+      });
+    } catch (e) {
+      console.error('Server update failed', e);
+    }
+
+    const oneYearLater = new Date();
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
     const updated = users.map((u) => {
       if (u.id === userId) {
-        const nextPaid = !u.isPaid;
-        const oneYearLater = new Date();
-        oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-
         return {
           ...u,
           isPaid: nextPaid,
@@ -107,16 +133,30 @@ export default function AdminDashboardPage() {
     });
 
     setUsers(updated);
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
+    try {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
     showToast('Status langganan pengguna berhasil diperbarui!');
   };
 
   // Delete user account
-  const handleDeleteUser = (userId: string, userName: string) => {
+  const handleDeleteUser = async (userId: string, userName: string) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus akun "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
+      try {
+        await fetch('/api/auth/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete-user', userId }),
+        });
+      } catch (e) {
+        console.error('Server delete failed', e);
+      }
+
       const updated = users.filter((u) => u.id !== userId);
       setUsers(updated);
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
+      try {
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
       showToast(`Akun "${userName}" berhasil dihapus.`);
     }
   };
