@@ -208,6 +208,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
           <ExperienceForm
             experiences={cvData.experiences}
             onChange={(experiences) => onUpdateCV({ experiences })}
+            language={cvData.theme.language || 'id'}
           />
         )}
 
