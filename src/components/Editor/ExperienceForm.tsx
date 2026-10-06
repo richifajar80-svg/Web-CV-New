@@ -643,19 +643,6 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                         </>
                       )}
                     </button>
-
-                    {/* Key Setting Icon */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setApiKeyInput(getGeminiKey());
-                        setShowApiKeyModal(true);
-                      }}
-                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-slate-200"
-                      title="Pengaturan Google Gemini API Key"
-                    >
-                      <Key className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 </div>
 

@@ -62,3 +62,4 @@ export const FormattedDescription: React.FC<FormattedDescriptionProps> = ({
     </div>
   );
 };
+

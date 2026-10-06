@@ -48,7 +48,13 @@ STRICT RULES:
 ${text.trim()}
 """`;
 
-  const models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  const models = [
+    'gemini-3.5-flash-lite',
+    'gemini-3.6-flash',
+    'gemini-3.7-flash',
+    'gemini-3.8-flash',
+    'gemini-flash-latest',
+  ];
   let lastError: any = null;
 
   for (const model of models) {
@@ -92,8 +98,8 @@ ${text.trim()}
           throw keyErr;
         }
 
-        // Try next model if 404 or unsupported
-        if (res.status === 404) {
+        // Try next model if 404, 503, or overloaded
+        if (res.status === 404 || res.status === 503) {
           lastError = new Error(message);
           continue;
         }
