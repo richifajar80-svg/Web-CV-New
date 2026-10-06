@@ -3,6 +3,7 @@
 import React from 'react';
 import { CVData } from '@/types/cv';
 import { getCVTranslations } from '@/utils/translations';
+import { FormattedDescription } from '../FormattedDescription';
 
 export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const { personalInfo, summary, experiences, education, skills, languages, certifications, theme } = data;
@@ -82,11 +83,10 @@ export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
                   <span>{exp.company}</span>
                   {exp.location && <span className="not-italic text-slate-500">{exp.location}</span>}
                 </div>
-                {exp.description && (
-                  <p className="text-xs text-slate-800 whitespace-pre-line leading-relaxed pl-2 pt-0.5">
-                    {exp.description}
-                  </p>
-                )}
+                <FormattedDescription
+                  text={exp.description}
+                  className="text-xs text-slate-800 pl-2"
+                />
               </div>
             ))}
           </div>

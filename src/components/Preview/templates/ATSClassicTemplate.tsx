@@ -3,6 +3,7 @@
 import React from 'react';
 import { CVData } from '@/types/cv';
 import { getCVTranslations } from '@/utils/translations';
+import { FormattedDescription } from '../FormattedDescription';
 
 interface TemplateProps {
   data: CVData;
@@ -69,11 +70,10 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
                   <span>{exp.company}</span>
                   {exp.location && <span className="font-normal not-italic text-slate-500">{exp.location}</span>}
                 </div>
-                {exp.description && (
-                  <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed pl-2 pt-0.5">
-                    {exp.description}
-                  </div>
-                )}
+                <FormattedDescription
+                  text={exp.description}
+                  className="text-xs text-slate-700 leading-relaxed pl-1 pt-0.5"
+                />
               </div>
             ))}
           </div>

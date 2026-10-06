@@ -5,6 +5,7 @@ import { CVData } from '@/types/cv';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import { LinkedinIcon } from '@/components/icons/LinkedinIcon';
 import { getCVTranslations } from '@/utils/translations';
+import { FormattedDescription } from '../FormattedDescription';
 
 interface TemplateProps {
   data: CVData;
@@ -107,11 +108,10 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
                   <div className="text-xs font-semibold" style={{ color: accent }}>
                     {exp.company} {exp.location ? `| ${exp.location}` : ''}
                   </div>
-                  {exp.description && (
-                    <div className="text-xs text-slate-600 whitespace-pre-line leading-relaxed pt-0.5">
-                      {exp.description}
-                    </div>
-                  )}
+                  <FormattedDescription
+                    text={exp.description}
+                    className="text-xs text-slate-600 leading-relaxed pt-0.5"
+                  />
                 </div>
               ))}
             </div>

@@ -5,6 +5,7 @@ import { CVData } from '@/types/cv';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import { LinkedinIcon } from '@/components/icons/LinkedinIcon';
 import { getCVTranslations } from '@/utils/translations';
+import { FormattedDescription } from '../FormattedDescription';
 
 export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const { personalInfo, summary, experiences, education, skills, languages, certifications, theme } = data;
@@ -73,11 +74,11 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
                     <div className="text-xs font-semibold text-slate-600 mb-1">
                       {exp.company} {exp.location ? `• ${exp.location}` : ''}
                     </div>
-                    {exp.description && (
-                      <p className="text-[11px] text-slate-600 whitespace-pre-line leading-relaxed">
-                        {exp.description}
-                      </p>
-                    )}
+                    <FormattedDescription
+                      text={exp.description}
+                      className="text-[11px] text-slate-600"
+                      bulletColor={accent}
+                    />
                   </div>
                 ))}
               </div>
