@@ -53,7 +53,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     confirmPasswordReset,
     cancelPasswordReset,
     pendingReset,
-    loginDemoUser,
   } = useAuth();
 
   const [mode, setMode] = useState<'register' | 'login' | 'forgot'>('register');
@@ -283,21 +282,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     setMode(mode === 'register' ? 'login' : 'register');
                     setError(null);
                   }}
-                  className="text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors shrink-0"
+                  className="text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 transition-colors shrink-0"
                 >
                   {mode === 'register' ? 'Masuk' : 'Daftar'}
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await loginDemoUser();
-                    if (onSuccess) onSuccess();
-                  }}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer hover:shadow shrink-0"
-                  title="Langsung coba buka workspace Editor CV dan Surat Lamaran Kerja"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Buka Editor & Surat</span>
                 </button>
               </>
             )}
@@ -317,23 +304,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
         {/* Mobile Navigation Dropdown */}
         {mobileNavOpen && (
           <div className="md:hidden border-t border-slate-200 bg-white/98 px-3 py-2.5 space-y-1.5 shadow-xl animate-in slide-in-from-top-2">
-            <button
-              type="button"
-              onClick={async () => {
-                setMobileNavOpen(false);
-                await loginDemoUser();
-                if (onSuccess) onSuccess();
-              }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs text-left transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                Coba Langsung Editor CV & Surat
-              </span>
-              <span className="text-[10px] bg-emerald-700 px-2 py-0.5 rounded-full font-bold uppercase">
-                Demo
-              </span>
-            </button>
             <button
               type="button"
               onClick={() => {
@@ -882,20 +852,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           : 'Belum punya akun? Klik Daftar Akun Baru di atas.'}
                       </p>
                     </div>
-
-                    <div className="pt-3 border-t border-slate-100">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          await loginDemoUser();
-                          if (onSuccess) onSuccess();
-                        }}
-                        className="w-full flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Coba Langsung Editor & Surat Lamaran (Mode Uji Coba)</span>
-                      </button>
-                    </div>
                   </form>
                 </>
               )}
@@ -1137,7 +1093,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             Siap Melamar Pekerjaan Impian Anda?
           </h2>
           <p className="text-xs sm:text-sm text-emerald-100 max-w-xl mx-auto">
-            Daftar sekarang secara gratis, susun CV standar ATS Anda dalam 5 menit, dan tingkatkan peluang lolos interview kerja di perusahaan terkemuka.
+            Daftar sekarang, susun CV standar ATS Anda dalam 5 menit, dan tingkatkan peluang lolos interview kerja di perusahaan terkemuka.
           </p>
           <div className="pt-2">
             <button
@@ -1146,9 +1102,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 setMode('register');
               }}
-              className="inline-flex items-center gap-2 bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/30 transition-all hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/30 transition-all hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <span>Buat CV ATS Sekarang (Gratis)</span>
+              <span>Mulai Buat CV ATS Sekarang</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
