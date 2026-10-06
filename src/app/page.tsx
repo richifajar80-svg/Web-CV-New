@@ -425,6 +425,21 @@ export default function Home() {
                   <span>2. Pratinjau Langsung (A4 Live Preview)</span>
                 </div>
 
+                {/* Prominent Quick Template Switcher */}
+                <button
+                  type="button"
+                  onClick={() => setGalleryOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white hover:bg-emerald-50 border-2 border-emerald-500/50 hover:border-emerald-600 text-slate-800 font-bold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer active:scale-95 group"
+                  title="Klik untuk memilih dari 10+ desain & template CV"
+                >
+                  <LayoutTemplate className="w-3.5 h-3.5 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="text-slate-500 text-[11px] font-semibold">Desain:</span>
+                  <span className="text-emerald-900 font-black">{currentTemplate.name}</span>
+                  <span className="text-[10px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.2 rounded-md">
+                    Ganti
+                  </span>
+                </button>
+
                 {/* Quick Language Switcher */}
                 <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px]">
                   <button
@@ -547,11 +562,11 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setGalleryOpen(true)}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 active:scale-95 text-xs font-bold border border-emerald-200/80 transition-all cursor-pointer shadow-2xs shrink-0"
-                title="Pilih Templat CV"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 active:scale-95 text-xs font-bold border-2 border-emerald-400 transition-all cursor-pointer shadow-xs shrink-0"
+                title="Pilih Desain / Templat CV (10+ Pilihan)"
               >
                 <LayoutTemplate className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="max-w-[70px] truncate">{currentTemplate.name}</span>
+                <span className="font-extrabold truncate max-w-[80px]">Desain</span>
               </button>
 
               {/* 3. Direct Download Button */}

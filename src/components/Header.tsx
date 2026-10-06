@@ -175,20 +175,30 @@ export const Header: React.FC<HeaderProps> = ({
             {/* ONLY IN CV MODE: Template Gallery, Theme Popover, Language, Reset, and Download */}
             {activeMode === 'cv' && (
               <>
-                {/* Template Gallery Picker (Always visible on mobile & desktop) */}
+                {/* Template Gallery Picker (Prominent & Clearly Labeled) */}
                 <button
                   type="button"
                   onClick={handleOpenGalleryClick}
-                  className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 pr-2 sm:pr-2.5 rounded-xl border border-emerald-500/40 bg-emerald-50/60 hover:bg-emerald-100/70 text-xs font-bold text-slate-800 shrink-0 cursor-pointer transition-all"
-                  title="Klik untuk memilih dari 10 templat CV"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-slate-800 font-bold transition-all shadow-xs hover:shadow-md cursor-pointer group active:scale-98 shrink-0 ring-2 ring-emerald-500/10"
+                  title="Klik untuk memilih dari 10+ pilihan templat & desain CV"
                 >
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
-                    <LayoutTemplate className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                    <LayoutTemplate className="w-3.5 h-3.5" />
                   </div>
-                  <span className="font-bold text-slate-800 text-[11px] sm:text-xs truncate max-w-[50px] xs:max-w-[75px] sm:max-w-[95px]">
-                    {currentTemplate.name}
-                  </span>
-                  <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
+                  <div className="flex flex-col text-left leading-tight">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 whitespace-nowrap">
+                        Ganti Template
+                      </span>
+                      <span className="text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.2 rounded-full hidden xs:inline-block">
+                        10+
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 truncate max-w-[85px] xs:max-w-[110px] sm:max-w-[130px]">
+                      {currentTemplate.name}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-emerald-700/80 shrink-0 group-hover:translate-y-0.5 transition-transform ml-0.5" />
                 </button>
 
                 {/* Theme (Color & Font) Compact Popover - Hidden on mobile, accessible in ... menu */}
