@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
-import { Sparkles, FileText, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, FileText, Loader2, RotateCcw, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface SummaryFormProps {
   summary: string;
   onChange: (summary: string) => void;
+  jobTitle?: string;
+  language?: 'id' | 'en';
 }
 
 const TEMPLATE_PRESETS = [
@@ -23,7 +25,65 @@ const TEMPLATE_PRESETS = [
   },
 ];
 
-export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange }) => {
+export const SummaryForm: React.FC<SummaryFormProps> = ({
+  summary,
+  onChange,
+  jobTitle,
+  language = 'id',
+}) => {
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [originalBackup, setOriginalBackup] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showSuccessBadge, setShowSuccessBadge] = useState(false);
+
+  const handleTranslateSummary = async () => {
+    if (!summary || !summary.trim() || isTranslating) return;
+
+    setError(null);
+    setIsTranslating(true);
+
+    // Save backup if not already saved
+    if (!originalBackup) {
+      setOriginalBackup(summary);
+    }
+
+    try {
+      const res = await fetch('/api/ai/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: summary,
+          role: jobTitle,
+          type: 'summary',
+          targetLanguage: 'en',
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.translatedText) {
+        setError(data.error || 'Gagal menerjemahkan ringkasan dengan Gemini AI.');
+        return;
+      }
+
+      onChange(data.translatedText);
+      setShowSuccessBadge(true);
+      setTimeout(() => setShowSuccessBadge(false), 6000);
+    } catch (err: any) {
+      setError('Terjadi kendala jaringan saat menghubungi Google Gemini AI.');
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const handleUndo = () => {
+    if (originalBackup) {
+      onChange(originalBackup);
+      setOriginalBackup(null);
+      setShowSuccessBadge(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="border-b border-slate-200/80 pb-3">
@@ -37,12 +97,81 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange }) =
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-semibold text-slate-700">Ringkasan Diri</label>
-          <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-            {summary.length} karakter
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-slate-700">Ringkasan Diri</label>
+            <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+              {summary.length} karakter
+            </span>
+            {language === 'en' && (
+              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                Mode CV English
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Undo button */}
+            {originalBackup && (
+              <button
+                type="button"
+                onClick={handleUndo}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer border border-slate-200"
+                title="Kembalikan teks ringkasan bahasa Indonesia sebelumnya"
+              >
+                <RotateCcw className="w-3 h-3 text-slate-500" />
+                <span>Teks Asli</span>
+              </button>
+            )}
+
+            {/* Translate Button */}
+            <button
+              type="button"
+              disabled={isTranslating || !summary.trim()}
+              onClick={handleTranslateSummary}
+              className="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 active:scale-98 px-3 py-1 rounded-lg shadow-xs shadow-emerald-700/20 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              title="Terjemahkan ke Bahasa Inggris profesional standar ATS menggunakan Google Gemini AI"
+            >
+              {isTranslating ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                  <span>Menerjemahkan (Gemini AI)...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                  <span>Translate English (Gemini AI)</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Translation Error Alert */}
+        {error && (
+          <div className="mb-2 p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between text-xs text-rose-700">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setError(null)}
+              className="text-[11px] font-bold text-rose-600 hover:text-rose-800 underline ml-2 cursor-pointer"
+            >
+              Tutup
+            </button>
+          </div>
+        )}
+
+        {/* Success Banner */}
+        {showSuccessBadge && (
+          <div className="mb-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800 font-semibold animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>✨ Berhasil diterjemahkan ke Bahasa Inggris eksekutif standar ATS!</span>
+          </div>
+        )}
+
         <textarea
           rows={6}
           spellCheck={false}

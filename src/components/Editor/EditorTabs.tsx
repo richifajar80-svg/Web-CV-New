@@ -201,6 +201,8 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
           <SummaryForm
             summary={cvData.summary}
             onChange={(summary) => onUpdateCV({ summary })}
+            jobTitle={cvData.personalInfo.jobTitle}
+            language={cvData.theme.language || 'id'}
           />
         )}
 

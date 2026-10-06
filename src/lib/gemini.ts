@@ -4,6 +4,7 @@
  */
 
 interface GeminiTranslateOptions {
+  type?: 'summary' | 'experience';
   role?: string;
   company?: string;
   targetLanguage?: string;
@@ -28,11 +29,23 @@ export async function translateJobDescriptionWithGemini(
     throw error;
   }
 
+  const isSummary = options.type === 'summary';
+
   const roleContext = options.role?.trim() ? `Job Title/Role: "${options.role}"` : '';
   const companyContext = options.company?.trim() ? `Company: "${options.company}"` : '';
   const contextHeader = [roleContext, companyContext].filter(Boolean).join(' | ');
 
-  const systemInstruction = `You are a world-class executive resume writer, certified career coach, and ATS (Applicant Tracking System) optimization expert.
+  const systemInstruction = isSummary
+    ? `You are a world-class executive resume writer, career coach, and ATS (Applicant Tracking System) optimization expert.
+Your task is to translate and elevate the provided Indonesian professional summary / bio into flawless, executive-level, high-impact business English.
+
+STRICT RULES:
+1. Elevate the summary into confident, polished, executive-level prose standard in top US/UK/International resumes.
+2. Never produce literal word-for-word translations. Frame skills, experience, and accomplishments to showcase maximum authority and business value.
+3. Preserve all numbers, metrics, technologies, frameworks, and key credentials accurately (e.g., 5+ years, React, Next.js, 40%, etc.).
+4. Structure the output as a cohesive, impactful 2-4 sentence paragraph.
+5. Return ONLY the translated resume summary text. DO NOT add any greeting, preamble, markdown code blocks, explanation, notes, or quotes.`
+    : `You are a world-class executive resume writer, certified career coach, and ATS (Applicant Tracking System) optimization expert.
 Your task is to translate and elevate the provided Indonesian job description into flawless, high-impact, professional business English.
 
 STRICT RULES:
@@ -43,7 +56,12 @@ STRICT RULES:
 5. If input is a paragraph, translate it into polished, professional prose.
 6. Return ONLY the translated resume text. DO NOT add any greeting, preamble, markdown code blocks (\`\`\`), explanation, notes, or quotes.`;
 
-  const userPrompt = `${contextHeader ? `Context:\n${contextHeader}\n\n` : ''}Translate and optimize this Indonesian job experience into professional English:
+  const userPrompt = isSummary
+    ? `${contextHeader ? `Context:\n${contextHeader}\n\n` : ''}Translate and elevate this Indonesian professional resume summary into executive-level English:
+"""
+${text.trim()}
+"""`
+    : `${contextHeader ? `Context:\n${contextHeader}\n\n` : ''}Translate and optimize this Indonesian job experience into professional English:
 """
 ${text.trim()}
 """`;

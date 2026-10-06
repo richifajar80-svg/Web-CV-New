@@ -21,11 +21,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { text, role, company, targetLanguage } = body;
+    const { text, role, company, targetLanguage, type } = body;
 
     if (!text || typeof text !== 'string' || !text.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Teks deskripsi pekerjaan wajib diisi.' },
+        { success: false, error: 'Teks wajib diisi.' },
         { status: 400 }
       );
     }
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       (typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined);
 
     const translatedText = await translateJobDescriptionWithGemini(text, {
+      type: type === 'summary' ? 'summary' : 'experience',
       role: typeof role === 'string' ? role : undefined,
       company: typeof company === 'string' ? company : undefined,
       targetLanguage: typeof targetLanguage === 'string' ? targetLanguage : 'en',
