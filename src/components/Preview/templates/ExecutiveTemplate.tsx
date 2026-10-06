@@ -4,7 +4,7 @@ import React from 'react';
 import { CVData } from '@/types/cv';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import { LinkedinIcon } from '@/components/icons/LinkedinIcon';
-import { getCVTranslations } from '@/utils/translations';
+import { getCVTranslations, formatSkillLevel } from '@/utils/translations';
 import { FormattedDescription } from '../FormattedDescription';
 
 interface TemplateProps {
@@ -158,9 +158,14 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
                 {skills.map((skill) => (
                   <span
                     key={skill.id}
-                    className="text-[11px] font-medium px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200"
+                    className="text-[11px] font-medium px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200 inline-flex items-center gap-1.5"
                   >
-                    {skill.name}
+                    <span>{skill.name}</span>
+                    {skill.level && (
+                      <span className="text-[10px] text-slate-500 font-normal">
+                        ({formatSkillLevel(skill.level, theme.language)})
+                      </span>
+                    )}
                   </span>
                 ))}
               </div>

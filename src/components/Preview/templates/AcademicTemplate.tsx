@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CVData } from '@/types/cv';
-import { getCVTranslations } from '@/utils/translations';
+import { getCVTranslations, formatSkillLevel } from '@/utils/translations';
 import { FormattedDescription } from '../FormattedDescription';
 
 export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
@@ -102,7 +102,13 @@ export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
                 {t.technicalSkills}
               </h2>
               <p className="text-xs text-slate-800 leading-relaxed">
-                {skills.map((s) => s.name).join(' • ')}
+                {skills
+                  .map((s) =>
+                    s.level
+                      ? `${s.name} (${formatSkillLevel(s.level, theme.language)})`
+                      : s.name
+                  )
+                  .join(' • ')}
               </p>
             </div>
           )}

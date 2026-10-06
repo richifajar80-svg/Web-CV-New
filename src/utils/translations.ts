@@ -91,3 +91,18 @@ export const TRANSLATIONS: Record<CVLanguage, CVTranslations> = {
 export const getCVTranslations = (lang?: CVLanguage): CVTranslations => {
   return TRANSLATIONS[lang || 'id'] || TRANSLATIONS.id;
 };
+
+export const formatSkillLevel = (level?: string, lang?: CVLanguage): string => {
+  if (!level) return '';
+  if (lang === 'en') {
+    const map: Record<string, string> = {
+      Pemula: 'Beginner',
+      Menengah: 'Intermediate',
+      Mahir: 'Advanced',
+      Ahli: 'Expert',
+    };
+    return map[level] || level;
+  }
+  return level;
+};
+

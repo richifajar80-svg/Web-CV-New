@@ -4,7 +4,7 @@ import React from 'react';
 import { CVData } from '@/types/cv';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import { LinkedinIcon } from '@/components/icons/LinkedinIcon';
-import { getCVTranslations } from '@/utils/translations';
+import { getCVTranslations, formatSkillLevel } from '@/utils/translations';
 import { FormattedDescription } from '../FormattedDescription';
 
 export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
@@ -103,8 +103,13 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
           </div>
           <div className="sm:col-span-9 flex flex-wrap gap-2">
             {skills.map((s) => (
-              <span key={s.id} className="text-xs font-medium px-2.5 py-0.5 rounded bg-slate-100 text-slate-700">
-                {s.name}
+              <span key={s.id} className="text-xs font-medium px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 inline-flex items-center gap-1">
+                <span>{s.name}</span>
+                {s.level && (
+                  <span className="text-[10px] text-slate-500 font-normal">
+                    ({formatSkillLevel(s.level, theme.language)})
+                  </span>
+                )}
               </span>
             ))}
           </div>

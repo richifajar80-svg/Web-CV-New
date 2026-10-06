@@ -4,7 +4,7 @@ import React from 'react';
 import { CVData } from '@/types/cv';
 import { Mail, Phone, MapPin, Globe, Award, Briefcase, GraduationCap, Languages } from 'lucide-react';
 import { LinkedinIcon } from '@/components/icons/LinkedinIcon';
-import { getCVTranslations } from '@/utils/translations';
+import { getCVTranslations, formatSkillLevel } from '@/utils/translations';
 import { FormattedDescription } from '../FormattedDescription';
 
 interface TemplateProps {
@@ -91,9 +91,14 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
                 {skills.map((skill) => (
                   <span
                     key={skill.id}
-                    className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white/15 text-white border border-white/20 shadow-2xs backdrop-blur-xs"
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white/15 text-white border border-white/20 shadow-2xs backdrop-blur-xs inline-flex items-center gap-1"
                   >
-                    {skill.name}
+                    <span>{skill.name}</span>
+                    {skill.level && (
+                      <span className="text-[9px] opacity-75 font-normal">
+                        ({formatSkillLevel(skill.level, theme.language)})
+                      </span>
+                    )}
                   </span>
                 ))}
               </div>

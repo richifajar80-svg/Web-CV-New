@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CVData } from '@/types/cv';
-import { getCVTranslations } from '@/utils/translations';
+import { getCVTranslations, formatSkillLevel } from '@/utils/translations';
 import { FormattedDescription } from '../FormattedDescription';
 
 interface TemplateProps {
@@ -121,7 +121,13 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
           </h2>
           <p className="text-xs text-slate-700 leading-relaxed">
             <span className="font-semibold text-slate-900">{t.skills}: </span>
-            {skills.map((s) => s.name).join(' • ')}
+            {skills
+              .map((s) =>
+                s.level
+                  ? `${s.name} (${formatSkillLevel(s.level, theme.language)})`
+                  : s.name
+              )
+              .join(' • ')}
           </p>
         </div>
       )}
