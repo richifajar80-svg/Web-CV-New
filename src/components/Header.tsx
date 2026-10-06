@@ -292,32 +292,6 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 </div>
 
-                {/* Language Selector (Bilingual: ID / EN) - Hidden on mobile, in ... menu */}
-                <div className="hidden md:flex items-center bg-slate-100/90 p-0.5 rounded-xl border border-slate-200/90 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => onUpdateTheme({ language: 'id' })}
-                    className={`px-1.5 sm:px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all cursor-pointer font-bold ${
-                      (theme.language || 'id') === 'id'
-                        ? 'bg-white text-emerald-700 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    ID
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onUpdateTheme({ language: 'en' })}
-                    className={`px-1.5 sm:px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all cursor-pointer font-bold ${
-                      theme.language === 'en'
-                        ? 'bg-white text-emerald-700 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                  >
-                    EN
-                  </button>
-                </div>
-
                 {/* Reset & Clear Form Dropdown - Hidden on mobile, in ... menu */}
                 <div className="hidden lg:block relative shrink-0">
                   <button

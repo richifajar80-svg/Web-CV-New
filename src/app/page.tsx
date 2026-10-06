@@ -440,31 +440,31 @@ export default function Home() {
                   </span>
                 </button>
 
-                {/* Quick Language Switcher */}
-                <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px]">
+                {/* Language Switcher (Sleek Segmented Pill Switch) */}
+                <div className="inline-flex items-center bg-slate-100/90 p-0.5 rounded-xl border border-slate-200/90 shrink-0">
                   <button
                     type="button"
                     onClick={() => handleUpdateCV({ theme: { ...cvData.theme, language: 'id' } })}
-                    className={`px-2 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       (cvData.theme.language || 'id') === 'id'
-                        ? 'bg-white text-emerald-700 shadow-2xs'
+                        ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                     title="Bahasa Indonesia"
                   >
-                    🇮🇩 ID
+                    ID
                   </button>
                   <button
                     type="button"
                     onClick={() => handleUpdateCV({ theme: { ...cvData.theme, language: 'en' } })}
-                    className={`px-2 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       cvData.theme.language === 'en'
-                        ? 'bg-white text-emerald-700 shadow-2xs'
+                        ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                     title="English"
                   >
-                    🇬🇧 EN
+                    EN
                   </button>
                 </div>
 
