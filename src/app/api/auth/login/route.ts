@@ -87,6 +87,7 @@ export async function POST(request: Request) {
       email: found.email,
       isVerified: found.isVerified ?? true,
       isPaid: found.isPaid ?? false,
+      role: found.role || (found.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
       subscriptionExpiresAt: found.subscriptionExpiresAt,
       createdAt: found.createdAt,
     };

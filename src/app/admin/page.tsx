@@ -22,6 +22,8 @@ import {
   UserCheck,
   UserX,
   AlertTriangle,
+  UserPlus,
+  X,
 } from 'lucide-react';
 import { User } from '@/types/auth';
 
@@ -38,6 +40,16 @@ export default function AdminDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'free' | 'unverified'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Create User / Admin Modal State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createName, setCreateName] = useState('');
+  const [createEmail, setCreateEmail] = useState('');
+  const [createPass, setCreatePass] = useState('');
+  const [createRole, setCreateRole] = useState<'admin' | 'user'>('admin');
+  const [createIsPaid, setCreateIsPaid] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const getAdminHeaders = (overrideToken?: string) => {
     const token = overrideToken || (typeof window !== 'undefined' ? sessionStorage.getItem('cvbagus_admin_token') : null);
@@ -190,6 +202,49 @@ export default function AdminDashboardPage() {
       const updated = users.filter((u) => u.id !== userId);
       setUsers(updated);
       showToast(`Akun "${userName}" berhasil dihapus.`);
+    }
+  };
+
+  // Create or update user / admin account
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createEmail.trim() || !createPass.trim()) {
+      setCreateError('Email dan kata sandi wajib diisi.');
+      return;
+    }
+
+    setIsCreating(true);
+    setCreateError(null);
+
+    try {
+      const res = await fetch('/api/auth/users', {
+        method: 'POST',
+        headers: getAdminHeaders(),
+        body: JSON.stringify({
+          action: 'create-user',
+          name: createName.trim() || (createRole === 'admin' ? 'Administrator' : 'Pengguna Baru'),
+          email: createEmail.trim(),
+          pass: createPass.trim(),
+          role: createRole,
+          isPaid: createIsPaid,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(data.message || 'Akun berhasil dibuat!');
+        setShowCreateModal(false);
+        setCreateName('');
+        setCreateEmail('');
+        setCreatePass('');
+        loadUsers();
+      } else {
+        setCreateError(data.error || 'Gagal membuat akun.');
+      }
+    } catch {
+      setCreateError('Terjadi kesalahan jaringan.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -479,6 +534,19 @@ export default function AdminDashboardPage() {
                 <RefreshCw className="w-4 h-4" />
               </button>
 
+              {/* Add User / Admin button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateError(null);
+                  setShowCreateModal(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Tambah Akun</span>
+              </button>
+
               {/* Export CSV button */}
               <button
                 type="button"
@@ -544,7 +612,18 @@ export default function AdminDashboardPage() {
                               {initials}
                             </div>
                             <div>
-                              <div className="font-bold text-slate-900">{item.name}</div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-slate-900">{item.name}</span>
+                                {item.role === 'admin' ? (
+                                  <span className="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded border border-amber-300">
+                                    Admin
+                                  </span>
+                                ) : (
+                                  <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1 py-0.5 rounded">
+                                    User
+                                  </span>
+                                )}
+                              </div>
                               <div className="text-[10px] text-slate-400 font-mono">{item.id}</div>
                             </div>
                           </div>
@@ -631,6 +710,130 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </main>
+
+      {/* CREATE USER / ADMIN MODAL */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <UserPlus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-sm">Buat Akun Baru</h3>
+                  <p className="text-[11px] text-slate-500">Tambah akun Admin atau Pengguna ke database</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="p-5 space-y-4">
+              {createError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{createError}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Nama Lengkap
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={createName}
+                  onChange={(e) => setCreateName(e.target.value)}
+                  placeholder="Contoh: Super Admin CV Bagus"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={createEmail}
+                  onChange={(e) => setCreateEmail(e.target.value)}
+                  placeholder="admin@cvbagus.id"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Kata Sandi (Password)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={createPass}
+                  onChange={(e) => setCreatePass(e.target.value)}
+                  placeholder="Masukkan kata sandi..."
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Role / Hak Akses
+                  </label>
+                  <select
+                    value={createRole}
+                    onChange={(e) => setCreateRole(e.target.value as 'admin' | 'user')}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+                  >
+                    <option value="admin">Admin (Full Akses)</option>
+                    <option value="user">User Biasa</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Status Langganan
+                  </label>
+                  <select
+                    value={createIsPaid ? 'paid' : 'free'}
+                    onChange={(e) => setCreateIsPaid(e.target.value === 'paid')}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
+                  >
+                    <option value="paid">Pro Aktif (Full)</option>
+                    <option value="free">Gratis (Free)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreating}
+                  className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 rounded-xl transition-all shadow-xs cursor-pointer active:scale-98"
+                >
+                  {isCreating ? 'Menyimpan...' : 'Simpan Akun'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

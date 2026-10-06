@@ -7,6 +7,7 @@ export interface User {
   createdAt: string;
   isVerified?: boolean;
   isPaid?: boolean;
+  role?: 'admin' | 'user';
   subscriptionExpiresAt?: string;
   avatarUrl?: string;
 }
