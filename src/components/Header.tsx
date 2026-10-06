@@ -156,19 +156,6 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* 3. Contact Us Link (Desktop Large only) */}
-          <div className="hidden xl:flex items-center shrink-0">
-            <button
-              type="button"
-              onClick={onOpenContact}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50/80 transition-all cursor-pointer border border-transparent hover:border-emerald-200"
-              title="Hubungi tim support & bantuan resmi cvbagus.id"
-            >
-              <Mail className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Contact Us</span>
-            </button>
-          </div>
-
           {/* 4. Action Controls Bar (Carefully responsive on mobile & desktop) */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
 
@@ -348,23 +335,34 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 </div>
 
-                {/* Download / Print PDF Button (ALWAYS VISIBLE!) */}
+                {/* Contact Us Link - Directly to the left of Unduh PDF */}
+                <button
+                  type="button"
+                  onClick={onOpenContact}
+                  className="hidden md:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-50 hover:bg-emerald-50/80 transition-all cursor-pointer border border-slate-200 hover:border-emerald-300 shadow-2xs shrink-0 whitespace-nowrap"
+                  title="Hubungi tim support & bantuan resmi cvbagus.id"
+                >
+                  <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Contact Us</span>
+                </button>
+
+                {/* Download / Print PDF Button (FULL TEXT & NEVER CLIPPED) */}
                 <button
                   type="button"
                   disabled={isDownloading}
                   onClick={onDownloadClick}
-                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs px-2.5 sm:px-3.5 py-1.5 rounded-xl shadow-xs transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
+                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
                   title="Unduh file CV Anda dalam format PDF standar A4 siap cetak"
                 >
                   {isDownloading ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 shrink-0 animate-spin" />
-                      <span className="hidden sm:inline">Membuat...</span>
+                      <span>Membuat PDF...</span>
                     </>
                   ) : (
                     <>
                       <Download className="w-3.5 h-3.5 shrink-0" />
-                      <span className="text-[11px] sm:text-xs font-bold">PDF</span>
+                      <span>Unduh PDF</span>
                     </>
                   )}
                 </button>
@@ -372,7 +370,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* User Profile Avatar Section */}
-            <div className="pl-1 sm:pl-1.5 border-l border-slate-200 shrink-0">
+            <div className="pl-2 sm:pl-3 border-l border-slate-200 shrink-0 ml-1">
               {isAuthenticated ? (
                 <UserMenu
                   currentCV={currentCV}
