@@ -151,3 +151,147 @@ ${text.trim()}
   throw lastError || new Error('Gagal menghubungi Google Gemini AI.');
 }
 
+export interface FullCVTranslateInput {
+  jobTitle?: string;
+  summary?: string;
+  experiences?: Array<{
+    id: string;
+    role: string;
+    company?: string;
+    description?: string;
+  }>;
+  education?: Array<{
+    id: string;
+    degree: string;
+    institution?: string;
+    description?: string;
+  }>;
+  languages?: Array<{
+    id: string;
+    name: string;
+    level: string;
+  }>;
+}
+
+export interface FullCVTranslateOutput {
+  jobTitle?: string;
+  summary?: string;
+  experiences?: Array<{
+    id: string;
+    role: string;
+    description?: string;
+  }>;
+  education?: Array<{
+    id: string;
+    degree: string;
+    description?: string;
+  }>;
+  languages?: Array<{
+    id: string;
+    name: string;
+    level: string;
+  }>;
+}
+
+export async function translateFullCVWithGemini(
+  cvInput: FullCVTranslateInput,
+  options: { customApiKey?: string } = {}
+): Promise<FullCVTranslateOutput> {
+  const apiKey =
+    options.customApiKey?.trim() ||
+    process.env.GEMINI_API_KEY?.trim() ||
+    process.env.GOOGLE_API_KEY?.trim();
+
+  if (!apiKey) {
+    const error: any = new Error(
+      'Google Gemini API Key belum dikonfigurasi di server.'
+    );
+    error.needsKey = true;
+    error.status = 400;
+    throw error;
+  }
+
+  const systemInstruction = `You are a world-class executive resume writer, certified career coach, and ATS (Applicant Tracking System) optimization expert.
+Your task is to translate and elevate an entire Indonesian CV / resume into flawless, high-impact, professional business English.
+
+STRICT ELEVATION RULES:
+1. Job Title: Translate into the standard international/corporate title (e.g. "Pengembang Web Full Stack" -> "Full Stack Web Developer", "Manajer Pemasaran" -> "Marketing Manager").
+2. Professional Summary: Elevate into polished, executive-level narrative (2-4 sentences) highlighting authority, key technical competencies, and value proposition.
+3. Work Experiences:
+   - Role: Translate each position role to standard international job titles.
+   - Description: For each bullet point, begin with strong decisive action verbs in past tense for past jobs or present for current jobs (e.g., Spearheaded, Architected, Engineered, Streamlined, Orchestrated).
+   - If description has lines starting with bullets (•, -, *), ensure each point begins with "• " followed by a space.
+   - Preserve all metrics, percentages, numbers, and tech stack terms accurately.
+4. Education:
+   - Degree: Translate Indonesian degree names into standard English equivalents (e.g., "Sarjana Ilmu Komputer (S.Kom)" -> "Bachelor of Computer Science").
+   - Description: Elevate honors and coursework descriptions into professional English.
+5. Languages:
+   - Translate language names and levels to international ILR / CEFR standards:
+     * "Bahasa Indonesia" -> "Indonesian", "Penutur Asli" -> "Native"
+     * "Bahasa Inggris" -> "English", "Profesional Aktif" / "Mahir" -> "Full Professional Proficiency" / "Professional Working Proficiency"
+6. Schema:
+   Return a valid JSON object matching the input IDs:
+   {
+     "jobTitle": "...",
+     "summary": "...",
+     "experiences": [{ "id": "...", "role": "...", "description": "..." }],
+     "education": [{ "id": "...", "degree": "...", "description": "..." }],
+     "languages": [{ "id": "...", "name": "...", "level": "..." }]
+   }
+   Return ONLY raw JSON, with no markdown code fences.`;
+
+  const models = [
+    'gemini-3.5-flash-lite',
+    'gemini-3.6-flash',
+    'gemini-3.7-flash',
+    'gemini-3.8-flash',
+    'gemini-flash-latest',
+  ];
+
+  let lastError: any = null;
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: 'user', parts: [{ text: JSON.stringify(cvInput) }] }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.2,
+            topP: 0.85,
+            maxOutputTokens: 3000,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const message = errorData?.error?.message || `Status ${res.status}`;
+        if (res.status === 404 || res.status === 503) {
+          lastError = new Error(message);
+          continue;
+        }
+        throw new Error(message);
+      }
+
+      const data = await res.json();
+      const rawOutput = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawOutput) {
+        throw new Error('Gemini AI tidak mengembalikan respons teks.');
+      }
+
+      const parsed: FullCVTranslateOutput = JSON.parse(rawOutput);
+      return parsed;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal menerjemahkan seluruh CV dengan Google Gemini AI.');
+}
+

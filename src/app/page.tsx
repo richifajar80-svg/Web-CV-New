@@ -31,6 +31,7 @@ import {
   LayoutTemplate,
   ArrowLeft,
   Sparkles,
+  RotateCcw,
 } from 'lucide-react';
 
 export default function Home() {
@@ -65,6 +66,10 @@ export default function Home() {
 
   // Toast notification state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Full CV 1-Click Translation State & Backup
+  const [isTranslatingCV, setIsTranslatingCV] = useState(false);
+  const [originalCVBackup, setOriginalCVBackup] = useState<CVData | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -140,6 +145,127 @@ export default function Home() {
       ...prev,
       theme: { ...prev.theme, ...updatedTheme },
     }));
+  };
+
+  const handleTranslateFullCV = async () => {
+    if (isTranslatingCV) return;
+
+    if (!cvData.summary.trim() && cvData.experiences.length === 0 && !cvData.personalInfo.jobTitle.trim()) {
+      showToast('Isi ringkasan atau pengalaman kerja terlebih dahulu sebelum diterjemahkan.');
+      return;
+    }
+
+    // Save full original backup if not already saved
+    if (!originalCVBackup) {
+      setOriginalCVBackup(JSON.parse(JSON.stringify(cvData)));
+    }
+
+    setIsTranslatingCV(true);
+
+    try {
+      const cvInput = {
+        jobTitle: cvData.personalInfo.jobTitle,
+        summary: cvData.summary,
+        experiences: cvData.experiences.map((exp) => ({
+          id: exp.id,
+          role: exp.role,
+          company: exp.company,
+          description: exp.description,
+        })),
+        education: cvData.education.map((edu) => ({
+          id: edu.id,
+          degree: edu.degree,
+          institution: edu.institution,
+          description: edu.description,
+        })),
+        languages: cvData.languages.map((l) => ({
+          id: l.id,
+          name: l.name,
+          level: l.level,
+        })),
+      };
+
+      const res = await fetch('/api/ai/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'full_cv',
+          cvData: cvInput,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.translatedData) {
+        showToast(data.error || 'Gagal menerjemahkan seluruh CV. Silakan coba lagi.');
+        setIsTranslatingCV(false);
+        return;
+      }
+
+      const tData = data.translatedData;
+
+      const updatedExperiences = cvData.experiences.map((exp) => {
+        const found = tData.experiences?.find((e: any) => e.id === exp.id);
+        return found
+          ? {
+              ...exp,
+              role: found.role || exp.role,
+              description: found.description || exp.description,
+            }
+          : exp;
+      });
+
+      const updatedEducation = cvData.education.map((edu) => {
+        const found = tData.education?.find((e: any) => e.id === edu.id);
+        return found
+          ? {
+              ...edu,
+              degree: found.degree || edu.degree,
+              description: found.description || edu.description,
+            }
+          : edu;
+      });
+
+      const updatedLanguages = cvData.languages.map((lang) => {
+        const found = tData.languages?.find((l: any) => l.id === lang.id);
+        return found
+          ? {
+              ...lang,
+              name: found.name || lang.name,
+              level: found.level || lang.level,
+            }
+          : lang;
+      });
+
+      handleUpdateCV({
+        personalInfo: {
+          ...cvData.personalInfo,
+          jobTitle: tData.jobTitle || cvData.personalInfo.jobTitle,
+        },
+        summary: tData.summary || cvData.summary,
+        experiences: updatedExperiences,
+        education: updatedEducation,
+        languages: updatedLanguages,
+        theme: {
+          ...cvData.theme,
+          language: 'en',
+        },
+      });
+
+      showToast('✨ 1 Halaman CV berhasil diterjemahkan ke Bahasa Inggris profesional standar ATS!');
+    } catch (err: any) {
+      showToast('Terjadi kendala jaringan saat menerjemahkan dengan Gemini AI.');
+    } finally {
+      setIsTranslatingCV(false);
+    }
+  };
+
+  const handleUndoFullCV = () => {
+    if (originalCVBackup) {
+      setCvData(originalCVBackup);
+      setOriginalCVBackup(null);
+      showToast('Seluruh isi CV dikembalikan ke Bahasa Indonesia aslinya.');
+    }
   };
 
   const handleReset = () => {
@@ -467,6 +593,40 @@ export default function Home() {
                     EN
                   </button>
                 </div>
+
+                {/* 1-Click Full CV Translation Button */}
+                <button
+                  type="button"
+                  disabled={isTranslatingCV}
+                  onClick={handleTranslateFullCV}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 active:scale-95 shadow-2xs hover:shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+                  title="Terjemahkan seluruh isi CV ke Bahasa Inggris profesional standar ATS menggunakan Google Gemini AI"
+                >
+                  {isTranslatingCV ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                      <span>Menerjemahkan (Gemini AI)...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                      <span>Translate 1 Halaman (AI)</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Undo / Revert to Original ID if translated */}
+                {originalCVBackup && (
+                  <button
+                    type="button"
+                    onClick={handleUndoFullCV}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs transition-all cursor-pointer shrink-0"
+                    title="Kembalikan seluruh isi CV ke Bahasa Indonesia aslinya"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Teks Asli (ID)</span>
+                  </button>
+                )}
 
                 {/* Zoom Controls */}
                 <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px] font-bold">

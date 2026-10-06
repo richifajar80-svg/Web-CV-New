@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { checkRateLimit, getClientIp } from '@/lib/security';
-import { translateJobDescriptionWithGemini } from '@/lib/gemini';
+import {
+  translateJobDescriptionWithGemini,
+  translateFullCVWithGemini,
+  FullCVTranslateInput,
+} from '@/lib/gemini';
 
 export const runtime = 'nodejs';
 
@@ -21,6 +25,31 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json().catch(() => ({}));
+
+    // Check custom API key provided by client header or payload
+    const customApiKey =
+      request.headers.get('x-gemini-key')?.trim() ||
+      (typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined);
+
+    // MODE 1: FULL CV TRANSLATION (1 Halaman Penuh)
+    if (body.mode === 'full_cv') {
+      const cvInput = body.cvData as FullCVTranslateInput;
+      if (!cvInput || typeof cvInput !== 'object') {
+        return NextResponse.json(
+          { success: false, error: 'Data CV tidak valid.' },
+          { status: 400 }
+        );
+      }
+
+      const translatedData = await translateFullCVWithGemini(cvInput, { customApiKey });
+      return NextResponse.json({
+        success: true,
+        mode: 'full_cv',
+        translatedData,
+      });
+    }
+
+    // MODE 2: SINGLE TEXT / SECTION TRANSLATION
     const { text, role, company, targetLanguage, type } = body;
 
     if (!text || typeof text !== 'string' || !text.trim()) {
@@ -36,11 +65,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    // Check custom API key provided by client header or payload
-    const customApiKey =
-      request.headers.get('x-gemini-key')?.trim() ||
-      (typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined);
 
     const translatedText = await translateJobDescriptionWithGemini(text, {
       type: type === 'summary' ? 'summary' : 'experience',
@@ -83,4 +107,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
