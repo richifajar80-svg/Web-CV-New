@@ -12,7 +12,7 @@ export const CorporateTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-8 sm:p-12 min-h-[297mm] space-y-6 font-sans border-t-8" style={{ borderColor: accent }}>
+    <div className="w-full bg-white text-slate-800 p-8 sm:p-12 min-h-[297mm] space-y-6 border-t-8" style={{ borderColor: accent }}>
       {/* Formal Header with Framed Contact Box */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 pb-5" style={{ borderColor: `${accent}40` }}>
         <div className="space-y-1">

@@ -12,7 +12,7 @@ export const CompactTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-6 sm:p-8 min-h-[297mm] space-y-4 font-sans text-xs">
+    <div className="w-full bg-white text-slate-800 p-6 sm:p-8 min-h-[297mm] space-y-4 text-xs">
       {/* Header bar */}
       <div className="flex justify-between items-start border-b-2 pb-3" style={{ borderColor: accent }}>
         <div>

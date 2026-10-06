@@ -14,7 +14,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-900 p-8 sm:p-12 min-h-[297mm] font-serif space-y-5">
+    <div className="w-full bg-white text-slate-900 p-8 sm:p-12 min-h-[297mm] space-y-5">
       {/* Centered Header */}
       <div className="text-center border-b pb-4 space-y-1" style={{ borderColor: accent }}>
         <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-wide">
@@ -25,7 +25,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
         </p>
 
         {/* Contact Links Line */}
-        <div className="flex flex-wrap justify-center items-center gap-2 text-xs text-slate-600 font-sans pt-1">
+        <div className="flex flex-wrap justify-center items-center gap-2 text-xs text-slate-600 pt-1">
           {personalInfo.location && <span>{personalInfo.location}</span>}
           {personalInfo.phone && <span>• {personalInfo.phone}</span>}
           {personalInfo.email && <span>• {personalInfo.email}</span>}
@@ -36,7 +36,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
       {/* Professional Summary */}
       {summary && (
-        <div className="space-y-1.5 font-sans">
+        <div className="space-y-1.5">
           <h2
             className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
             style={{ borderColor: `${accent}40`, color: accent }}
@@ -49,7 +49,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
       {/* Work Experience */}
       {experiences.length > 0 && (
-        <div className="space-y-3 font-sans">
+        <div className="space-y-3">
           <h2
             className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
             style={{ borderColor: `${accent}40`, color: accent }}
@@ -82,7 +82,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
       {/* Education */}
       {education.length > 0 && (
-        <div className="space-y-2.5 font-sans">
+        <div className="space-y-2.5">
           <h2
             className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
             style={{ borderColor: `${accent}40`, color: accent }}
@@ -112,7 +112,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
       {/* Skills */}
       {skills.length > 0 && (
-        <div className="space-y-1.5 font-sans">
+        <div className="space-y-1.5">
           <h2
             className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
             style={{ borderColor: `${accent}40`, color: accent }}
@@ -128,7 +128,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
       {/* Languages & Certifications */}
       {(languages.length > 0 || certifications.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
           {languages.length > 0 && (
             <div className="space-y-1">
               <h2

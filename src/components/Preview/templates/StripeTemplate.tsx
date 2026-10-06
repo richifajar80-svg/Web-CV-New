@@ -12,7 +12,7 @@ export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex font-sans">
+    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex">
       {/* Left Thick Vertical Stripe */}
       <div className="w-4 sm:w-6 shrink-0" style={{ backgroundColor: accent }} />
 

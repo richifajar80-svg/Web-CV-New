@@ -21,6 +21,22 @@ body {
   width: 100%;
 }
 
+/* CV Document Typography System - Real-time Font Switching */
+.cv-font-sans,
+.cv-font-sans *:not(svg):not(path):not(circle):not(rect):not(line) {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.cv-font-serif,
+.cv-font-serif *:not(svg):not(path):not(circle):not(rect):not(line) {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif !important;
+}
+
+.cv-font-mono,
+.cv-font-mono *:not(svg):not(path):not(circle):not(rect):not(line) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+
 /* Modern sleek scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

@@ -12,7 +12,7 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-10 sm:p-14 min-h-[297mm] space-y-7 font-sans">
+    <div className="w-full bg-white text-slate-800 p-10 sm:p-14 min-h-[297mm] space-y-7">
       {/* Header: Name, Title, and Clean Inline Contact */}
       <div className="space-y-2 border-b border-slate-200 pb-5">
         <h1 className="text-3xl sm:text-4xl font-light text-slate-900 tracking-tight">

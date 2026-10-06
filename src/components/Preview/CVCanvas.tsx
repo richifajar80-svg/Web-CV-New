@@ -70,10 +70,17 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
 
   const fontClass =
     data.theme.fontFamily === 'serif'
-      ? 'font-serif'
+      ? 'cv-font-serif font-serif'
       : data.theme.fontFamily === 'mono'
-      ? 'font-mono'
-      : 'font-sans';
+      ? 'cv-font-mono font-mono'
+      : 'cv-font-sans font-sans';
+
+  const fontFamilyStyle =
+    data.theme.fontFamily === 'serif'
+      ? 'Georgia, Cambria, "Times New Roman", Times, serif'
+      : data.theme.fontFamily === 'mono'
+      ? 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace'
+      : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
   const scale = zoom / 100;
   const scaledWidth = Math.round(794 * scale);
@@ -101,6 +108,7 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
           position: 'absolute',
           top: 0,
           left: 0,
+          fontFamily: fontFamilyStyle,
         }}
       >
         {renderTemplate()}
