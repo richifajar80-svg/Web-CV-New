@@ -566,34 +566,6 @@ export default function Home() {
                   </span>
                 </button>
 
-                {/* Language Switcher (Sleek Segmented Pill Switch) */}
-                <div className="inline-flex items-center bg-slate-100/90 p-0.5 rounded-xl border border-slate-200/90 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateCV({ theme: { ...cvData.theme, language: 'id' } })}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      (cvData.theme.language || 'id') === 'id'
-                        ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                    title="Bahasa Indonesia"
-                  >
-                    ID
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateCV({ theme: { ...cvData.theme, language: 'en' } })}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      cvData.theme.language === 'en'
-                        ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                    title="English"
-                  >
-                    EN
-                  </button>
-                </div>
-
                 {/* 1-Click Full CV Translation Button */}
                 <button
                   type="button"

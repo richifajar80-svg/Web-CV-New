@@ -472,36 +472,6 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
                       </div>
 
-                      {/* Mobile Language Selector */}
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                          Bahasa CV
-                        </span>
-                        <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
-                          <button
-                            type="button"
-                            onClick={() => onUpdateTheme({ language: 'id' })}
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
-                              (theme.language || 'id') === 'id'
-                                ? 'bg-emerald-600 text-white'
-                                : 'text-slate-600'
-                            }`}
-                          >
-                            Indonesia
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onUpdateTheme({ language: 'en' })}
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
-                              theme.language === 'en'
-                                ? 'bg-emerald-600 text-white'
-                                : 'text-slate-600'
-                            }`}
-                          >
-                            English
-                          </button>
-                        </div>
-                      </div>
                     </div>
                   )}
 
