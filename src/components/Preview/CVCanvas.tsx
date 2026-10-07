@@ -88,11 +88,10 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
 
   return (
     <div
-      className="flex justify-center items-start min-w-0 mx-auto transition-all duration-150"
+      className="flex justify-center items-start min-w-0 mx-auto transition-all duration-150 shrink-0"
       style={{
         width: `${scaledWidth}px`,
         height: `${scaledHeight}px`,
-        maxWidth: '100%',
         position: 'relative',
       }}
     >

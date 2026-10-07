@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CVData, CVTheme } from '@/types/cv';
 import { initialCVData } from '@/data/initialCV';
 import { Header } from '@/components/Header';
@@ -86,32 +86,53 @@ export default function Home() {
     }
   }, [user, userCVs]);
 
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+
   // Dynamic screen-fitting zoom calculation
   const calculateFitZoom = () => {
     if (typeof window === 'undefined') return 100;
+
+    // Measure exact available width in the preview container
+    if (previewContainerRef.current) {
+      const containerWidth = previewContainerRef.current.clientWidth;
+      if (containerWidth > 200) {
+        // Leave 28px margin for clean container padding
+        const availableWidth = Math.max(260, containerWidth - 28);
+        const fitPercent = Math.floor((availableWidth / 794) * 100);
+        return Math.min(100, Math.max(35, fitPercent));
+      }
+    }
+
     const w = window.innerWidth;
     if (w < 640) {
-      // Mobile phone screen: fit within screen width minus margins
       const available = Math.max(280, w - 24);
       return Math.min(100, Math.max(35, Math.floor((available / 794) * 100)));
     } else if (w < 1024) {
-      return 60;
+      return 55;
     } else if (w < 1280) {
+      return 68;
+    } else if (w < 1440) {
       return 75;
-    } else if (w < 1536) {
+    } else if (w < 1680) {
       return 85;
     }
-    return 100;
+    return 95;
   };
 
   // Auto-fit preview zoom on client mount & window resize
   useEffect(() => {
-    setZoom(calculateFitZoom());
+    const timer = setTimeout(() => {
+      setZoom(calculateFitZoom());
+    }, 60);
+
     const handleResize = () => {
-      // keep zoom comfortable on orientation change or screen resize
+      setZoom(calculateFitZoom());
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Loading Screen while verifying session
@@ -507,6 +528,7 @@ export default function Home() {
 
           {/* RIGHT PANEL: Real-time Live A4 Preview (7 of 12 cols on desktop) */}
           <div
+            ref={previewContainerRef}
             className={`lg:col-span-7 xl:col-span-7 space-y-4 min-w-0 print:block print:w-full print:max-w-none print:m-0 print:p-0 ${
               mobileView === 'preview' ? 'block' : 'hidden lg:block'
             }`}
@@ -546,9 +568,10 @@ export default function Home() {
 
             <div className="no-print flex items-center justify-between px-1 flex-wrap gap-2">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">
                   <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>2. Pratinjau Langsung (A4 Live Preview)</span>
+                  <span className="hidden sm:inline">2. Pratinjau (A4)</span>
+                  <span className="sm:hidden">2. Pratinjau</span>
                 </div>
 
                 {/* Prominent Quick Template Switcher */}
@@ -601,7 +624,7 @@ export default function Home() {
                 )}
 
                 {/* Zoom Controls */}
-                <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px] font-bold">
+                <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px] font-bold shrink-0">
                   <button
                     type="button"
                     onClick={() => setZoom((prev) => Math.max(35, prev - 10))}

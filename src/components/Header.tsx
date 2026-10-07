@@ -94,10 +94,10 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div className="max-w-[1700px] w-full mx-auto px-2.5 sm:px-5 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-4 min-w-0">
+        <div className="max-w-[1700px] w-full mx-auto px-2 sm:px-4 lg:px-5 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2.5 min-w-0">
           
           {/* 1. Logo & Brand */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-sm sm:text-lg shrink-0">
               CB
             </div>
@@ -130,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onSwitchMode?.('cv')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeMode === 'cv'
                   ? 'bg-white text-emerald-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -142,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onSwitchMode?.('cover_letter')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 activeMode === 'cover_letter'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-emerald-700'
@@ -150,14 +150,14 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Surat Lamaran</span>
-              <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase">
+              <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase hidden xl:inline-block">
                 Bonus
               </span>
             </button>
           </div>
 
           {/* 4. Action Controls Bar (Carefully responsive on mobile & desktop) */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
 
             {/* ONLY IN CV MODE: Template Gallery, Theme Popover, Language, Reset, and Download */}
             {activeMode === 'cv' && (
@@ -166,26 +166,23 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={handleOpenGalleryClick}
-                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-slate-800 font-bold transition-all shadow-xs hover:shadow-md cursor-pointer group active:scale-98 shrink-0 ring-2 ring-emerald-500/10"
+                  className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-slate-800 font-bold transition-all shadow-xs hover:shadow-md cursor-pointer group active:scale-98 shrink-0 ring-2 ring-emerald-500/10"
                   title="Klik untuk memilih dari 10+ pilihan templat & desain CV"
                 >
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
                     <LayoutTemplate className="w-3.5 h-3.5" />
                   </div>
-                  <div className="flex flex-col text-left leading-tight">
+                  <div className="flex flex-col text-left leading-tight hidden xs:flex">
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 whitespace-nowrap">
-                        Ganti Template
-                      </span>
-                      <span className="text-[9px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.2 rounded-full hidden xs:inline-block">
-                        10+
+                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 whitespace-nowrap">
+                        Template
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-slate-900 truncate max-w-[85px] xs:max-w-[110px] sm:max-w-[130px]">
+                    <span className="text-xs font-bold text-slate-900 truncate max-w-[70px] sm:max-w-[95px] xl:max-w-[120px]">
                       {currentTemplate.name}
                     </span>
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-emerald-700/80 shrink-0 group-hover:translate-y-0.5 transition-transform ml-0.5" />
+                  <ChevronDown className="w-3 h-3 text-emerald-700/80 shrink-0 group-hover:translate-y-0.5 transition-transform ml-0.5" />
                 </button>
 
                 {/* Theme (Color & Font) Compact Popover - Hidden on mobile, accessible in ... menu */}
@@ -339,7 +336,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={onOpenContact}
-                  className="hidden md:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-50 hover:bg-emerald-50/80 transition-all cursor-pointer border border-slate-200 hover:border-emerald-300 shadow-2xs shrink-0 whitespace-nowrap"
+                  className="hidden md:inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-50 hover:bg-emerald-50/80 transition-all cursor-pointer border border-slate-200 hover:border-emerald-300 shadow-2xs shrink-0 whitespace-nowrap"
                   title="Hubungi tim support & bantuan resmi cvbagus.id"
                 >
                   <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -351,7 +348,7 @@ export const Header: React.FC<HeaderProps> = ({
                   type="button"
                   disabled={isDownloading}
                   onClick={onDownloadClick}
-                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
+                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
                   title="Unduh file CV Anda dalam format PDF standar A4 siap cetak"
                 >
                   {isDownloading ? (
@@ -370,7 +367,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* User Profile Avatar Section */}
-            <div className="pl-2 sm:pl-3 border-l border-slate-200 shrink-0 ml-1">
+            <div className="pl-1.5 sm:pl-2.5 border-l border-slate-200 shrink-0">
               {isAuthenticated ? (
                 <UserMenu
                   currentCV={currentCV}

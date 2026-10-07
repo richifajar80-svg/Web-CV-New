@@ -83,7 +83,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           {initials}
         </div>
         <div className="hidden sm:block min-w-0">
-          <div className="text-xs font-semibold text-slate-800 leading-tight truncate max-w-[80px] md:max-w-[100px]">
+          <div className="text-xs font-semibold text-slate-800 leading-tight truncate max-w-[65px] lg:max-w-[80px] xl:max-w-[110px]">
             {user.name}
           </div>
         </div>
