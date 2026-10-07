@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers, saveAllUsers, UserRecord } from '@/lib/serverDb';
+import { getAllUsers, saveAllUsers, UserRecord, getEffectiveUserQuotas } from '@/lib/serverDb';
 import { verifyAdminRequest, hashPassword } from '@/lib/security';
 
 export const runtime = 'nodejs';
@@ -15,18 +15,24 @@ export async function GET(request: Request) {
     }
 
     const users = await getAllUsers();
-    // Return all users (masking passwords for safety)
-    const safeUsers = users.map((u) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      role: u.role || (u.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
-      isVerified: u.isVerified,
-      isPaid: u.isPaid,
-      subscriptionExpiresAt: u.subscriptionExpiresAt,
-      createdAt: u.createdAt,
-      pass: u.pass ? '••••••••' : undefined,
-    }));
+    const safeUsers = users.map((u) => {
+      const { user: effective } = getEffectiveUserQuotas(u);
+      return {
+        id: effective.id,
+        name: effective.name,
+        email: effective.email,
+        role: effective.role || (effective.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
+        isVerified: effective.isVerified,
+        isPaid: effective.isPaid,
+        subscriptionExpiresAt: effective.subscriptionExpiresAt,
+        createdAt: effective.createdAt,
+        plan: effective.plan || 'personal',
+        downloadCountThisMonth: effective.downloadCountThisMonth ?? 0,
+        translateCountThisMonth: effective.translateCountThisMonth ?? 0,
+        lastQuotaResetMonth: effective.lastQuotaResetMonth,
+        pass: effective.pass ? '••••••••' : undefined,
+      };
+    });
 
     return NextResponse.json({ success: true, users: safeUsers });
   } catch (error: any) {
@@ -134,6 +140,7 @@ export async function POST(request: Request) {
           return {
             ...u,
             isPaid: nextPaid,
+            plan: body.plan ? (body.plan as 'personal' | 'enterprise') : u.plan || 'personal',
             subscriptionExpiresAt: nextPaid ? oneYearLater.toISOString() : undefined,
           };
         }
@@ -144,7 +151,41 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, users: updated });
     }
 
-    // 3. DELETE USER
+    // 3. TOGGLE / SET PLAN (Personal <-> Enterprise)
+    if (action === 'toggle-plan') {
+      const updated = users.map((u) => {
+        if (u.id === userId) {
+          const nextPlan = u.plan === 'enterprise' ? 'personal' : 'enterprise';
+          return {
+            ...u,
+            plan: (nextPlan as 'personal' | 'enterprise'),
+          };
+        }
+        return u;
+      });
+
+      await saveAllUsers(updated);
+      return NextResponse.json({ success: true, users: updated });
+    }
+
+    // 4. RESET QUOTA (Reset download and translate counters)
+    if (action === 'reset-quota') {
+      const updated = users.map((u) => {
+        if (u.id === userId) {
+          return {
+            ...u,
+            downloadCountThisMonth: 0,
+            translateCountThisMonth: 0,
+          };
+        }
+        return u;
+      });
+
+      await saveAllUsers(updated);
+      return NextResponse.json({ success: true, users: updated });
+    }
+
+    // 5. DELETE USER
     if (action === 'delete-user') {
       const filtered = users.filter((u) => u.id !== userId);
       await saveAllUsers(filtered);

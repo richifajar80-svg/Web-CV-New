@@ -263,3 +263,43 @@ export async function saveUserCVs(userId: string, cvs: any[]): Promise<boolean> 
   }
   return false;
 }
+
+/**
+ * Quota & Fair Usage Policy (FUP) Helper
+ */
+export function getCurrentMonthKey(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+export function getEffectiveUserQuotas(user: UserRecord): { user: UserRecord; hasChanged: boolean } {
+  const currentMonth = getCurrentMonthKey();
+  let hasChanged = false;
+  const updatedUser: UserRecord = { ...user };
+
+  if (!updatedUser.plan) {
+    updatedUser.plan = 'personal';
+    hasChanged = true;
+  }
+
+  if (updatedUser.lastQuotaResetMonth !== currentMonth) {
+    updatedUser.downloadCountThisMonth = 0;
+    updatedUser.translateCountThisMonth = 0;
+    updatedUser.lastQuotaResetMonth = currentMonth;
+    hasChanged = true;
+  } else {
+    if (typeof updatedUser.downloadCountThisMonth !== 'number') {
+      updatedUser.downloadCountThisMonth = 0;
+      hasChanged = true;
+    }
+    if (typeof updatedUser.translateCountThisMonth !== 'number') {
+      updatedUser.translateCountThisMonth = 0;
+      hasChanged = true;
+    }
+  }
+
+  return { user: updatedUser, hasChanged };
+}
+

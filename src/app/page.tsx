@@ -14,8 +14,9 @@ import { TemplateGalleryModal } from '@/components/Templates/TemplateGalleryModa
 import { ContactModal } from '@/components/Navigation/ContactModal';
 import { NewsModal } from '@/components/Navigation/NewsModal';
 import { TipsModal } from '@/components/Navigation/TipsModal';
+import { QuotaExceededModal } from '@/components/QuotaExceededModal';
 import { TEMPLATE_LIST } from '@/data/templates';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, getUserAuthHeaders } from '@/context/AuthContext';
 import { SavedCV } from '@/types/auth';
 import { exportCVToPDF } from '@/utils/pdfExport';
 import { CoverLetterView } from '@/components/CoverLetter/CoverLetterView';
@@ -35,7 +36,17 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
-  const { user, isAuthenticated, isSubscriptionActive, isLoading, userCVs, saveCV } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isSubscriptionActive,
+    isLoading,
+    userCVs,
+    saveCV,
+    consumeDownloadQuota,
+    refreshUserQuota,
+    userQuota,
+  } = useAuth();
 
   const [activeMode, setActiveMode] = useState<'cv' | 'cover_letter'>('cv');
   const [cvData, setCvData] = useState<CVData>(initialCVData);
@@ -60,6 +71,11 @@ export default function Home() {
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [newsModalOpen, setNewsModalOpen] = useState(false);
   const [tipsModalOpen, setTipsModalOpen] = useState(false);
+
+  // Quota Exceeded Modal State (FUP Protection)
+  const [quotaModalOpen, setQuotaModalOpen] = useState(false);
+  const [quotaModalType, setQuotaModalType] = useState<'download' | 'translate'>('download');
+  const [quotaModalMessage, setQuotaModalMessage] = useState<string | undefined>();
 
   // PDF direct download generation state
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -208,7 +224,7 @@ export default function Home() {
 
       const res = await fetch('/api/ai/translate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getUserAuthHeaders(),
         body: JSON.stringify({
           mode: 'full_cv',
           cvData: cvInput,
@@ -218,10 +234,18 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok || !data.success || !data.translatedData) {
-        showToast(data.error || 'Gagal menerjemahkan seluruh CV. Silakan coba lagi.');
+        if (data.quotaExceeded) {
+          setQuotaModalType('translate');
+          setQuotaModalMessage(data.error);
+          setQuotaModalOpen(true);
+        } else {
+          showToast(data.error || 'Gagal menerjemahkan seluruh CV. Silakan coba lagi.');
+        }
         setIsTranslatingCV(false);
         return;
       }
+
+      await refreshUserQuota();
 
       const tData = data.translatedData;
 
@@ -379,15 +403,29 @@ export default function Home() {
     }
   };
 
-  // DOWNLOAD PDF TRIGGER: Check if subscription is active
-  const handleDownloadClick = () => {
+  // DOWNLOAD PDF TRIGGER: Check if subscription is active and consume monthly quota
+  const handleDownloadClick = async () => {
     if (!isSubscriptionActive) {
       // Prompt user to activate Rp 25rb 1-year access before downloading!
       setPaymentModalOpen(true);
-    } else {
-      // User has already paid for 1-year access -> trigger direct file download!
-      performPDFDownload();
+      return;
     }
+
+    // Check & consume FUP download quota on server
+    const quotaRes = await consumeDownloadQuota();
+    if (!quotaRes.allowed) {
+      if (quotaRes.quotaExceeded) {
+        setQuotaModalType('download');
+        setQuotaModalMessage(quotaRes.error);
+        setQuotaModalOpen(true);
+      } else {
+        showToast(quotaRes.error || 'Tidak dapat memproses kuota unduh saat ini.');
+      }
+      return;
+    }
+
+    // Quota valid -> perform PDF export
+    performPDFDownload();
   };
 
   const handleOpenAuth = (mode: 'login' | 'register') => {
@@ -819,6 +857,14 @@ export default function Home() {
       <TipsModal
         isOpen={tipsModalOpen}
         onClose={() => setTipsModalOpen(false)}
+      />
+
+      {/* Quota Exceeded Modal (Fair Usage Policy & Upgrade Enterprise Offer) */}
+      <QuotaExceededModal
+        isOpen={quotaModalOpen}
+        onClose={() => setQuotaModalOpen(false)}
+        type={quotaModalType}
+        message={quotaModalMessage}
       />
     </div>
   );

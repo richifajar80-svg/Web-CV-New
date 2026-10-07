@@ -34,7 +34,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   onSaveCurrentCV,
   onOpenPayment,
 }) => {
-  const { user, logout, userCVs, deleteCV, isSubscriptionActive } = useAuth();
+  const { user, logout, userCVs, deleteCV, isSubscriptionActive, userQuota } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -100,9 +100,60 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 
             <div className="mt-2.5 pt-2 border-t border-slate-100">
               {isSubscriptionActive ? (
-                <div className="flex items-center gap-1.5 text-xs text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Akses Pro Aktif (s/d {formattedExpiry})</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-semibold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                    <div className="flex items-center gap-1.5 text-emerald-800">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{user.plan === 'enterprise' ? 'Paket Enterprise' : 'Paket Personal'}</span>
+                    </div>
+                    <span className="text-[10px] text-emerald-700 font-bold bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      Aktif s/d {formattedExpiry}
+                    </span>
+                  </div>
+
+                  {/* Quota Indicators */}
+                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-slate-600">📥 Unduh PDF Bulan Ini:</span>
+                      <span className="font-bold text-slate-800">
+                        {userQuota?.downloadsUsed ?? user.downloadCountThisMonth ?? 0} / {userQuota?.downloadLimit ?? (user.plan === 'enterprise' ? 100 : 10)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-emerald-600 h-1.5 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (((userQuota?.downloadsUsed ?? user.downloadCountThisMonth ?? 0) /
+                              (userQuota?.downloadLimit ?? (user.plan === 'enterprise' ? 100 : 10))) *
+                              100)
+                          )}%`,
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] pt-1">
+                      <span className="text-slate-600">🌐 AI Translate Bulan Ini:</span>
+                      <span className="font-bold text-slate-800">
+                        {userQuota?.translatesUsed ?? user.translateCountThisMonth ?? 0} / {userQuota?.translateLimit ?? (user.plan === 'enterprise' ? 25 : 5)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-1.5 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (((userQuota?.translatesUsed ?? user.translateCountThisMonth ?? 0) /
+                              (userQuota?.translateLimit ?? (user.plan === 'enterprise' ? 25 : 5))) *
+                              100)
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 text-right pt-0.5">Reset tiap tanggal 1</p>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-1.5">

@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'free' | 'unverified'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'free' | 'enterprise' | 'unverified'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Create User / Admin Modal State
@@ -180,6 +180,65 @@ export default function AdminDashboardPage() {
     showToast('Status langganan pengguna berhasil diperbarui!');
   };
 
+  // Toggle user plan between Personal (10x) and Enterprise (100x)
+  const handleTogglePlan = async (userId: string) => {
+    const targetUser = users.find((u) => u.id === userId);
+    const nextPlan: 'personal' | 'enterprise' = targetUser?.plan === 'enterprise' ? 'personal' : 'enterprise';
+
+    try {
+      const res = await fetch('/api/auth/users', {
+        method: 'POST',
+        headers: getAdminHeaders(),
+        body: JSON.stringify({ action: 'toggle-plan', userId }),
+      });
+
+      if (res.status === 401) {
+        handleAdminLogout();
+        showToast('Sesi kedaluwarsa. Silakan login kembali.');
+        return;
+      }
+    } catch (e) {
+      console.error('Server update plan failed', e);
+    }
+
+    const updated = users.map((u) => (u.id === userId ? { ...u, plan: nextPlan } : u));
+    setUsers(updated);
+    showToast(`Paket pengguna berhasil diubah ke ${nextPlan === 'enterprise' ? 'Enterprise (100x)' : 'Personal (10x)'}!`);
+  };
+
+  // Reset user monthly FUP quota (download & translate)
+  const handleResetQuota = async (userId: string, userName: string) => {
+    if (window.confirm(`Reset pemakaian kuota bulan ini untuk "${userName}" menjadi 0/0?`)) {
+      try {
+        const res = await fetch('/api/auth/users', {
+          method: 'POST',
+          headers: getAdminHeaders(),
+          body: JSON.stringify({ action: 'reset-quota', userId }),
+        });
+
+        if (res.status === 401) {
+          handleAdminLogout();
+          showToast('Sesi kedaluwarsa. Silakan login kembali.');
+          return;
+        }
+      } catch (e) {
+        console.error('Server reset quota failed', e);
+      }
+
+      const updated = users.map((u) =>
+        u.id === userId
+          ? {
+              ...u,
+              downloadCountThisMonth: 0,
+              translateCountThisMonth: 0,
+            }
+          : u
+      );
+      setUsers(updated);
+      showToast(`Kuota bulan ini untuk "${userName}" berhasil direset ke 0.`);
+    }
+  };
+
   // Delete user account
   const handleDeleteUser = async (userId: string, userName: string) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus akun "${userName}"? Tindakan ini tidak dapat dibatalkan.`)) {
@@ -255,13 +314,27 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    const headers = ['ID', 'Nama Lengkap', 'Email', 'Terverifikasi', 'Status Langganan', 'Kedaluwarsa Langganan', 'Tanggal Terdaftar'];
+    const headers = [
+      'ID',
+      'Nama Lengkap',
+      'Email',
+      'Terverifikasi',
+      'Status Langganan',
+      'Paket',
+      'Unduh Bulan Ini',
+      'Translate Bulan Ini',
+      'Kedaluwarsa Langganan',
+      'Tanggal Terdaftar',
+    ];
     const rows = users.map((u) => [
       u.id,
       `"${u.name.replace(/"/g, '""')}"`,
       u.email,
       u.isVerified ? 'Ya' : 'Belum',
       u.isPaid ? 'Pro 1 Thn Aktif' : 'Gratis',
+      u.plan === 'enterprise' ? 'Enterprise (Rp 199rb)' : 'Personal (Rp 25rb)',
+      u.downloadCountThisMonth ?? 0,
+      u.translateCountThisMonth ?? 0,
       u.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt).toLocaleDateString('id-ID') : '-',
       new Date(u.createdAt).toLocaleString('id-ID'),
     ]);
@@ -286,6 +359,7 @@ export default function AdminDashboardPage() {
 
     if (filterStatus === 'paid') return !!u.isPaid;
     if (filterStatus === 'free') return !u.isPaid;
+    if (filterStatus === 'enterprise') return u.plan === 'enterprise';
     if (filterStatus === 'unverified') return !u.isVerified;
     return true;
   });
@@ -293,7 +367,12 @@ export default function AdminDashboardPage() {
   // Calculate Summary Statistics
   const totalUsers = users.length;
   const paidUsersCount = users.filter((u) => u.isPaid).length;
-  const totalRevenue = paidUsersCount * 25000;
+  const enterpriseCount = users.filter((u) => u.plan === 'enterprise' && u.isPaid).length;
+  const personalCount = paidUsersCount - enterpriseCount;
+  const totalRevenue = users.reduce((acc, u) => {
+    if (!u.isPaid) return acc;
+    return acc + (u.plan === 'enterprise' ? 199000 : 25000);
+  }, 0);
   const conversionRate = totalUsers > 0 ? ((paidUsersCount / totalUsers) * 100).toFixed(1) : '0';
 
   // 1. PIN GATE / LOGIN SCREEN
@@ -512,6 +591,15 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setFilterStatus('enterprise')}
+                  className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                    filterStatus === 'enterprise' ? 'bg-indigo-600 text-white shadow-2xs' : 'text-slate-600 hover:text-indigo-700'
+                  }`}
+                >
+                  Enterprise 199rb ({users.filter((u) => u.plan === 'enterprise' && u.isPaid).length})
+                </button>
+                <button
+                  type="button"
                   onClick={() => setFilterStatus('free')}
                   className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                     filterStatus === 'free' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
@@ -567,8 +655,8 @@ export default function AdminDashboardPage() {
                   <th className="py-3.5 px-4">No</th>
                   <th className="py-3.5 px-4">Pengguna</th>
                   <th className="py-3.5 px-4">Email</th>
-                  <th className="py-3.5 px-4">Verifikasi</th>
-                  <th className="py-3.5 px-4">Status Langganan</th>
+                  <th className="py-3.5 px-4">Paket & Akses</th>
+                  <th className="py-3.5 px-4">Pemakaian FUP (Bulan Ini)</th>
                   <th className="py-3.5 px-4">Tanggal Daftar</th>
                   <th className="py-3.5 px-4 text-center">Aksi Cepat</th>
                 </tr>
@@ -615,7 +703,7 @@ export default function AdminDashboardPage() {
                               <div className="flex items-center gap-1.5">
                                 <span className="font-bold text-slate-900">{item.name}</span>
                                 {item.role === 'admin' ? (
-                                  <span className="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded border border-amber-300">
+                                   <span className="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded border border-amber-300">
                                     Admin
                                   </span>
                                 ) : (
@@ -629,16 +717,14 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         <td className="py-3.5 px-4">
-                          <span className="font-medium text-slate-700">{item.email}</span>
-                        </td>
-                        <td className="py-3.5 px-4">
+                          <span className="font-medium text-slate-700 block">{item.email}</span>
                           {item.isVerified ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              Terverifikasi
+                              OTP Terverifikasi
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400">
                               <XCircle className="w-3 h-3 text-slate-400" />
                               Belum OTP
                             </span>
@@ -646,13 +732,27 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="py-3.5 px-4">
                           {item.isPaid ? (
-                            <div>
-                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                                Pro 1 Tahun
+                            <div className="space-y-1">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
+                                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                Pro Aktif
                               </span>
+                              <div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleTogglePlan(item.id)}
+                                  className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all cursor-pointer ${
+                                    item.plan === 'enterprise'
+                                      ? 'text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border-indigo-300'
+                                      : 'text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border-emerald-300'
+                                  }`}
+                                  title="Klik untuk ubah Personal (Rp 25rb) ↔ Enterprise (Rp 199rb)"
+                                >
+                                  {item.plan === 'enterprise' ? '🏢 Enterprise (Rp 199rb)' : '👤 Personal (Rp 25rb)'}
+                                </button>
+                              </div>
                               {item.subscriptionExpiresAt && (
-                                <div className="text-[10px] text-slate-400 mt-0.5">
+                                <div className="text-[10px] text-slate-400">
                                   s/d {new Date(item.subscriptionExpiresAt).toLocaleDateString('id-ID')}
                                 </div>
                               )}
@@ -663,6 +763,44 @@ export default function AdminDashboardPage() {
                             </span>
                           )}
                         </td>
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5 text-[11px]">
+                              <span className="text-slate-500">📥 Unduh:</span>
+                              <span
+                                className={`font-bold ${
+                                  (item.downloadCountThisMonth ?? 0) >= (item.plan === 'enterprise' ? 100 : 10)
+                                    ? 'text-red-600'
+                                    : 'text-slate-800'
+                                }`}
+                              >
+                                {item.downloadCountThisMonth ?? 0} / {item.plan === 'enterprise' ? 100 : 10}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[11px]">
+                              <span className="text-slate-500">🌐 Translate:</span>
+                              <span
+                                className={`font-bold ${
+                                  (item.translateCountThisMonth ?? 0) >= (item.plan === 'enterprise' ? 25 : 5)
+                                    ? 'text-red-600'
+                                    : 'text-slate-800'
+                                }`}
+                              >
+                                {item.translateCountThisMonth ?? 0} / {item.plan === 'enterprise' ? 25 : 5}
+                              </span>
+                            </div>
+                            {((item.downloadCountThisMonth ?? 0) > 0 || (item.translateCountThisMonth ?? 0) > 0) && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetQuota(item.id, item.name)}
+                                className="text-[10px] text-emerald-700 hover:text-emerald-900 font-bold underline cursor-pointer pt-0.5 block"
+                                title="Kembalikan kuota bulan ini ke 0"
+                              >
+                                Reset Kuota (0/0)
+                              </button>
+                            )}
+                          </div>
+                        </td>
                         <td className="py-3.5 px-4 text-slate-500 font-medium">{formattedDate}</td>
                         <td className="py-3.5 px-4">
                           <div className="flex items-center justify-center gap-1.5">
@@ -670,14 +808,24 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleToggleSubscription(item.id)}
-                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                              className={`px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
                                 item.isPaid
                                   ? 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300'
                                   : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 shadow-2xs'
                               }`}
                               title={item.isPaid ? 'Nonaktifkan Akses Pro' : 'Beri Akses Pro 1 Tahun (Manual)'}
                             >
-                              {item.isPaid ? 'Nonaktifkan Pro' : 'Aktifkan Pro'}
+                              {item.isPaid ? 'Nonaktifkan' : 'Aktifkan'}
+                            </button>
+
+                            {/* Toggle Plan button */}
+                            <button
+                              type="button"
+                              onClick={() => handleTogglePlan(item.id)}
+                              className="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 cursor-pointer"
+                              title="Ganti Paket Personal ↔ Enterprise"
+                            >
+                              {item.plan === 'enterprise' ? 'Ke Personal' : 'Ke Enterprise'}
                             </button>
 
                             {/* Delete User */}

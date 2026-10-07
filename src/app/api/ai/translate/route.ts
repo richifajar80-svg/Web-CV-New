@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { checkRateLimit, getClientIp } from '@/lib/security';
+import { checkRateLimit, getClientIp, verifyUserToken } from '@/lib/security';
+import { getAllUsers, saveAllUsers, getEffectiveUserQuotas, UserRecord } from '@/lib/serverDb';
+import { PLAN_LIMITS, UserPlan } from '@/types/auth';
 import {
   translateJobDescriptionWithGemini,
   translateFullCVWithGemini,
@@ -31,6 +33,51 @@ export async function POST(request: Request) {
       request.headers.get('x-gemini-key')?.trim() ||
       (typeof body.apiKey === 'string' ? body.apiKey.trim() : undefined);
 
+    // Check user authentication token for quota enforcement
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader ? authHeader.replace(/^Bearer\s+/i, '').trim() : null;
+    const verified = verifyUserToken(token);
+
+    let callingUser: UserRecord | null = null;
+    let allUsers: UserRecord[] = [];
+    let userIdx = -1;
+
+    if (verified) {
+      allUsers = await getAllUsers();
+      userIdx = allUsers.findIndex((u) => u.id === verified.userId);
+      if (userIdx !== -1) {
+        const { user: effective, hasChanged } = getEffectiveUserQuotas(allUsers[userIdx]);
+        callingUser = effective;
+        if (hasChanged) {
+          allUsers[userIdx] = effective;
+          await saveAllUsers(allUsers);
+        }
+      }
+    }
+
+    const isAdmin = callingUser ? (callingUser.role === 'admin' || callingUser.email.toLowerCase().includes('admin')) : false;
+
+    // Quota Enforcement: Check translate quota
+    if (callingUser && !isAdmin) {
+      const plan: UserPlan = callingUser.plan === 'enterprise' ? 'enterprise' : 'personal';
+      const limit = PLAN_LIMITS[plan].translateLimit;
+      const currentTranslates = callingUser.translateCountThisMonth || 0;
+
+      if (currentTranslates >= limit) {
+        return NextResponse.json(
+          {
+            success: false,
+            quotaExceeded: true,
+            error: `Batas kuota AI Translate bulan ini telah tercapai (${currentTranslates}/${limit}). Kuota akan direset otomatis pada awal bulan depan.`,
+            plan,
+            translatesUsed: currentTranslates,
+            translateLimit: limit,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     // MODE 1: FULL CV TRANSLATION (1 Halaman Penuh)
     if (body.mode === 'full_cv') {
       const cvInput = body.cvData as FullCVTranslateInput;
@@ -42,10 +89,23 @@ export async function POST(request: Request) {
       }
 
       const translatedData = await translateFullCVWithGemini(cvInput, { customApiKey });
+
+      // Increment user quota on successful full CV translation
+      if (callingUser && userIdx !== -1 && !isAdmin) {
+        callingUser.translateCountThisMonth = (callingUser.translateCountThisMonth || 0) + 1;
+        allUsers[userIdx] = callingUser;
+        await saveAllUsers(allUsers);
+      }
+
+      const plan: UserPlan = callingUser?.plan === 'enterprise' ? 'enterprise' : 'personal';
+      const limit = PLAN_LIMITS[plan].translateLimit;
+
       return NextResponse.json({
         success: true,
         mode: 'full_cv',
         translatedData,
+        translatesUsed: callingUser?.translateCountThisMonth || 0,
+        translateLimit: isAdmin ? 999999 : limit,
       });
     }
 

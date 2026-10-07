@@ -26,6 +26,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onSuccessDownload,
 }) => {
   const { user, activateSubscription } = useAuth();
+  const [selectedPlan, setSelectedPlan] = useState<'personal' | 'enterprise'>('personal');
   const [method, setMethod] = useState<'qris' | 'va'>('qris');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
@@ -50,7 +51,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     // Simulate payment verification delay (1 second)
     setTimeout(async () => {
-      await activateSubscription();
+      await activateSubscription(selectedPlan);
       setIsProcessing(false);
       setIsPaidSuccess(true);
 
@@ -132,19 +133,104 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
             {/* Price & Benefits Scrollable Body */}
             <div className="p-5 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between">
+              {/* Plan Choice Selector */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-700">Pilih Paket Berlangganan (1 Tahun):</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Personal Plan */}
+                  <div
+                    onClick={() => setSelectedPlan('personal')}
+                    className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
+                      selectedPlan === 'personal'
+                        ? 'border-emerald-500 bg-emerald-50/70 shadow-xs'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900">Paket Personal</span>
+                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                        Rp 25.000 / thn
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Pencari kerja individu</p>
+                    <div className="mt-2 pt-2 border-t border-slate-200/60 space-y-1 text-[11px] text-slate-600 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span><strong>10x Unduh PDF</strong> / bulan</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span><strong>5x AI Translate</strong> / bulan</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enterprise Plan */}
+                  <div
+                    onClick={() => setSelectedPlan('enterprise')}
+                    className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all ${
+                      selectedPlan === 'enterprise'
+                        ? 'border-indigo-500 bg-indigo-50/70 shadow-xs'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900">Paket Enterprise</span>
+                      <span className="text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-full">
+                        Rp 199.000 / thn
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-indigo-600 font-semibold mt-0.5">Joki CV & Agency</p>
+                    <div className="mt-2 pt-2 border-t border-slate-200/60 space-y-1 text-[11px] text-slate-600 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                        <span><strong>100x Unduh PDF</strong> / bulan</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                        <span><strong>25x AI Translate</strong> / bulan</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Price Card */}
+              <div
+                className={`border rounded-2xl p-4 flex items-center justify-between transition-colors ${
+                  selectedPlan === 'enterprise'
+                    ? 'bg-indigo-50/80 border-indigo-200'
+                    : 'bg-emerald-50/70 border-emerald-200'
+                }`}
+              >
                 <div>
-                  <span className="text-xs font-semibold text-emerald-800 block">Total Biaya Akses</span>
+                  <span
+                    className={`text-xs font-semibold block ${
+                      selectedPlan === 'enterprise' ? 'text-indigo-900' : 'text-emerald-800'
+                    }`}
+                  >
+                    Total Biaya ({selectedPlan === 'enterprise' ? 'Paket Enterprise' : 'Paket Personal'})
+                  </span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="text-2xl sm:text-3xl font-extrabold text-emerald-950">
-                      Rp 25.000
+                    <span
+                      className={`text-2xl sm:text-3xl font-extrabold ${
+                        selectedPlan === 'enterprise' ? 'text-indigo-950' : 'text-emerald-950'
+                      }`}
+                    >
+                      {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'}
                     </span>
                     <span className="text-xs text-slate-500">/ 1 Tahun</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="inline-block text-[11px] font-bold text-emerald-700 bg-white px-2.5 py-1 rounded-full border border-emerald-300 shadow-2xs">
-                    Sekali Bayar (Beli Putus)
+                  <span
+                    className={`inline-block text-[11px] font-bold bg-white px-2.5 py-1 rounded-full border shadow-2xs ${
+                      selectedPlan === 'enterprise'
+                        ? 'text-indigo-700 border-indigo-300'
+                        : 'text-emerald-700 border-emerald-300'
+                    }`}
+                  >
+                    Sekali Bayar (365 Hari)
                   </span>
                   <p className="text-[10px] text-slate-500 mt-1">Aktif s/d {formattedNextYear}</p>
                 </div>
@@ -153,24 +239,46 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               {/* What You Get */}
               <div className="space-y-2">
                 <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Keuntungan yang Anda Dapatkan:
+                  Fitur yang Didapatkan:
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Unduh PDF tanpa batas</span>
+                    <CheckCircle
+                      className={`w-4 h-4 shrink-0 ${
+                        selectedPlan === 'enterprise' ? 'text-indigo-600' : 'text-emerald-600'
+                      }`}
+                    />
+                    <span>
+                      {selectedPlan === 'enterprise' ? '100x Unduh PDF / bln' : '10x Unduh PDF / bln'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Bebas watermark & rapi</span>
+                    <CheckCircle
+                      className={`w-4 h-4 shrink-0 ${
+                        selectedPlan === 'enterprise' ? 'text-indigo-600' : 'text-emerald-600'
+                      }`}
+                    />
+                    <span>Bebas watermark & kualitas cetak HD</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Akses semua 10 templat</span>
+                    <CheckCircle
+                      className={`w-4 h-4 shrink-0 ${
+                        selectedPlan === 'enterprise' ? 'text-indigo-600' : 'text-emerald-600'
+                      }`}
+                    />
+                    <span>Akses seluruh 10 templat CV premium</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Edit kapan saja 1 tahun</span>
+                    <CheckCircle
+                      className={`w-4 h-4 shrink-0 ${
+                        selectedPlan === 'enterprise' ? 'text-indigo-600' : 'text-emerald-600'
+                      }`}
+                    />
+                    <span>
+                      {selectedPlan === 'enterprise'
+                        ? 'Multi-klien draf bebas'
+                        : 'Edit kapan saja 1 tahun'}
+                    </span>
                   </div>
                 </div>
               </div>

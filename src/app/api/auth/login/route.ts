@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers, saveAllUsers } from '@/lib/serverDb';
+import { getAllUsers, saveAllUsers, getEffectiveUserQuotas } from '@/lib/serverDb';
 import {
   verifyPassword,
   hashPassword,
@@ -80,16 +80,26 @@ export async function POST(request: Request) {
       }
     }
 
+    const { user: effectiveUser, hasChanged } = getEffectiveUserQuotas(found);
+    if (hasChanged) {
+      allUsers[foundIdx] = effectiveUser;
+      await saveAllUsers(allUsers);
+    }
+
     // Return safe user object (never expose password or hash to client)
     const safeUser = {
-      id: found.id,
-      name: found.name,
-      email: found.email,
-      isVerified: found.isVerified ?? true,
-      isPaid: found.isPaid ?? false,
-      role: found.role || (found.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
-      subscriptionExpiresAt: found.subscriptionExpiresAt,
-      createdAt: found.createdAt,
+      id: effectiveUser.id,
+      name: effectiveUser.name,
+      email: effectiveUser.email,
+      isVerified: effectiveUser.isVerified ?? true,
+      isPaid: effectiveUser.isPaid ?? false,
+      role: effectiveUser.role || (effectiveUser.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
+      subscriptionExpiresAt: effectiveUser.subscriptionExpiresAt,
+      createdAt: effectiveUser.createdAt,
+      plan: effectiveUser.plan || 'personal',
+      downloadCountThisMonth: effectiveUser.downloadCountThisMonth ?? 0,
+      translateCountThisMonth: effectiveUser.translateCountThisMonth ?? 0,
+      lastQuotaResetMonth: effectiveUser.lastQuotaResetMonth,
     };
 
     // 4. Generate Cryptographically Signed User Session Token

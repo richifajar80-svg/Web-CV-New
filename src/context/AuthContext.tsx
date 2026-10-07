@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, SavedCV } from '@/types/auth';
+import { User, SavedCV, UserQuotaInfo } from '@/types/auth';
 import { CVData } from '@/types/cv';
 import { initialCVData } from '@/data/initialCV';
 
@@ -27,6 +27,9 @@ interface AuthContextType {
   userCVs: SavedCV[];
   pendingVerification: PendingVerification | null;
   pendingReset: PendingPasswordReset | null;
+  userQuota: UserQuotaInfo | null;
+  refreshUserQuota: () => Promise<UserQuotaInfo | null>;
+  consumeDownloadQuota: () => Promise<{ allowed: boolean; quotaExceeded?: boolean; error?: string; remaining?: number }>;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   verifyEmail: (code: string) => Promise<{ success: boolean; error?: string }>;
@@ -35,7 +38,7 @@ interface AuthContextType {
   requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   confirmPasswordReset: (code: string, newPass: string) => Promise<{ success: boolean; error?: string }>;
   cancelPasswordReset: () => void;
-  activateSubscription: () => Promise<void>;
+  activateSubscription: (plan?: 'personal' | 'enterprise') => Promise<void>;
   loginDemoUser: () => Promise<void>;
   logout: () => void;
   saveCV: (title: string, data: CVData, existingId?: string) => SavedCV;
@@ -67,6 +70,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [pendingVerification, setPendingVerification] = useState<PendingVerification | null>(null);
   const [pendingReset, setPendingReset] = useState<PendingPasswordReset | null>(null);
+  const [userQuota, setUserQuota] = useState<UserQuotaInfo | null>(null);
+
+  const refreshUserQuota = async (): Promise<UserQuotaInfo | null> => {
+    try {
+      const res = await fetch('/api/user/quota', {
+        headers: getUserAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.quota) {
+          setUserQuota(data.quota);
+          return data.quota;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to refresh user quota:', e);
+    }
+    return null;
+  };
+
+  const consumeDownloadQuota = async (): Promise<{ allowed: boolean; quotaExceeded?: boolean; error?: string; remaining?: number }> => {
+    try {
+      const res = await fetch('/api/user/quota', {
+        method: 'POST',
+        headers: getUserAuthHeaders(),
+        body: JSON.stringify({ action: 'consume-download' }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await refreshUserQuota();
+        return { allowed: true, remaining: data.remainingDownloads };
+      }
+      if (data.quotaExceeded) {
+        await refreshUserQuota();
+        return { allowed: false, quotaExceeded: true, error: data.error };
+      }
+      return { allowed: false, error: data.error || 'Gagal memproses kuota unduh.' };
+    } catch (e) {
+      console.warn('Network issue during consumeDownloadQuota, allowing fallback:', e);
+      return { allowed: true };
+    }
+  };
 
   // Helper: Check if 1-year subscription is currently active
   const checkIsSubscriptionActive = (currentUser: User | null): boolean => {
@@ -86,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsedUser: User = JSON.parse(savedSession);
         setUser(parsedUser);
         loadUserCVs(parsedUser.id);
+        refreshUserQuota();
       }
 
       const savedPending = localStorage.getItem(PENDING_STORAGE_KEY);
@@ -247,6 +293,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
       }
       loadUserCVs(newUser.id);
+      refreshUserQuota();
 
       return { success: true };
     } catch (e) {
@@ -281,8 +328,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(PENDING_STORAGE_KEY);
   };
 
-  // 5. Activate 1-Year Subscription (Rp 25.000)
-  const activateSubscription = async () => {
+  // 5. Activate 1-Year Subscription (Personal Rp 25.000 / Enterprise Rp 199.000)
+  const activateSubscription = async (targetPlan: 'personal' | 'enterprise' = 'personal') => {
     if (!user) return;
 
     // Calculate expiry 1 year from now
@@ -293,6 +340,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updatedUser: User = {
       ...user,
       isPaid: true,
+      plan: targetPlan,
       subscriptionExpiresAt: expiresAt,
     };
 
@@ -308,11 +356,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           action: 'toggle-subscription',
           userId: user.id,
           isPaid: true,
+          plan: targetPlan,
         }),
       });
     } catch (e) {
       console.error('Failed to sync payment with server', e);
     }
+
+    refreshUserQuota();
 
     // Clean up local cache
     try {
@@ -352,6 +403,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch {}
 
         loadUserCVs(loggedInUser.id);
+        refreshUserQuota();
         return { success: true };
       }
 
@@ -376,17 +428,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isPaid: true,
       subscriptionExpiresAt: oneYearLater.toISOString(),
       createdAt: new Date().toISOString(),
+      plan: 'personal',
+      downloadCountThisMonth: 0,
+      translateCountThisMonth: 0,
     };
 
     setUser(demoUser);
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(demoUser));
     loadUserCVs(demoUser.id);
+    refreshUserQuota();
   };
 
   // 7. Logout
   const logout = () => {
     setUser(null);
     setUserCVs([]);
+    setUserQuota(null);
     localStorage.removeItem(SESSION_STORAGE_KEY);
     localStorage.removeItem(AUTH_TOKEN_KEY);
   };
@@ -544,6 +601,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userCVs,
         pendingVerification,
         pendingReset,
+        userQuota,
+        refreshUserQuota,
+        consumeDownloadQuota,
         login,
         register,
         verifyEmail,

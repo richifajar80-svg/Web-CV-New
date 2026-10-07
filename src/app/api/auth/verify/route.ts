@@ -5,6 +5,7 @@ import {
   getAllUsers,
   saveAllUsers,
   UserRecord,
+  getCurrentMonthKey,
 } from '@/lib/serverDb';
 import {
   checkRateLimit,
@@ -84,6 +85,10 @@ export async function POST(request: Request) {
       isVerified: true,
       isPaid: false,
       createdAt: new Date().toISOString(),
+      plan: 'personal',
+      downloadCountThisMonth: 0,
+      translateCountThisMonth: 0,
+      lastQuotaResetMonth: getCurrentMonthKey(),
     };
 
     let updatedUsers: UserRecord[];
@@ -103,6 +108,10 @@ export async function POST(request: Request) {
       isVerified: newUser.isVerified,
       isPaid: newUser.isPaid,
       createdAt: newUser.createdAt,
+      plan: newUser.plan,
+      downloadCountThisMonth: newUser.downloadCountThisMonth,
+      translateCountThisMonth: newUser.translateCountThisMonth,
+      lastQuotaResetMonth: newUser.lastQuotaResetMonth,
     };
 
     // Issue cryptographic session token
