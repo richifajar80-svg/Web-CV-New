@@ -18,7 +18,7 @@ import { QuotaExceededModal } from '@/components/QuotaExceededModal';
 import { TEMPLATE_LIST } from '@/data/templates';
 import { useAuth, getUserAuthHeaders } from '@/context/AuthContext';
 import { SavedCV } from '@/types/auth';
-import { exportCVToPDF } from '@/utils/pdfExport';
+import { exportCVToPDF, printCVToVectorPDF } from '@/utils/pdfExport';
 import { CoverLetterView } from '@/components/CoverLetter/CoverLetterView';
 import {
   Eye,
@@ -29,6 +29,7 @@ import {
   ShieldCheck,
   FileText,
   Download,
+  Printer,
   LayoutTemplate,
   ArrowLeft,
   Sparkles,
@@ -428,6 +429,34 @@ export default function Home() {
     performPDFDownload();
   };
 
+  // VECTOR PRINT / PDF TRIGGER: Browser native print engine (100% Vector Text & True Lossless PDF)
+  const handleVectorPrintClick = async () => {
+    if (!isSubscriptionActive) {
+      setPaymentModalOpen(true);
+      return;
+    }
+
+    const quotaRes = await consumeDownloadQuota();
+    if (!quotaRes.allowed) {
+      if (quotaRes.quotaExceeded) {
+        setQuotaModalType('download');
+        setQuotaModalMessage(quotaRes.error);
+        setQuotaModalOpen(true);
+      } else {
+        showToast(quotaRes.error || 'Tidak dapat memproses kuota cetak saat ini.');
+      }
+      return;
+    }
+
+    if (mobileView !== 'preview') {
+      setMobileView('preview');
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+
+    showToast('Membuka dialog cetak... Pilih "Save as PDF" untuk hasil PDF Vektor asli!');
+    printCVToVectorPDF();
+  };
+
   const handleOpenAuth = (mode: 'login' | 'register') => {
     setAuthModalMode(mode);
     setAuthModalOpen(true);
@@ -701,8 +730,20 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="text-[11px] text-slate-500 font-medium hidden sm:block">
-                Ukuran Cetak: Standar A4 (210 x 297 mm)
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleVectorPrintClick}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-lg border border-slate-200 text-[11px] font-bold shadow-2xs transition-all cursor-pointer shrink-0"
+                  title="Cetak langsung atau Simpan sebagai PDF Vektor (Teks Asli, Tajam & Terbaca ATS)"
+                >
+                  <Printer className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden sm:inline">Cetak / Vektor PDF</span>
+                  <span className="sm:hidden">Cetak</span>
+                </button>
+                <div className="text-[11px] text-slate-500 font-medium hidden sm:block">
+                  Standar A4 (210 x 297 mm)
+                </div>
               </div>
             </div>
 

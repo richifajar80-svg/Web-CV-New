@@ -88,7 +88,7 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
 
   return (
     <div
-      className="flex justify-center items-start min-w-0 mx-auto transition-all duration-150 shrink-0"
+      className="cv-canvas-wrapper flex justify-center items-start min-w-0 mx-auto transition-all duration-150 shrink-0"
       style={{
         width: `${scaledWidth}px`,
         height: `${scaledHeight}px`,

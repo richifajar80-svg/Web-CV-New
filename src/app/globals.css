@@ -105,6 +105,15 @@ body {
     print-color-adjust: exact !important;
   }
 
+  .cv-canvas-wrapper {
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   .cv-a4-page {
     box-shadow: none !important;
     border: none !important;
@@ -113,8 +122,20 @@ body {
     width: 210mm !important;
     max-width: 210mm !important;
     min-height: 297mm !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
     transform: none !important;
-    page-break-after: avoid !important;
+    page-break-after: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  /* Prevent page breaks cutting right through individual experience or education items */
+  .cv-a4-page .space-y-4 > div,
+  .cv-a4-page .space-y-3 > div,
+  .cv-a4-page .space-y-2\.5 > div,
+  .cv-a4-page .space-y-2 > div {
+    break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 }

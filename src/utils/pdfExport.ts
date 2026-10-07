@@ -43,9 +43,9 @@ export async function exportCVToPDF(
     // Wait a brief moment for styles to apply
     await new Promise((resolve) => setTimeout(resolve, 80));
 
-    // Capture element with html2canvas-pro (full support for modern CSS / Tailwind v4)
+    // Capture element with html2canvas-pro at high-density scale (300+ DPI Ultra-HD print quality)
     const canvas = await html2canvas(element, {
-      scale: 2, // 2x for sharp 300 DPI text & graphics
+      scale: 3, // 3x (~300 DPI true print sharpness for crisp vector-like text)
       useCORS: true,
       allowTaint: true,
       logging: false,
@@ -73,26 +73,35 @@ export async function exportCVToPDF(
       compress: true,
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+    // Lossless PNG encoding for razor-sharp typography with zero compression halos
+    const imgData = canvas.toDataURL('image/png');
     const pdfWidth = 210;
+    const pageA4Height = 297;
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    // Handle pagination if content spans beyond 1 A4 page
-    if (pdfHeight > 297) {
+    // Handle pagination with smart overflow tolerance:
+    // If content is just 1-3 lines over 1 page (<= 308mm), scale gently to fit 1 page cleanly without blank 2nd page!
+    if (pdfHeight > pageA4Height && pdfHeight <= 308) {
+      const fitScale = pageA4Height / pdfHeight;
+      const fitWidth = pdfWidth * fitScale;
+      const xOffset = (pdfWidth - fitWidth) / 2;
+      pdf.addImage(imgData, 'PNG', xOffset, 0, fitWidth, pageA4Height, undefined, 'FAST');
+    } else if (pdfHeight > pageA4Height) {
+      // Genuinely multi-page CV (e.g. 2 or more full pages)
       let heightLeft = pdfHeight;
       let position = 0;
 
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
-      heightLeft -= 297;
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
+      heightLeft -= pageA4Height;
 
-      while (heightLeft > 5) {
-        position = heightLeft - pdfHeight;
+      while (heightLeft > 10) {
+        position -= pageA4Height;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
-        heightLeft -= 297;
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight, undefined, 'FAST');
+        heightLeft -= pageA4Height;
       }
     } else {
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
     }
 
     const safeFileName = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
@@ -106,3 +115,14 @@ export async function exportCVToPDF(
     return false;
   }
 }
+
+/**
+ * Triggers native browser print dialog to export 100% True Vector Text PDF.
+ * Uses @media print CSS rules to output crisp, selectable, lossless vector typography.
+ */
+export function printCVToVectorPDF(): void {
+  if (typeof window !== 'undefined') {
+    window.print();
+  }
+}
+

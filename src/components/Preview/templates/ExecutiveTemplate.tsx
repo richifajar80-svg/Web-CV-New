@@ -20,7 +20,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
     <div className="w-full bg-white text-slate-800 min-h-[297mm]">
       {/* Top Accent Banner */}
       <div
-        className="p-8 sm:p-10 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        className="px-6 py-5.5 sm:px-8 sm:py-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
         style={{ backgroundColor: accent }}
       >
         <div className="space-y-1">
@@ -73,7 +73,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
       </div>
 
       {/* Main Body */}
-      <div className="p-8 sm:p-10 space-y-6">
+      <div className="px-6 py-5 sm:px-8 sm:py-6 space-y-4.5">
         {/* Summary */}
         {summary && (
           <div className="space-y-2">
