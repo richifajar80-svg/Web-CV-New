@@ -640,7 +640,7 @@ ${letterData.applicantLinkedIn ? `${letterData.applicantLinkedIn}` : ''}
             <div
               ref={docRef}
               id="cover-letter-paper-document"
-              className={`cv-a4-page bg-white shadow-2xl p-[20mm] sm:p-[25mm] text-slate-800 flex flex-col justify-between ${letterData.fontFamily}`}
+              className={`cv-a4-page bg-white shadow-2xl px-8 sm:px-12 pt-7 sm:pt-9 pb-10 text-slate-800 flex flex-col justify-between ${letterData.fontFamily}`}
               style={{
                 width: '794px',
                 minHeight: '1123px',
@@ -800,7 +800,6 @@ ${letterData.applicantLinkedIn ? `${letterData.applicantLinkedIn}` : ''}
                     <p className="font-black text-slate-900 text-sm underline decoration-slate-400 underline-offset-4">
                       {letterData.applicantName}
                     </p>
-                    <p className="text-[11px] text-slate-500">Pelamar / Calon Pegawai</p>
                   </div>
                 </div>
               </div>
