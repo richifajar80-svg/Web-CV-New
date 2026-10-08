@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   CreditCard,
 } from 'lucide-react';
+import { ActionModal } from '@/components/UI/ActionModal';
 
 interface UserMenuProps {
   currentCV: CVData;
@@ -36,6 +37,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
 }) => {
   const { user, logout, userCVs, deleteCV, isSubscriptionActive, userQuota } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [deletingCV, setDeletingCV] = useState<SavedCV | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -246,9 +248,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm(`Hapus "${cv.title}"?`)) {
-                            deleteCV(cv.id);
-                          }
+                          setDeletingCV(cv);
                         }}
                         className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 transition-opacity"
                         title="Hapus CV"
@@ -294,6 +294,24 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* Modern Custom Delete Confirmation Modal */}
+      {deletingCV && (
+        <ActionModal
+          isOpen={true}
+          onClose={() => setDeletingCV(null)}
+          onConfirm={() => {
+            deleteCV(deletingCV.id);
+            setDeletingCV(null);
+          }}
+          title="Hapus Dokumen CV?"
+          description={`Apakah Anda yakin ingin menghapus "${deletingCV.title}"? Dokumen yang dihapus tidak dapat dipulihkan.`}
+          confirmText="Ya, Hapus Dokumen"
+          cancelText="Batal"
+          variant="danger"
+          icon="trash"
+        />
       )}
     </div>
   );

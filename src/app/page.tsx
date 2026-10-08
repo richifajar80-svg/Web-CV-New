@@ -21,6 +21,7 @@ import { SavedCV } from '@/types/auth';
 import { exportCVToPDF, printCVToVectorPDF } from '@/utils/pdfExport';
 import { CoverLetterView } from '@/components/CoverLetter/CoverLetterView';
 import { SEOAccordionFooter } from '@/components/SEO/SEOAccordionFooter';
+import { ActionModal } from '@/components/UI/ActionModal';
 import {
   Eye,
   BookmarkCheck,
@@ -89,20 +90,75 @@ export default function Home() {
   const [isTranslatingCV, setIsTranslatingCV] = useState(false);
   const [originalCVBackup, setOriginalCVBackup] = useState<CVData | null>(null);
 
+  // Auto-Save Status: 'saved' | 'saving' | 'unsaved'
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const initialLoadDoneRef = useRef(false);
+  const isSwitchingCVRef = useRef(false);
+
+  // Custom In-App Action Modal (Replaces browser window.confirm & window.prompt)
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: 'danger' | 'warning' | 'primary';
+    icon?: 'trash' | 'reset' | 'warning' | 'file';
+    isPrompt?: boolean;
+    promptPlaceholder?: string;
+    promptInitialValue?: string;
+    onConfirm: (val?: string) => void;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Synchronize active CV when user logs in or userCVs change
+  // Synchronize active CV on initial login / mount
   useEffect(() => {
-    if (user && userCVs.length > 0) {
-      const current = userCVs.find((c) => c.id === activeCVId) || userCVs[0];
+    if (user && userCVs.length > 0 && !activeCVId) {
+      const current = userCVs[0];
       setActiveCVId(current.id);
       setActiveCVTitle(current.title);
       setCvData(current.data);
+      initialLoadDoneRef.current = true;
     }
-  }, [user, userCVs]);
+  }, [user, userCVs, activeCVId]);
+
+  // Debounced Auto-Save to Account & Cloud
+  useEffect(() => {
+    if (!user || !activeCVId) return;
+
+    if (!initialLoadDoneRef.current) {
+      initialLoadDoneRef.current = true;
+      return;
+    }
+
+    if (isSwitchingCVRef.current) {
+      isSwitchingCVRef.current = false;
+      return;
+    }
+
+    setSaveStatus('saving');
+
+    const timer = setTimeout(() => {
+      try {
+        saveCV(activeCVTitle || 'CV Utama Saya', cvData, activeCVId);
+        setSaveStatus('saved');
+      } catch (err) {
+        console.warn('Auto-save notice:', err);
+        setSaveStatus('unsaved');
+      }
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [cvData]);
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -316,41 +372,62 @@ export default function Home() {
   };
 
   const handleReset = () => {
-    if (window.confirm('Reset formulir ke data contoh? Perubahan Anda saat ini akan ditimpa.')) {
-      setCvData(initialCVData);
-      showToast('Data contoh berhasil dimuat!');
-    }
+    setModalConfig({
+      isOpen: true,
+      title: 'Muat Data Contoh (Demo)?',
+      description: 'Semua isian formulir saat ini akan ditimpa dengan data profil contoh profesional.',
+      confirmText: 'Muat Data Contoh',
+      cancelText: 'Batal',
+      variant: 'warning',
+      icon: 'reset',
+      isPrompt: false,
+      onConfirm: () => {
+        setCvData(initialCVData);
+        showToast('Data contoh berhasil dimuat!');
+      },
+    });
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Kosongkan semua isian CV untuk mulai mengisi dari nol?')) {
-      const blankCV: CVData = {
-        personalInfo: {
-          fullName: '',
-          jobTitle: '',
-          email: '',
-          phone: '',
-          location: '',
-          linkedin: '',
-          website: '',
-          photoUrl: '',
-          showPhoto: false,
-        },
-        summary: '',
-        experiences: [],
-        education: [],
-        skills: [],
-        languages: [],
-        certifications: [],
-        theme: cvData.theme,
-      };
-      setCvData(blankCV);
-      showToast('Form berhasil dikosongkan. Silakan isi data Anda!');
-    }
+    setModalConfig({
+      isOpen: true,
+      title: 'Kosongkan Semua Formulir?',
+      description: 'Semua data diri, pengalaman kerja, pendidikan, dan keahlian akan dihapus bersih agar Anda dapat mulai mengisi dari nol.',
+      confirmText: 'Ya, Kosongkan Form',
+      cancelText: 'Batal',
+      variant: 'danger',
+      icon: 'trash',
+      isPrompt: false,
+      onConfirm: () => {
+        const blankCV: CVData = {
+          personalInfo: {
+            fullName: '',
+            jobTitle: '',
+            email: '',
+            phone: '',
+            location: '',
+            linkedin: '',
+            website: '',
+            photoUrl: '',
+            showPhoto: false,
+          },
+          summary: '',
+          experiences: [],
+          education: [],
+          skills: [],
+          languages: [],
+          certifications: [],
+          theme: cvData.theme,
+        };
+        setCvData(blankCV);
+        showToast('Form berhasil dikosongkan. Silakan isi data Anda!');
+      },
+    });
   };
 
   // Switch to another saved CV
   const handleSelectCV = (selected: SavedCV) => {
+    isSwitchingCVRef.current = true;
     setActiveCVId(selected.id);
     setActiveCVTitle(selected.title);
     setCvData(selected.data);
@@ -359,24 +436,52 @@ export default function Home() {
 
   // Create new blank/default CV
   const handleNewCV = () => {
-    const title = window.prompt('Beri judul untuk CV baru ini:', `CV Baru ${userCVs.length + 1}`);
-    if (title && user) {
-      const newSaved = saveCV(title, initialCVData);
-      setActiveCVId(newSaved.id);
-      setActiveCVTitle(newSaved.title);
-      setCvData(newSaved.data);
-      showToast(`CV baru "${title}" berhasil dibuat!`);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: 'Buat Dokumen CV Baru',
+      description: 'Beri nama untuk draf CV baru Anda. Anda dapat berpindah antar dokumen kapan saja.',
+      confirmText: 'Buat CV Baru',
+      cancelText: 'Batal',
+      variant: 'primary',
+      icon: 'file',
+      isPrompt: true,
+      promptPlaceholder: 'Contoh: CV Magang / CV Fullstack',
+      promptInitialValue: `CV Baru ${userCVs.length + 1}`,
+      onConfirm: (title) => {
+        if (title && user) {
+          const newSaved = saveCV(title, initialCVData);
+          isSwitchingCVRef.current = true;
+          setActiveCVId(newSaved.id);
+          setActiveCVTitle(newSaved.title);
+          setCvData(newSaved.data);
+          showToast(`CV baru "${title}" berhasil dibuat!`);
+        }
+      },
+    });
   };
 
   // Save Current CV to User Account
   const handleSaveCurrentCV = () => {
-    const title = window.prompt('Nama dokumen CV:', activeCVTitle || 'CV Utama Saya');
-    if (title && user) {
-      saveCV(title, cvData, activeCVId || undefined);
-      setActiveCVTitle(title);
-      showToast(`Berhasil menyimpan "${title}" ke akun!`);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: 'Simpan / Beri Nama Dokumen CV',
+      description: 'Tentukan nama untuk dokumen CV ini agar mudah dikenali di akun Anda.',
+      confirmText: 'Simpan ke Akun',
+      cancelText: 'Batal',
+      variant: 'primary',
+      icon: 'file',
+      isPrompt: true,
+      promptPlaceholder: 'Nama dokumen...',
+      promptInitialValue: activeCVTitle || 'CV Utama Saya',
+      onConfirm: (title) => {
+        if (title && user) {
+          saveCV(title, cvData, activeCVId || undefined);
+          setActiveCVTitle(title);
+          setSaveStatus('saved');
+          showToast(`Berhasil menyimpan "${title}" ke akun!`);
+        }
+      },
+    });
   };
 
   // DIRECT PDF DOWNLOAD: Generate .pdf file and download directly to device
@@ -473,6 +578,8 @@ export default function Home() {
         theme={cvData.theme}
         currentCV={cvData}
         activeCVId={activeCVId}
+        activeCVTitle={activeCVTitle}
+        saveStatus={saveStatus}
         onUpdateTheme={handleUpdateTheme}
         onReset={handleReset}
         onClearAll={handleClearAll}
@@ -915,6 +1022,22 @@ export default function Home() {
         onClose={() => setQuotaModalOpen(false)}
         type={quotaModalType}
         message={quotaModalMessage}
+      />
+
+      {/* Modern In-App Action Modal (Replaces browser window.confirm & prompt) */}
+      <ActionModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        description={modalConfig.description}
+        confirmText={modalConfig.confirmText}
+        cancelText={modalConfig.cancelText}
+        variant={modalConfig.variant}
+        icon={modalConfig.icon}
+        isPrompt={modalConfig.isPrompt}
+        promptPlaceholder={modalConfig.promptPlaceholder}
+        promptInitialValue={modalConfig.promptInitialValue}
       />
     </div>
   );

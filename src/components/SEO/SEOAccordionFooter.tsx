@@ -105,3 +105,4 @@ export const SEOAccordionFooter: React.FC = () => {
     </footer>
   );
 };
+

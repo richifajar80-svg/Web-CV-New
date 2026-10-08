@@ -19,6 +19,7 @@ import {
   MoreHorizontal,
   Palette,
   CreditCard,
+  Cloud,
 } from 'lucide-react';
 import { CVTheme, CVData, TemplateId } from '@/types/cv';
 import { useAuth } from '@/context/AuthContext';
@@ -31,6 +32,8 @@ interface HeaderProps {
   theme: CVTheme;
   currentCV: CVData;
   activeCVId: string | null;
+  activeCVTitle?: string;
+  saveStatus?: 'saved' | 'saving' | 'unsaved';
   onUpdateTheme: (newTheme: Partial<CVTheme>) => void;
   onReset: () => void;
   onClearAll: () => void;
@@ -59,6 +62,8 @@ export const Header: React.FC<HeaderProps> = ({
   theme,
   currentCV,
   activeCVId,
+  activeCVTitle,
+  saveStatus = 'saved',
   onUpdateTheme,
   onReset,
   onClearAll,
@@ -96,13 +101,13 @@ export const Header: React.FC<HeaderProps> = ({
       <header className="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div className="max-w-[1700px] w-full mx-auto px-2 sm:px-4 lg:px-5 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2.5 min-w-0">
           
-          {/* 1. Logo & Brand */}
+          {/* 1. Logo, Brand & Auto-Save Indicator */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-sm sm:text-lg shrink-0">
               CB
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-extrabold text-slate-900 text-sm sm:text-lg tracking-tight shrink-0">
                   cvbagus<span className="text-emerald-600">.id</span>
                 </span>
@@ -120,6 +125,41 @@ export const Header: React.FC<HeaderProps> = ({
                     Rp 25.000 / Thn
                   </button>
                 )}
+
+                {/* Auto-Save Cloud Status Indicator */}
+                <div
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all shrink-0 select-none border ${
+                    saveStatus === 'saving'
+                      ? 'bg-amber-50/90 text-amber-800 border-amber-200 animate-pulse'
+                      : saveStatus === 'unsaved'
+                      ? 'bg-slate-100 text-slate-500 border-slate-200'
+                      : 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80'
+                  }`}
+                  title={
+                    saveStatus === 'saving'
+                      ? 'Sedang menyimpan otomatis ke akun...'
+                      : saveStatus === 'unsaved'
+                      ? 'Ada perubahan belum tersimpan'
+                      : 'Semua perubahan tersimpan otomatis di akun Anda'
+                  }
+                >
+                  {saveStatus === 'saving' ? (
+                    <>
+                      <Loader2 className="w-2.5 h-2.5 text-amber-600 animate-spin shrink-0" />
+                      <span className="hidden sm:inline font-bold">Menyimpan...</span>
+                    </>
+                  ) : saveStatus === 'unsaved' ? (
+                    <>
+                      <Cloud className="w-2.5 h-2.5 text-slate-400 shrink-0" />
+                      <span className="hidden sm:inline">Draf lokal</span>
+                    </>
+                  ) : (
+                    <>
+                      <Cloud className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                      <span className="hidden sm:inline font-bold">Tersimpan</span>
+                    </>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-slate-500 hidden 2xl:block truncate">Editor CV Profesional & Ramah ATS</p>
             </div>
