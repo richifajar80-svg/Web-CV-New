@@ -20,6 +20,7 @@ import { useAuth, getUserAuthHeaders } from '@/context/AuthContext';
 import { SavedCV } from '@/types/auth';
 import { exportCVToPDF, printCVToVectorPDF } from '@/utils/pdfExport';
 import { CoverLetterView } from '@/components/CoverLetter/CoverLetterView';
+import { SEOAccordionFooter } from '@/components/SEO/SEOAccordionFooter';
 import {
   Eye,
   BookmarkCheck,
@@ -498,6 +499,11 @@ export default function Home() {
 
       {/* Main Split-Screen Workspace */}
       <main className="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-5 lg:p-6 pb-28 lg:pb-12 min-w-0 overflow-x-hidden">
+        {/* Semantic H1 for Search Engine Indexing & Screen Readers */}
+        <h1 className="sr-only">
+          cvbagus.id - Platform Pembuat CV ATS Friendly & Resume Profesional Standar HRD Online
+        </h1>
+
         {activeMode === 'cover_letter' ? (
           <CoverLetterView
             cvData={cvData}
@@ -755,6 +761,9 @@ export default function Home() {
         </div>
           </>
         )}
+
+        {/* SEO Information & FAQ Accordion Section */}
+        <SEOAccordionFooter />
       </main>
 
       {/* FIXED MOBILE BOTTOM ACTION BAR (Native App Feel UX) */}
