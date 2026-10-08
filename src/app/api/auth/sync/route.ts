@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllUsers, saveAllUsers } from '@/lib/serverDb';
-import { hashPassword, isPasswordHashed, checkRateLimit, getClientIp } from '@/lib/security';
+import { hashPassword, isPasswordHashed, checkRateLimit, getClientIp, verifyAdminRequest } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
@@ -14,11 +14,27 @@ export async function POST(request: Request) {
       );
     }
 
+    // Security: Only verified administrators can trigger bulk database user sync
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json(
+        { success: false, error: 'Akses ditolak: endpoint sinkronisasi dilindungi untuk administrator.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { users } = body;
 
     if (!Array.isArray(users) || users.length === 0) {
       return NextResponse.json({ success: true, count: 0 });
+    }
+
+    // Limit maximum batch size to prevent memory exhaustion / DoS
+    if (users.length > 50) {
+      return NextResponse.json(
+        { success: false, error: 'Jumlah batch sinkronisasi melebihi batas maksimum (50 pengguna).' },
+        { status: 400 }
+      );
     }
 
     const currentServerUsers = await getAllUsers();

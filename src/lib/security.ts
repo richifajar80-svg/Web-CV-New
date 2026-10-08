@@ -114,8 +114,11 @@ export function getClientIp(request: Request): string {
  * Secures all administrative operations.
  */
 export function verifyAdminPin(pin: string): boolean {
+  if (!pin || typeof pin !== 'string') return false;
   const cleanPin = pin.trim();
-  return cleanPin === ADMIN_PIN;
+  const inputHash = crypto.createHash('sha256').update(cleanPin).digest();
+  const targetHash = crypto.createHash('sha256').update(ADMIN_PIN).digest();
+  return crypto.timingSafeEqual(inputHash, targetHash);
 }
 
 export function createAdminToken(): string {

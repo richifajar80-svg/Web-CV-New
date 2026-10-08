@@ -55,10 +55,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // Security: If client is not providing their own API key, require authentication
+    if (!customApiKey) {
+      if (!verified || !callingUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Otorisasi diperlukan: silakan masuk ke akun Anda untuk menggunakan layanan AI Translate.',
+          },
+          { status: 401 }
+        );
+      }
+    }
+
     const isAdmin = callingUser ? (callingUser.role === 'admin' || callingUser.email.toLowerCase().includes('admin')) : false;
 
-    // Quota Enforcement: Check translate quota
-    if (callingUser && !isAdmin) {
+    // Quota Enforcement: Check translate quota for authenticated non-admin users using server key
+    if (callingUser && !isAdmin && !customApiKey) {
       const plan: UserPlan = callingUser.plan === 'enterprise' ? 'enterprise' : 'personal';
       const limit = PLAN_LIMITS[plan].translateLimit;
       const currentTranslates = callingUser.translateCountThisMonth || 0;

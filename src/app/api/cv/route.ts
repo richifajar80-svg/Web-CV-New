@@ -24,17 +24,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
     }
 
-    // Cryptographic Session Verification (IDOR Mitigation)
+    // Strict Cryptographic Session Verification (Zero Trust / IDOR Prevention)
     const authHeader = request.headers.get('authorization');
-    if (authHeader) {
-      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-      const session = verifyUserToken(token);
-      if (!session || session.userId !== userId) {
-        return NextResponse.json(
-          { success: false, error: 'Akses ditolak: token otentikasi tidak cocok dengan userId.' },
-          { status: 403 }
-        );
-      }
+    if (!authHeader) {
+      return NextResponse.json(
+        { success: false, error: 'Otorisasi diperlukan: silakan masuk untuk mengakses data CV.' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const session = verifyUserToken(token);
+    if (!session || session.userId !== userId) {
+      return NextResponse.json(
+        { success: false, error: 'Akses ditolak: token otentikasi tidak cocok atau tidak valid.' },
+        { status: 403 }
+      );
     }
 
     const cvs = await getUserCVs(userId);
@@ -70,17 +75,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // Cryptographic Session Verification (IDOR Mitigation)
+    // Strict Cryptographic Session Verification (Zero Trust / IDOR Prevention)
     const authHeader = request.headers.get('authorization');
-    if (authHeader) {
-      const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-      const session = verifyUserToken(token);
-      if (!session || session.userId !== userId) {
-        return NextResponse.json(
-          { success: false, error: 'Akses ditolak: token otentikasi tidak cocok dengan userId.' },
-          { status: 403 }
-        );
-      }
+    if (!authHeader) {
+      return NextResponse.json(
+        { success: false, error: 'Otorisasi diperlukan: silakan masuk untuk menyimpan data CV.' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const session = verifyUserToken(token);
+    if (!session || session.userId !== userId) {
+      return NextResponse.json(
+        { success: false, error: 'Akses ditolak: token otentikasi tidak cocok atau tidak valid.' },
+        { status: 403 }
+      );
     }
 
     await saveUserCVs(userId, cvs);

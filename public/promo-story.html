@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Brochure Generator • KarirPro CV ATS Profesional</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2canvas for 1-click HD Image Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #090d16;
+      color: #f8fafc;
+    }
+    /* Fixed 9:16 aspect ratio canvas for exact 1080x1920 Instagram & WhatsApp Story */
+    .story-card {
+      width: 420px;
+      height: 746px;
+      aspect-ratio: 9 / 16;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (min-width: 640px) {
+      .story-card {
+        width: 450px;
+        height: 800px;
+      }
+    }
+    .mesh-gradient-1 {
+      background: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.28) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.25) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+    }
+    .mesh-gradient-2 {
+      background: radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.25) 0%, transparent 45%),
+                  radial-gradient(circle at 15% 85%, rgba(16, 185, 129, 0.25) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6">
+
+  <!-- TOP BAR & CONTROLS -->
+  <div class="max-w-5xl mx-auto mb-8 text-center space-y-3">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider shadow-sm">
+      <span>📄 E-Brochure Story Generator (KarirPro ATS 9:16)</span>
+    </div>
+    <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight">
+      E-Brochure Jasa Pembuatan & Redesain CV
+    </h1>
+    <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+      Didesain khusus untuk cek ombak di <strong class="text-emerald-400">WhatsApp & Instagram Story</strong>. Sesuaikan nama brand di bawah, lalu klik <strong class="text-emerald-400">Download PNG HD</strong>!
+    </p>
+
+    <!-- CUSTOMIZER TOOLBAR -->
+    <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl max-w-md mx-auto flex items-center gap-3 text-left mt-4 text-xs shadow-xl">
+      <div class="flex-1">
+        <label class="block font-bold text-slate-300 mb-1">Nama Jasa / Akun Anda:</label>
+        <input type="text" id="inputBrand" value="KarirPro" oninput="updateContent()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:border-emerald-500">
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDES CONTAINER -->
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start justify-items-center">
+
+    <!-- ================= SLIDE 1: HOOK & PAIN POINTS ================= -->
+    <div class="flex flex-col items-center gap-3">
+      <div class="flex items-center justify-between w-full max-w-[450px] px-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Slide 1 • Hook & Masalah Screening</span>
+        <button onclick="downloadStory('story-slide-1', 'E-Brochure-CV-Slide1-Hook.png')" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Download PNG HD
+        </button>
+      </div>
+
+      <!-- THE 9:16 STORY CARD 1 -->
+      <div id="story-slide-1" class="story-card mesh-gradient-1 rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-2xl border border-slate-700/60 text-white select-none">
+        <!-- Top: Badge & Brand -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10.5px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>STANDAR ATS HRD TERBARU</span>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400">
+              <span class="brand-text">KarirPro</span>
+            </div>
+          </div>
+
+          <!-- Big Hook Headline -->
+          <div class="pt-2">
+            <h2 class="text-2xl sm:text-[27px] font-black leading-tight tracking-tight text-white">
+              Sering Apply Kerja tapi <span class="text-emerald-400">Gak Pernah Dipanggil</span> Interview?
+            </h2>
+            <p class="text-xs sm:text-[12.5px] text-slate-300 mt-2 font-medium leading-relaxed">
+              Bisa jadi masalahnya bukan pengalamanmu, tapi format CV kamu <strong class="text-white">gugur otomatis di sistem ATS & screening HRD!</strong>
+            </p>
+          </div>
+        </div>
+
+        <!-- Center: Solusi & Keunggulan -->
+        <div class="glass-card rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl border border-white/10">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Solusi CV Siap Kerja & Anti Ghosting:
+          </div>
+
+          <div class="space-y-2.5 text-xs text-slate-200">
+            <div class="flex items-start gap-2.5">
+              <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">✓</div>
+              <div>
+                <strong class="text-white block">Format ATS Friendly 100%</strong>
+                <span class="text-slate-400 text-[11px]">Teks vektor asli (bukan gambar pecah), terbaca sempurna di sistem filter perusahaan.</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">✓</div>
+              <div>
+                <strong class="text-white block">Deskripsi Jobdesc 'Menjual' & Tertata</strong>
+                <span class="text-slate-400 text-[11px]">Dibantu susun kalimat bullet points profesional berbasis capaian kerja.</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5">
+              <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[10px]">✓</div>
+              <div>
+                <strong class="text-white block">Pengerjaan Kilat & Siap Pakai</strong>
+                <span class="text-slate-400 text-[11px]">Cukup kirim data via WA, duduk manis terima jadi file PDF HD siap kirim.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Roles Tags -->
+        <div class="space-y-2 pb-6">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center">Cocok Untuk Segala Profesi & Jenjang:</div>
+          <div class="flex flex-wrap justify-center gap-1.5 text-[10.5px]">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-slate-300">🎓 Fresh Graduate</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-slate-300">💼 Profesional / Switch Career</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-slate-300">🏢 BUMN & Korporat</span>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-slate-300">🌏 Full English / Internasional</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================= SLIDE 2: CREATIVE AESTHETIC WHITE ================= -->
+    <div class="flex flex-col items-center gap-3">
+      <div class="flex items-center justify-between w-full max-w-[450px] px-2">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Slide 2 • Creative Aesthetic (White)</span>
+        <button onclick="downloadStory('story-slide-2', 'E-Brochure-CV-Slide2-CreativeWhite.png')" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 border border-slate-700">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Download PNG HD
+        </button>
+      </div>
+
+      <!-- THE 9:16 STORY CARD 2 (CREATIVE WHITE DESIGN) -->
+      <div id="story-slide-2" class="story-card bg-white rounded-3xl p-6 sm:p-7 flex flex-col justify-between shadow-2xl border border-slate-200 text-slate-900 select-none relative overflow-hidden">
+        
+        <!-- Subtle Creative Accent Background Glows -->
+        <div class="absolute -top-12 -right-12 w-48 h-48 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-200/40 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-slate-100/60 rounded-full blur-2xl pointer-events-none"></div>
+
+        <!-- Top Header & Brand -->
+        <div class="relative space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="px-3 py-1 rounded-full bg-slate-950 text-white text-[10.5px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>CREATIVE CAREER STUDIO</span>
+            </div>
+            <div class="text-[11px] font-extrabold text-slate-800">
+              <span class="brand-text">KarirPro</span>
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <h2 class="text-2xl sm:text-[27px] font-black leading-tight tracking-tight text-slate-950">
+              Bikin CV Kamu Lebih <span class="underline decoration-emerald-500 decoration-wavy decoration-2">Stand Out</span> & Dilirik HRD.
+            </h2>
+            <p class="text-xs sm:text-[12.5px] text-slate-600 mt-2 font-medium leading-relaxed">
+              Bukan sekadar template Canva biasa. Kami susun dengan struktur ATS resmi, diksi berbobot, dan desain profesional siap kirim!
+            </p>
+          </div>
+        </div>
+
+        <!-- Center: 3 Creative Feature Blocks -->
+        <div class="relative space-y-2.5">
+
+          <!-- Feature 1: Format ATS -->
+          <div class="bg-slate-50/90 hover:bg-slate-100/90 transition-all rounded-2xl p-3.5 border border-slate-200/90 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">01</span>
+                <span class="font-black text-xs text-slate-900">Format ATS Friendly 100%</span>
+              </div>
+              <span class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Lolos Scanner</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-snug pl-8 font-medium">
+              Struktur rapi, font standar HRD, teks vektor asli terbaca sistem screening AI & BUMN.
+            </p>
+          </div>
+
+          <!-- Feature 2: Action Verbs -->
+          <div class="bg-slate-50/90 hover:bg-slate-100/90 transition-all rounded-2xl p-3.5 border border-slate-200/90 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-slate-900 text-white text-[11px] font-black flex items-center justify-center shrink-0">02</span>
+                <span class="font-black text-xs text-slate-900">Bedah Deskripsi & Action Verbs</span>
+              </div>
+              <span class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Lebih Menjual</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-snug pl-8 font-medium">
+              Pengalaman kerjamu dirapikan dengan kalimat aktif yang menonjolkan capaian nyata.
+            </p>
+          </div>
+
+          <!-- Feature 3: Bilingual & Cover Letter -->
+          <div class="bg-slate-50/90 hover:bg-slate-100/90 transition-all rounded-2xl p-3.5 border border-slate-200/90 shadow-2xs space-y-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">03</span>
+                <span class="font-black text-xs text-slate-900">Full English & Surat Lamaran</span>
+              </div>
+              <span class="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900">Paket Komplit</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-snug pl-8 font-medium">
+              Bisa Bahasa Indonesia / Full English formal + Cover Letter senada siap kirim email.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Perks Tags -->
+        <div class="relative space-y-3 pb-6">
+          <div class="flex flex-wrap justify-center gap-1.5 text-[10px] font-extrabold text-slate-700">
+            <span class="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-250">⚡ Bisa Sehari Jadi</span>
+            <span class="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-250">✨ Free Konsultasi & Revisi</span>
+            <span class="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-250">📄 File PDF HD Siap Kirim</span>
+          </div>
+          
+          <div class="text-center">
+            <span class="text-[10.5px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3.5 py-1 rounded-full inline-block shadow-2xs">
+              💬 Balas story ini untuk review CV kamu duluan (Gratis)
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    function updateContent() {
+      const brand = document.getElementById('inputBrand')?.value || 'KarirPro';
+      document.querySelectorAll('.brand-text').forEach(el => el.textContent = brand);
+    }
+
+    async function downloadStory(elementId, filename) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+
+      const btn = event.currentTarget;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>Sedang Membuat PNG...</span>';
+      btn.disabled = true;
+
+      try {
+        if (document.fonts) {
+          await document.fonts.ready;
+        }
+
+        // html2canvas capture at scale: 2.4 for exact 1080x1920 Ultra-HD resolution
+        const canvas = await html2canvas(element, {
+          scale: 2.4, // 450 * 2.4 = 1080px width (standard Instagram & WhatsApp story)
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: elementId === 'story-slide-2' ? '#ffffff' : '#090d16',
+          logging: false
+        });
+
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = image;
+        link.click();
+      } catch (err) {
+        console.error('Download error:', err);
+        alert('Gagal mendownload gambar. Coba ambil screenshot layar.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
