@@ -149,7 +149,7 @@ export default function Home() {
 
     const timer = setTimeout(() => {
       try {
-        saveCV(activeCVTitle || 'CV Utama Saya', cvData, activeCVId);
+        saveCV(activeCVTitle || 'CV Utama Saya', cvData, activeCVId || undefined);
         setSaveStatus('saved');
       } catch (err) {
         console.warn('Auto-save notice:', err);
@@ -315,97 +315,95 @@ export default function Home() {
 
       const tData = data.translatedData;
 
-      setCvData((prev) => {
-        const updatedExperiences = prev.experiences.map((exp, idx) => {
-          const found =
-            tData.experiences?.find((e: any) => String(e.id) === String(exp.id)) ||
-            tData.experiences?.[idx];
-          return found
-            ? {
-                ...exp,
-                role: found.role || exp.role,
-                description: found.description || exp.description,
-              }
-            : exp;
-        });
-
-        const updatedEducation = prev.education.map((edu, idx) => {
-          const found =
-            tData.education?.find((e: any) => String(e.id) === String(edu.id)) ||
-            tData.education?.[idx];
-          return found
-            ? {
-                ...edu,
-                degree: found.degree || edu.degree,
-                description: found.description || edu.description,
-              }
-            : edu;
-        });
-
-        const updatedLanguages = prev.languages.map((lang, idx) => {
-          const found =
-            tData.languages?.find((l: any) => String(l.id) === String(lang.id)) ||
-            tData.languages?.[idx];
-          return found
-            ? {
-                ...lang,
-                name: found.name || lang.name,
-                level: found.level || lang.level,
-              }
-            : lang;
-        });
-
-        const updatedSkills = prev.skills.map((skill, idx) => {
-          const found =
-            tData.skills?.find((s: any) => String(s.id) === String(skill.id)) ||
-            tData.skills?.[idx];
-          return found
-            ? {
-                ...skill,
-                name: found.name || skill.name,
-              }
-            : skill;
-        });
-
-        const updatedCertifications = prev.certifications.map((cert, idx) => {
-          const found =
-            tData.certifications?.find((c: any) => String(c.id) === String(cert.id)) ||
-            tData.certifications?.[idx];
-          return found
-            ? {
-                ...cert,
-                title: found.title || cert.title,
-              }
-            : cert;
-        });
-
-        const nextCV: CVData = {
-          ...prev,
-          personalInfo: {
-            ...prev.personalInfo,
-            jobTitle: tData.jobTitle || prev.personalInfo.jobTitle,
-          },
-          summary: tData.summary || prev.summary,
-          experiences: updatedExperiences,
-          education: updatedEducation,
-          skills: updatedSkills,
-          certifications: updatedCertifications,
-          languages: updatedLanguages,
-          theme: {
-            ...prev.theme,
-            language: 'en',
-          },
-        };
-
-        try {
-          saveCV(activeCVTitle || 'CV Utama Saya', nextCV, activeCVId || undefined);
-          setSaveStatus('saved');
-        } catch (err) {
-          console.warn('Auto-save notice after translation:', err);
-        }
-
-        return nextCV;
+      const updatedExperiences = cvData.experiences.map((exp, idx) => {
+        const found =
+          tData.experiences?.find((e: any) => String(e.id) === String(exp.id)) ||
+          tData.experiences?.[idx];
+        return found
+          ? {
+              ...exp,
+              role: found.role || exp.role,
+              description: found.description || exp.description,
+            }
+          : exp;
       });
+
+      const updatedEducation = cvData.education.map((edu, idx) => {
+        const found =
+          tData.education?.find((e: any) => String(e.id) === String(edu.id)) ||
+          tData.education?.[idx];
+        return found
+          ? {
+              ...edu,
+              degree: found.degree || edu.degree,
+              description: found.description || edu.description,
+            }
+          : edu;
+      });
+
+      const updatedLanguages = cvData.languages.map((lang, idx) => {
+        const found =
+          tData.languages?.find((l: any) => String(l.id) === String(lang.id)) ||
+          tData.languages?.[idx];
+        return found
+          ? {
+              ...lang,
+              name: found.name || lang.name,
+              level: found.level || lang.level,
+            }
+          : lang;
+      });
+
+      const updatedSkills = cvData.skills.map((skill, idx) => {
+        const found =
+          tData.skills?.find((s: any) => String(s.id) === String(skill.id)) ||
+          tData.skills?.[idx];
+        return found
+          ? {
+              ...skill,
+              name: found.name || skill.name,
+            }
+          : skill;
+      });
+
+      const updatedCertifications = cvData.certifications.map((cert, idx) => {
+        const found =
+          tData.certifications?.find((c: any) => String(c.id) === String(cert.id)) ||
+          tData.certifications?.[idx];
+        return found
+          ? {
+              ...cert,
+              title: found.title || cert.title,
+            }
+          : cert;
+      });
+
+      const nextCV: CVData = {
+        ...cvData,
+        personalInfo: {
+          ...cvData.personalInfo,
+          jobTitle: tData.jobTitle || cvData.personalInfo.jobTitle,
+        },
+        summary: tData.summary || cvData.summary,
+        experiences: updatedExperiences,
+        education: updatedEducation,
+        skills: updatedSkills,
+        certifications: updatedCertifications,
+        languages: updatedLanguages,
+        theme: {
+          ...cvData.theme,
+          language: 'en',
+        },
+      };
+
+      setCvData(nextCV);
+
+      try {
+        saveCV(activeCVTitle || 'CV Utama Saya', nextCV, activeCVId || undefined);
+        setSaveStatus('saved');
+      } catch (err) {
+        console.warn('Auto-save notice after translation:', err);
+      }
 
       showToast('✨ Seluruh isi CV berhasil diterjemahkan ke Bahasa Inggris profesional standar ATS!');
     } catch (err: any) {
