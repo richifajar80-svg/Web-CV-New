@@ -67,11 +67,11 @@ ${text.trim()}
 """`;
 
   const models = [
-    'gemini-3.5-flash-lite',
-    'gemini-3.6-flash',
-    'gemini-3.7-flash',
-    'gemini-3.8-flash',
+    'gemini-flash-lite-latest',
+    'gemini-2.5-flash-lite',
     'gemini-flash-latest',
+    'gemini-2.5-flash',
+    'gemini-3.5-flash-lite',
   ];
   let lastError: any = null;
 
@@ -116,8 +116,8 @@ ${text.trim()}
           throw keyErr;
         }
 
-        // Try next model if 404, 503, or overloaded
-        if (res.status === 404 || res.status === 503) {
+        // Try next model if 404, 429, 500, 503, or overloaded
+        if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 503) {
           lastError = new Error(message);
           continue;
         }
@@ -166,6 +166,14 @@ export interface FullCVTranslateInput {
     institution?: string;
     description?: string;
   }>;
+  skills?: Array<{
+    id: string;
+    name: string;
+  }>;
+  certifications?: Array<{
+    id: string;
+    title: string;
+  }>;
   languages?: Array<{
     id: string;
     name: string;
@@ -185,6 +193,14 @@ export interface FullCVTranslateOutput {
     id: string;
     degree: string;
     description?: string;
+  }>;
+  skills?: Array<{
+    id: string;
+    name: string;
+  }>;
+  certifications?: Array<{
+    id: string;
+    title: string;
   }>;
   languages?: Array<{
     id: string;
@@ -225,27 +241,34 @@ STRICT ELEVATION RULES:
 4. Education:
    - Degree: Translate Indonesian degree names into standard English equivalents (e.g., "Sarjana Ilmu Komputer (S.Kom)" -> "Bachelor of Computer Science").
    - Description: Elevate honors and coursework descriptions into professional English.
-5. Languages:
+5. Skills:
+   - Translate Indonesian skill names into standard industry terminology (e.g. "Pengembangan Web" -> "Web Development", "Manajemen Proyek" -> "Project Management", "Manajemen Waktu" -> "Time Management", "Komunikasi Efektif" -> "Effective Communication").
+   - Preserve industry standard tools, frameworks, and programming language names as-is (e.g., React, TypeScript, Figma, Python).
+6. Certifications:
+   - Translate certification titles where appropriate into professional English while keeping recognized certificate acronyms.
+7. Languages:
    - Translate language names and levels to international ILR / CEFR standards:
      * "Bahasa Indonesia" -> "Indonesian", "Penutur Asli" -> "Native"
      * "Bahasa Inggris" -> "English", "Profesional Aktif" / "Mahir" -> "Full Professional Proficiency" / "Professional Working Proficiency"
-6. Schema:
-   Return a valid JSON object matching the input IDs:
+8. Schema:
+   Preserve every exact input ID. Return a valid JSON object:
    {
      "jobTitle": "...",
      "summary": "...",
      "experiences": [{ "id": "...", "role": "...", "description": "..." }],
      "education": [{ "id": "...", "degree": "...", "description": "..." }],
+     "skills": [{ "id": "...", "name": "..." }],
+     "certifications": [{ "id": "...", "title": "..." }],
      "languages": [{ "id": "...", "name": "...", "level": "..." }]
    }
    Return ONLY raw JSON, with no markdown code fences.`;
 
   const models = [
-    'gemini-3.5-flash-lite',
-    'gemini-3.6-flash',
-    'gemini-3.7-flash',
-    'gemini-3.8-flash',
+    'gemini-flash-lite-latest',
+    'gemini-2.5-flash-lite',
     'gemini-flash-latest',
+    'gemini-2.5-flash',
+    'gemini-3.5-flash-lite',
   ];
 
   let lastError: any = null;
@@ -272,7 +295,7 @@ STRICT ELEVATION RULES:
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         const message = errorData?.error?.message || `Status ${res.status}`;
-        if (res.status === 404 || res.status === 503) {
+        if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 503) {
           lastError = new Error(message);
           continue;
         }

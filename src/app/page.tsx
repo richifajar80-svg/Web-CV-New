@@ -273,6 +273,14 @@ export default function Home() {
           institution: edu.institution,
           description: edu.description,
         })),
+        skills: cvData.skills.map((s) => ({
+          id: s.id,
+          name: s.name,
+        })),
+        certifications: cvData.certifications.map((c) => ({
+          id: c.id,
+          title: c.title,
+        })),
         languages: cvData.languages.map((l) => ({
           id: l.id,
           name: l.name,
@@ -307,55 +315,99 @@ export default function Home() {
 
       const tData = data.translatedData;
 
-      const updatedExperiences = cvData.experiences.map((exp) => {
-        const found = tData.experiences?.find((e: any) => e.id === exp.id);
-        return found
-          ? {
-              ...exp,
-              role: found.role || exp.role,
-              description: found.description || exp.description,
-            }
-          : exp;
+      setCvData((prev) => {
+        const updatedExperiences = prev.experiences.map((exp, idx) => {
+          const found =
+            tData.experiences?.find((e: any) => String(e.id) === String(exp.id)) ||
+            tData.experiences?.[idx];
+          return found
+            ? {
+                ...exp,
+                role: found.role || exp.role,
+                description: found.description || exp.description,
+              }
+            : exp;
+        });
+
+        const updatedEducation = prev.education.map((edu, idx) => {
+          const found =
+            tData.education?.find((e: any) => String(e.id) === String(edu.id)) ||
+            tData.education?.[idx];
+          return found
+            ? {
+                ...edu,
+                degree: found.degree || edu.degree,
+                description: found.description || edu.description,
+              }
+            : edu;
+        });
+
+        const updatedLanguages = prev.languages.map((lang, idx) => {
+          const found =
+            tData.languages?.find((l: any) => String(l.id) === String(lang.id)) ||
+            tData.languages?.[idx];
+          return found
+            ? {
+                ...lang,
+                name: found.name || lang.name,
+                level: found.level || lang.level,
+              }
+            : lang;
+        });
+
+        const updatedSkills = prev.skills.map((skill, idx) => {
+          const found =
+            tData.skills?.find((s: any) => String(s.id) === String(skill.id)) ||
+            tData.skills?.[idx];
+          return found
+            ? {
+                ...skill,
+                name: found.name || skill.name,
+              }
+            : skill;
+        });
+
+        const updatedCertifications = prev.certifications.map((cert, idx) => {
+          const found =
+            tData.certifications?.find((c: any) => String(c.id) === String(cert.id)) ||
+            tData.certifications?.[idx];
+          return found
+            ? {
+                ...cert,
+                title: found.title || cert.title,
+              }
+            : cert;
+        });
+
+        const nextCV: CVData = {
+          ...prev,
+          personalInfo: {
+            ...prev.personalInfo,
+            jobTitle: tData.jobTitle || prev.personalInfo.jobTitle,
+          },
+          summary: tData.summary || prev.summary,
+          experiences: updatedExperiences,
+          education: updatedEducation,
+          skills: updatedSkills,
+          certifications: updatedCertifications,
+          languages: updatedLanguages,
+          theme: {
+            ...prev.theme,
+            language: 'en',
+          },
+        };
+
+        try {
+          saveCV(activeCVTitle || 'CV Utama Saya', nextCV, activeCVId || undefined);
+          setSaveStatus('saved');
+        } catch (err) {
+          console.warn('Auto-save notice after translation:', err);
+        }
+
+        return nextCV;
       });
 
-      const updatedEducation = cvData.education.map((edu) => {
-        const found = tData.education?.find((e: any) => e.id === edu.id);
-        return found
-          ? {
-              ...edu,
-              degree: found.degree || edu.degree,
-              description: found.description || edu.description,
-            }
-          : edu;
-      });
-
-      const updatedLanguages = cvData.languages.map((lang) => {
-        const found = tData.languages?.find((l: any) => l.id === lang.id);
-        return found
-          ? {
-              ...lang,
-              name: found.name || lang.name,
-              level: found.level || lang.level,
-            }
-          : lang;
-      });
-
-      handleUpdateCV({
-        personalInfo: {
-          ...cvData.personalInfo,
-          jobTitle: tData.jobTitle || cvData.personalInfo.jobTitle,
-        },
-        summary: tData.summary || cvData.summary,
-        experiences: updatedExperiences,
-        education: updatedEducation,
-        languages: updatedLanguages,
-        theme: {
-          ...cvData.theme,
-          language: 'en',
-        },
-      });
-
-      showToast('✨ 1 Halaman CV berhasil diterjemahkan ke Bahasa Inggris profesional standar ATS!');
+      showToast('✨ Seluruh isi CV berhasil diterjemahkan ke Bahasa Inggris profesional standar ATS!');
     } catch (err: any) {
       showToast('Terjadi kendala jaringan saat menerjemahkan dengan Gemini AI.');
     } finally {
@@ -366,6 +418,12 @@ export default function Home() {
   const handleUndoFullCV = () => {
     if (originalCVBackup) {
       setCvData(originalCVBackup);
+      try {
+        saveCV(activeCVTitle || 'CV Utama Saya', originalCVBackup, activeCVId || undefined);
+        setSaveStatus('saved');
+      } catch (err) {
+        console.warn('Undo save notice:', err);
+      }
       setOriginalCVBackup(null);
       showToast('Seluruh isi CV dikembalikan ke Bahasa Indonesia aslinya.');
     }
@@ -512,6 +570,11 @@ export default function Home() {
 
   // DOWNLOAD PDF TRIGGER: Check if subscription is active and consume monthly quota
   const handleDownloadClick = async () => {
+    if (isTranslatingCV) {
+      showToast('AI sedang menerjemahkan CV ke Bahasa Inggris. Harap tunggu sebentar...');
+      return;
+    }
+
     if (!isSubscriptionActive) {
       // Prompt user to activate Rp 25rb 1-year access before downloading!
       setPaymentModalOpen(true);
@@ -537,6 +600,11 @@ export default function Home() {
 
   // VECTOR PRINT / PDF TRIGGER: Browser native print engine (100% Vector Text & True Lossless PDF)
   const handleVectorPrintClick = async () => {
+    if (isTranslatingCV) {
+      showToast('AI sedang menerjemahkan CV ke Bahasa Inggris. Harap tunggu sebentar...');
+      return;
+    }
+
     if (!isSubscriptionActive) {
       setPaymentModalOpen(true);
       return;
