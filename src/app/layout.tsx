@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagus.id';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagusid.vercel.app';
 
 export const viewport: Viewport = {
   themeColor: [
@@ -96,7 +96,10 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'CxqsNovSo0cyDnq9itUDDGBI1d93SQPavNcKfNpVfT4',
+    google: [
+      'WavXXW1vNxxzldtCymOb23-tBUdVdLaIPZR5yv2sA5o',
+      'CxqsNovSo0cyDnq9itUDDGBI1d93SQPavNcKfNpVfT4',
+    ],
   },
 };
 

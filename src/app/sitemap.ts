@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagus.id';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagusid.vercel.app';
   const currentDate = new Date();
 
   return [

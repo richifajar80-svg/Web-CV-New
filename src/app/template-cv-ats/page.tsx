@@ -11,7 +11,7 @@ import {
   FileText,
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagus.id';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagusid.vercel.app';
 
 export const metadata: Metadata = {
   title: '10+ Template CV ATS Friendly Terbaik 2026 (Standar HRD, BUMN & Startup)',
@@ -299,3 +299,4 @@ export default function TemplateCVATSPage() {
     </div>
   );
 }
+

@@ -11,7 +11,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagus.id';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagusid.vercel.app';
 
 export const metadata: Metadata = {
   title: 'Panduan Cara Membuat CV ATS Friendly & Surat Lamaran Kerja Lolos HRD 2026',
@@ -278,3 +278,4 @@ export default function PanduanCVATSPage() {
     </div>
   );
 }
+
