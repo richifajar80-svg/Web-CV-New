@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import {
   User as UserIcon,
@@ -1041,8 +1042,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               a: 'Pendaftaran akun, pengisian formulir, penyesuaian templat, dan pengecekan skor ATS dapat dinikmati secara gratis. Untuk mengaktifkan akses unduh PDF kualitas cetak tanpa watermark dan membuka seluruh 10 templat CV selama 1 tahun penuh, biayanya hanya Rp 25.000 sekali bayar tanpa sistem tagihan bulanan otomatis.',
             },
             {
+              q: 'Apakah CV bisa diterjemahkan ke Bahasa Inggris otomatis dengan AI?',
+              a: 'Ya! cvbagus.id dilengkapi fitur AI Resume Translator berbasis Google Gemini AI yang dapat menerjemahkan seluruh isi CV Bahasa Indonesia Anda menjadi Bahasa Inggris bisnis tingkat eksekutif berstandar ATS internasional hanya dalam 1 klik.',
+            },
+            {
+              q: 'Apakah tersedia fitur pembuatan Surat Lamaran Kerja (Cover Letter)?',
+              a: 'Tentu saja. Setiap pengguna mendapatkan bonus akses ke pembuat Surat Lamaran Kerja (Cover Letter Generator) otomatis yang terintegrasi langsung dengan data profil CV Anda, lengkap dengan berbagai pilihan gaya bahasa resmi dan ekspor PDF ukuran A4.',
+            },
+            {
               q: 'Apakah CV bisa diunduh dalam format PDF resmi?',
-              a: 'Ya, CV dapat langsung diunduh dalam format PDF standar ukuran A4 yang rapi, teks dapat disorot (searchable text), dan ramah terhadap sistem verifikasi dokumen lowongan kerja online.',
+              a: 'Ya, CV dapat langsung diunduh dalam format PDF standar ukuran A4 yang rapi, teks dapat disorot (searchable text), dan ramah terhadap sistem verifikasi dokumen lowongan kerja online seperti FHCI BUMN, CPNS, LinkedIn, JobStreet, dan Glints.',
             },
             {
               q: 'Apakah tersedia pilihan Bahasa Indonesia dan Bahasa Inggris?',
@@ -1066,20 +1075,23 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 <button
                   type="button"
                   onClick={() => setOpenFaq(isOpen ? null : index)}
+                  aria-expanded={isOpen}
                   className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors"
                 >
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                     {faq.q}
-                  </span>
+                  </h3>
                   <div className="p-1 rounded-lg bg-slate-100 text-slate-500 shrink-0">
                     {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
                 </button>
-                {isOpen && (
-                  <div className="px-4 pb-5 sm:px-5 sm:pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    {faq.a}
-                  </div>
-                )}
+                <div
+                  className={`${
+                    isOpen ? 'block' : 'hidden'
+                  } px-4 pb-5 sm:px-5 sm:pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3`}
+                >
+                  {faq.a}
+                </div>
               </div>
             );
           })}
@@ -1124,20 +1136,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               </span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed max-w-md">
-              Platform pembuatan Curriculum Vitae dan resume online berstandar sistem ATS (Applicant Tracking System) untuk pencari kerja di Indonesia melalui cvbagus.id. Dilengkapi 10 templat profesional, skor ATS instan, dan unduh PDF kualitas tinggi.
+              Platform pembuatan Curriculum Vitae dan resume online berstandar sistem ATS (Applicant Tracking System) untuk pencari kerja di Indonesia melalui cvbagus.id. Dilengkapi 10 templat profesional, skor ATS instan, AI Resume Translator, dan unduh PDF kualitas tinggi.
             </p>
           </div>
 
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
-              Fitur Populer
+              Halaman & Fitur Utama
             </h4>
             <ul className="space-y-2 text-slate-400 text-xs">
-              <li>10+ Templat CV ATS Friendly</li>
+              <li>
+                <Link href="/template-cv-ats" className="hover:text-emerald-400 transition-colors">
+                  10+ Templat CV ATS Friendly
+                </Link>
+              </li>
+              <li>
+                <Link href="/panduan-cv-ats" className="hover:text-emerald-400 transition-colors">
+                  Panduan Cara Membuat CV ATS
+                </Link>
+              </li>
               <li>Live ATS Score Checker</li>
-              <li>Bilingual (Indonesia & English)</li>
-              <li>Drag & Drop Reorder Pengalaman</li>
-              <li>Pilihan Font Sans, Serif, Mono</li>
+              <li>Translate CV Bahasa Inggris (AI)</li>
+              <li>Generator Surat Lamaran Kerja</li>
               <li>Akses 1 Tahun Rp 25.000</li>
             </ul>
           </div>
@@ -1148,13 +1168,22 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             </h4>
             <ul className="space-y-2 text-slate-400 text-xs">
               <li>
+                <Link
+                  href="/panduan-cv-ats"
+                  className="hover:text-emerald-400 transition-colors text-left flex items-center gap-1.5"
+                >
+                  <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                  Panduan & Tips Lolos HRD
+                </Link>
+              </li>
+              <li>
                 <button
                   type="button"
                   onClick={() => setTipsModalOpen(true)}
                   className="hover:text-emerald-400 transition-colors text-left flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-                  Tips Karir (Artikel CMS)
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Artikel Tips Karir Interaktif
                 </button>
               </li>
               <li>
@@ -1194,7 +1223,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 'CV Maker Indonesia',
                 'Download CV PDF',
                 'Resume ATS Friendly',
-                'CV Bahasa Inggris',
+                'CV Bahasa Inggris AI',
+                'Surat Lamaran Kerja',
               ].map((tag, i) => (
                 <span
                   key={i}

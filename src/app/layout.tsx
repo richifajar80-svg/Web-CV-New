@@ -28,11 +28,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'cvbagus.id - Buat CV ATS Friendly & Profesional Online Gratis',
+    default: 'cvbagus.id - Buat CV ATS Friendly, Translate AI & Surat Lamaran Online',
     template: '%s | cvbagus.id',
   },
   description:
-    'Bikin CV online ATS-Friendly dan resume profesional standar HRD dalam 5 menit di cvbagus.id. Pilihan 10+ templat modern, kalkulator skor ATS otomatis, bilingual Indonesia-Inggris, dan unduh PDF instan tanpa watermark.',
+    'Bikin CV online ATS-Friendly dan resume profesional standar HRD dalam 5 menit di cvbagus.id. Dilengkapi 10+ templat modern (Harvard, Corporate, Executive), AI Translate Bahasa Inggris, kalkulator skor ATS otomatis, pembuat surat lamaran kerja, dan unduh PDF A4 tanpa watermark.',
   keywords: [
     'cvbagus.id',
     'cvbagus',
@@ -40,15 +40,19 @@ export const metadata: Metadata = {
     'buat cv online',
     'bikin cv online gratis',
     'template cv ats friendly',
+    'template cv harvard indonesia',
+    'translate cv bahasa inggris otomatis',
+    'pembuat surat lamaran kerja online',
+    'cover letter generator indonesia',
     'contoh cv lamaran kerja',
     'cv maker indonesia',
     'format cv standar hrd',
     'resume builder online',
     'cek skor ats cv',
-    'download cv pdf',
+    'download cv pdf a4',
     'curriculum vitae online',
     'cara membuat cv profesional',
-    'cv lolos seleksi bumn swasta',
+    'cv lolos seleksi bumn fhci cpns',
     'aplikasi pembuat cv gratis',
     'cv bahasa inggris dan indonesia',
   ],
@@ -65,9 +69,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'cvbagus.id - Buat CV ATS Friendly & Profesional Online Gratis',
+    title: 'cvbagus.id - Buat CV ATS Friendly, Translate AI & Surat Lamaran Online',
     description:
-      'Bikin CV online standar ATS dalam 5 menit di cvbagus.id. 10+ pilihan templat elegan, cek skor ATS otomatis, dan unduh PDF resmi siap kirim ke HRD.',
+      'Bikin CV online standar ATS dalam 5 menit di cvbagus.id. 10+ pilihan templat elegan, AI Translate ke Bahasa Inggris, cek skor ATS otomatis, dan unduh PDF resmi siap kirim ke HRD.',
     url: siteUrl,
     siteName: 'cvbagus.id',
     locale: 'id_ID',
@@ -75,9 +79,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'cvbagus.id - Buat CV ATS Friendly & Profesional Online Gratis',
+    title: 'cvbagus.id - Buat CV ATS Friendly, Translate AI & Surat Lamaran Online',
     description:
-      'Bikin CV online ramah ATS dan lolos seleksi HRD dalam hitungan menit di cvbagus.id. Cek skor ATS otomatis & unduh PDF instan.',
+      'Bikin CV online ramah ATS dan lolos seleksi HRD dalam hitungan menit di cvbagus.id. AI Translate Bahasa Inggris, cek skor ATS otomatis & unduh PDF instan.',
     creator: '@cvbagusid',
   },
   robots: {
@@ -94,6 +98,15 @@ export const metadata: Metadata = {
 };
 
 // JSON-LD Structured Data for Google Rich Snippets
+const webSiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'cvbagus.id',
+  alternateName: ['CV Bagus ID', 'cvbagus', 'Pembuat CV ATS Friendly Indonesia'],
+  url: siteUrl,
+  inLanguage: 'id-ID',
+};
+
 const webAppSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
@@ -102,21 +115,28 @@ const webAppSchema = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'All modern browsers (Windows, MacOS, Android, iOS)',
   browserRequirements: 'Requires JavaScript. Requires HTML5.',
-  softwareVersion: '2.0.0',
+  softwareVersion: '2.5.0',
   description:
-    'Platform online pembuat CV ATS Friendly dan resume profesional standar HRD di cvbagus.id dengan live preview, kalkulator skor ATS otomatis, 10 templat modern, dan unduh PDF instan.',
+    'Platform online pembuat CV ATS Friendly, AI Resume Translator Bahasa Inggris, dan generator surat lamaran kerja standar HRD di cvbagus.id dengan live preview, kalkulator skor ATS otomatis, 10 templat modern, dan unduh PDF instan.',
+  featureList: [
+    '10+ Templat CV ATS Friendly (Modern, Harvard, Executive, Corporate, Minimalist)',
+    'AI Resume Translator 1-Klik ke Bahasa Inggris Eksekutif (Google Gemini AI)',
+    'Kalkulator Skor Kesiapan ATS Real-Time (0-100%)',
+    'Generator Surat Lamaran Kerja (Cover Letter) Otomatis',
+    'Unduh PDF A4 Resolusi Tinggi & Cetak Vektor Tanpa Watermark',
+  ],
   offers: {
     '@type': 'Offer',
     price: '25000',
     priceCurrency: 'IDR',
     availability: 'https://schema.org/InStock',
     validFrom: '2026-01-01',
-    description: 'Akses penuh 1 tahun semua 10 templat CV dan unduh PDF tanpa batas',
+    description: 'Akses penuh 1 tahun semua 10 templat CV, AI Translate, Surat Lamaran, dan unduh PDF tanpa watermark',
   },
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.9',
-    ratingCount: '1280',
+    ratingCount: '1420',
     bestRating: '5',
     worstRating: '1',
   },
@@ -125,6 +145,43 @@ const webAppSchema = {
     name: 'cvbagus.id',
     url: siteUrl,
   },
+};
+
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'Cara Membuat CV ATS Friendly Online dalam 5 Menit',
+  description:
+    'Panduan langkah demi langkah membuat Curriculum Vitae (CV) berstandar Applicant Tracking System (ATS) yang lolos seleksi HRD di cvbagus.id.',
+  totalTime: 'PT5M',
+  estimatedCost: {
+    '@type': 'MonetaryAmount',
+    currency: 'IDR',
+    value: '25000',
+  },
+  step: [
+    {
+      '@type': 'HowToStep',
+      position: 1,
+      name: 'Isi Data Diri & Pengalaman Kerja',
+      text: 'Masukkan informasi kontak, ringkasan profesional, riwayat pengalaman kerja, pendidikan, dan keahlian melalui formulir terstruktur.',
+      url: `${siteUrl}/#step-1`,
+    },
+    {
+      '@type': 'HowToStep',
+      position: 2,
+      name: 'Pilih Templat ATS & Optimalkan dengan AI',
+      text: 'Pilih dari 10 templat CV standar HRD (seperti Harvard atau Corporate), pantau skor ATS hingga 100%, dan gunakan fitur Translate AI jika melamar dalam Bahasa Inggris.',
+      url: `${siteUrl}/template-cv-ats`,
+    },
+    {
+      '@type': 'HowToStep',
+      position: 3,
+      name: 'Unduh Dokumen PDF Standar A4',
+      text: 'Unduh CV dan Surat Lamaran Kerja dalam format PDF ukuran A4 resolusi tinggi tanpa watermark yang siap dikirim ke HRD.',
+      url: `${siteUrl}/#download`,
+    },
+  ],
 };
 
 const faqSchema = {
@@ -149,10 +206,26 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
+      name: 'Apakah CV bisa diterjemahkan ke Bahasa Inggris otomatis dengan AI?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Ya! cvbagus.id dilengkapi fitur AI Resume Translator berbasis Google Gemini AI yang menerjemahkan seluruh isi CV Bahasa Indonesia Anda menjadi Bahasa Inggris bisnis tingkat eksekutif standar ATS internasional hanya dalam 1 klik.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Apakah tersedia fitur pembuatan Surat Lamaran Kerja (Cover Letter)?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Tentu saja. Setiap pengguna mendapatkan bonus akses ke pembuat Surat Lamaran Kerja (Cover Letter Generator) otomatis yang terintegrasi dengan data profil CV Anda dan siap diunduh dalam format PDF A4.',
+      },
+    },
+    {
+      '@type': 'Question',
       name: 'Apakah CV bisa diunduh dalam format PDF resmi?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Ya, CV dapat langsung diunduh dalam format dokumen PDF standar cetak ukuran A4 yang rapi, teks dapat disorot (searchable text), dan ramah terhadap sistem verifikasi dokumen lowongan kerja online.',
+        text: 'Ya, CV dapat langsung diunduh dalam format dokumen PDF standar cetak ukuran A4 yang rapi, teks dapat disorot (searchable text), dan ramah terhadap sistem verifikasi dokumen lowongan kerja online seperti FHCI BUMN, CPNS, LinkedIn, JobStreet, dan Glints.',
       },
     },
     {
@@ -197,7 +270,15 @@ export default function RootLayout({
         {/* JSON-LD Schemas for Search Engine Optimization */}
         <script
           type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
         <script
           type="application/ld+json"

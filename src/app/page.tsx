@@ -244,17 +244,8 @@ export default function Home() {
     };
   }, []);
 
-  // Loading Screen while verifying session
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
-        <p className="text-xs font-medium text-slate-500">Memuat cvbagus.id...</p>
-      </div>
-    );
-  }
-
-  // GATE: If user is not logged in, show the Login/Register Gateway!
+  // GATE: If user is not logged in (including during SSR for Googlebot/crawlers),
+  // render the full SEO-rich AuthScreen landing page immediately so H1, features, and FAQs are 100% indexed!
   if (!isAuthenticated) {
     return (
       <AuthScreen
