@@ -729,7 +729,7 @@ export default function Home() {
                 <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full truncate max-w-[120px] sm:max-w-[170px]">
                   {activeCVTitle}
                 </span>
-                <span className="hidden xs:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 px-2 py-0.5 rounded-full shrink-0">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50/80 border border-emerald-200/60 px-2 py-0.5 rounded-full shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Tersimpan
                 </span>
@@ -812,27 +812,25 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="no-print flex items-center justify-between px-1 flex-wrap gap-2">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">
-                  <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="hidden sm:inline">2. Pratinjau (A4)</span>
-                  <span className="sm:hidden">2. Pratinjau</span>
+            <div className="no-print flex items-center justify-between px-1 gap-1.5 flex-wrap">
+              {/* Left side: Preview Title, Template Switcher, AI Translate */}
+              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                <div className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">
+                  <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="hidden xl:inline">Pratinjau (A4)</span>
+                  <span className="xl:hidden">Pratinjau</span>
                 </div>
 
                 {/* Prominent Quick Template Switcher */}
                 <button
                   type="button"
                   onClick={() => setGalleryOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white hover:bg-emerald-50 border-2 border-emerald-500/50 hover:border-emerald-600 text-slate-800 font-bold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer active:scale-95 group"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white hover:bg-emerald-50 border border-emerald-500/80 hover:border-emerald-600 text-slate-800 font-bold text-[11px] shadow-2xs transition-all cursor-pointer active:scale-95 group shrink-0"
                   title="Klik untuk memilih dari 10+ desain & template CV"
                 >
-                  <LayoutTemplate className="w-3.5 h-3.5 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="text-slate-500 text-[11px] font-semibold">Desain:</span>
-                  <span className="text-emerald-900 font-black">{currentTemplate.name}</span>
-                  <span className="text-[10px] bg-emerald-600 text-white font-extrabold px-1.5 py-0.2 rounded-md">
-                    Ganti
-                  </span>
+                  <LayoutTemplate className="w-3 h-3 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="text-emerald-800 font-semibold">Pilih Template:</span>
+                  <span className="text-slate-900 font-extrabold">{currentTemplate.name}</span>
                 </button>
 
                 {/* 1-Click Full CV Translation Button */}
@@ -840,18 +838,18 @@ export default function Home() {
                   type="button"
                   disabled={isTranslatingCV}
                   onClick={handleTranslateFullCV}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 active:scale-95 shadow-2xs hover:shadow-xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 active:scale-95 shadow-2xs transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shrink-0"
                   title="Terjemahkan seluruh isi CV ke Bahasa Inggris profesional standar ATS menggunakan Google Gemini AI"
                 >
                   {isTranslatingCV ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                      <span>Menerjemahkan (Gemini AI)...</span>
+                      <Loader2 className="w-3 h-3 animate-spin text-white shrink-0" />
+                      <span>Menerjemahkan...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-                      <span>Translate 1 Halaman (AI)</span>
+                      <Sparkles className="w-3 h-3 text-amber-300 fill-amber-300 shrink-0" />
+                      <span>Translate AI</span>
                     </>
                   )}
                 </button>
@@ -861,29 +859,31 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={handleUndoFullCV}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs transition-all cursor-pointer shrink-0"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs transition-all cursor-pointer shrink-0"
                     title="Kembalikan seluruh isi CV ke Bahasa Indonesia aslinya"
                   >
-                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Teks Asli (ID)</span>
+                    <RotateCcw className="w-3 h-3 text-slate-500 shrink-0" />
+                    <span>Asli (ID)</span>
                   </button>
                 )}
+              </div>
 
-                {/* Zoom Controls */}
-                <div className="inline-flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-[11px] font-bold shrink-0">
+              {/* Right side: Zoom Controls & Vector Print */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="inline-flex items-center bg-slate-100 rounded-full px-1 py-0.5 border border-slate-200 text-[11px] font-bold shrink-0">
                   <button
                     type="button"
                     onClick={() => setZoom((prev) => Math.max(35, prev - 10))}
-                    className="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
+                    className="px-1.5 py-0.5 rounded-full text-slate-600 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
                     title="Perkecil Pratinjau (Zoom Out)"
                   >
                     -
                   </button>
-                  <span className="px-1.5 text-slate-700 min-w-[38px] text-center select-none text-[10px]">{zoom}%</span>
+                  <span className="px-1 text-slate-700 min-w-[34px] text-center select-none text-[10px]">{zoom}%</span>
                   <button
                     type="button"
                     onClick={() => setZoom((prev) => Math.min(130, prev + 10))}
-                    className="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
+                    className="px-1.5 py-0.5 rounded-full text-slate-600 hover:text-slate-900 hover:bg-white transition-all cursor-pointer"
                     title="Perbesar Pratinjau (Zoom In)"
                   >
                     +
@@ -891,7 +891,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setZoom(calculateFitZoom())}
-                    className="px-1.5 py-0.5 text-[10px] text-emerald-700 hover:bg-white rounded transition-all cursor-pointer font-bold"
+                    className="px-1.5 py-0.5 text-[10px] text-emerald-700 hover:bg-white rounded-full transition-all cursor-pointer font-bold"
                     title="Sesuaikan ukuran lembar A4 agar pas di layar tanpa geser"
                   >
                     Paskan
@@ -900,29 +900,24 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={() => setZoom(100)}
-                      className="px-1.5 py-0.5 text-[10px] text-slate-500 hover:text-slate-800 hover:underline cursor-pointer"
+                      className="px-1 py-0.5 text-[10px] text-slate-500 hover:text-slate-800 hover:underline cursor-pointer"
                       title="Reset ke 100%"
                     >
                       100%
                     </button>
                   )}
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleVectorPrintClick}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-lg border border-slate-200 text-[11px] font-bold shadow-2xs transition-all cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-full border border-slate-200 text-[11px] font-bold shadow-2xs transition-all cursor-pointer shrink-0"
                   title="Cetak langsung atau Simpan sebagai PDF Vektor (Teks Asli, Tajam & Terbaca ATS)"
                 >
-                  <Printer className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="hidden sm:inline">Cetak / Vektor PDF</span>
-                  <span className="sm:hidden">Cetak</span>
+                  <Printer className="w-3 h-3 text-slate-500 shrink-0" />
+                  <span className="hidden 2xl:inline">Cetak PDF</span>
+                  <span className="2xl:hidden">Cetak</span>
                 </button>
-                <div className="text-[11px] text-slate-500 font-medium hidden sm:block">
-                  Standar A4 (210 x 297 mm)
-                </div>
               </div>
             </div>
 

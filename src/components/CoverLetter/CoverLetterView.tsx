@@ -202,6 +202,13 @@ ${letterData.applicantLinkedIn ? `${letterData.applicantLinkedIn}` : ''}
     }
 
     setIsExportingPDF(true);
+
+    // Ensure preview DOM element is visible on mobile screens before capturing PDF
+    if (mobileView !== 'preview') {
+      setMobileView('preview');
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+
     const safeName = (letterData.applicantName || 'Pelamar').replace(/[^a-zA-Z0-9]/g, '_');
     const safeCompany = (letterData.companyName || 'Perusahaan').replace(/[^a-zA-Z0-9]/g, '_');
     const fileName = `Surat_Lamaran_${safeName}_${safeCompany}.pdf`;

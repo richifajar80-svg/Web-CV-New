@@ -314,7 +314,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify({
           name: pendingVerification.name,
           email: pendingVerification.email,
-          pass: pendingVerification.pass,
+          resend: true,
         }),
       });
       return { success: res.ok };

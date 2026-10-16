@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers, setPendingVerification } from '@/lib/serverDb';
+import { getAllUsers, getPendingVerification, setPendingVerification } from '@/lib/serverDb';
 import { sendVerificationEmail } from '@/lib/email';
 import { hashPassword, checkRateLimit, getClientIp } from '@/lib/security';
 
@@ -7,10 +7,10 @@ export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
     const body = await request.json();
-    const { name, email, pass } = body;
+    const { name, email, pass, resend } = body;
 
-    // 1. Rate Limiting: max 3 registration requests per 10 minutes per IP
-    const rateLimit = await checkRateLimit(`register:${ip}`, 3, 10 * 60);
+    // 1. Rate Limiting: max 5 registration/resend requests per 10 minutes per IP
+    const rateLimit = await checkRateLimit(`register:${ip}`, 5, 10 * 60);
     if (!rateLimit.success) {
       return NextResponse.json(
         {
@@ -19,6 +19,45 @@ export async function POST(request: Request) {
         },
         { status: 429 }
       );
+    }
+
+    // Handle OTP Resend using existing server-side PendingRecord
+    if (resend && email?.trim()) {
+      const cleanEmail = email.trim().toLowerCase();
+      const existingPending = await getPendingVerification(cleanEmail);
+      if (!existingPending) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Sesi verifikasi telah berakhir. Silakan daftar ulang.',
+          },
+          { status: 400 }
+        );
+      }
+
+      const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      await setPendingVerification({
+        ...existingPending,
+        code: newOtp,
+        createdAt: Date.now(),
+      });
+
+      const mailResult = await sendVerificationEmail({
+        to: cleanEmail,
+        name: existingPending.name,
+        code: newOtp,
+        type: 'register',
+      });
+
+      if (!mailResult.success) {
+        console.warn('Resend email warning:', mailResult.error);
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Kode verifikasi baru telah dikirim ke ${cleanEmail}`,
+        email: cleanEmail,
+      });
     }
 
     if (!name?.trim() || !email?.trim() || !pass?.trim()) {

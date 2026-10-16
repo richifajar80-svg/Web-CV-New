@@ -67,11 +67,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Too many save requests' }, { status: 429 });
     }
 
-    // Prevent storage bloat / abuse: limit maximum 50 CVs per user
+    // Prevent storage bloat / abuse: limit maximum 50 CVs per user and max 4MB total payload
     if (cvs.length > 50) {
       return NextResponse.json(
         { success: false, error: 'Jumlah CV melebihi batas maksimum (50 CV).' },
         { status: 400 }
+      );
+    }
+
+    const serializedSize = JSON.stringify(cvs).length;
+    if (serializedSize > 4 * 1024 * 1024) {
+      return NextResponse.json(
+        { success: false, error: 'Ukuran data CV terlalu besar (maksimal 4MB).' },
+        { status: 413 }
       );
     }
 

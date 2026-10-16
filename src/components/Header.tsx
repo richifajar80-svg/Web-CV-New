@@ -99,36 +99,37 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-        <div className="max-w-[1700px] w-full mx-auto px-2 sm:px-4 lg:px-5 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2.5 min-w-0">
+        <div className="max-w-[1700px] w-full mx-auto px-2.5 sm:px-4 lg:px-5 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
           
           {/* 1. Logo, Brand & Auto-Save Indicator */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 font-bold text-sm sm:text-lg shrink-0">
+          <div className="flex items-center gap-2 shrink-0 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-sm shadow-emerald-500/20 font-bold text-sm sm:text-base shrink-0">
               CB
             </div>
-            <div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-extrabold text-slate-900 text-sm sm:text-lg tracking-tight shrink-0">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-slate-900 text-sm sm:text-base lg:text-lg tracking-tight shrink-0">
                   cvbagus<span className="text-emerald-600">.id</span>
                 </span>
                 {isSubscriptionActive ? (
-                  <span className="hidden lg:inline-flex text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300 items-center gap-1 shrink-0">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    <span>Akses 1 Thn Aktif</span>
+                  <span className="hidden xl:inline-flex text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300 items-center gap-1 shrink-0">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span className="hidden 2xl:inline">Akses 1 Thn Aktif</span>
+                    <span className="2xl:hidden">PRO</span>
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={onOpenPayment}
-                    className="hidden lg:inline-flex text-[11px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
+                    className="hidden xl:inline-flex text-[10px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
                   >
-                    Rp 25.000 / Thn
+                    Rp 25rb/Thn
                   </button>
                 )}
 
                 {/* Auto-Save Cloud Status Indicator */}
                 <div
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all shrink-0 select-none border ${
+                  className={`hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold transition-all shrink-0 select-none border ${
                     saveStatus === 'saving'
                       ? 'bg-amber-50/90 text-amber-800 border-amber-200 animate-pulse'
                       : saveStatus === 'unsaved'
@@ -146,22 +147,21 @@ export const Header: React.FC<HeaderProps> = ({
                   {saveStatus === 'saving' ? (
                     <>
                       <Loader2 className="w-2.5 h-2.5 text-amber-600 animate-spin shrink-0" />
-                      <span className="hidden sm:inline font-bold">Menyimpan...</span>
+                      <span className="hidden 2xl:inline font-bold">Menyimpan...</span>
                     </>
                   ) : saveStatus === 'unsaved' ? (
                     <>
                       <Cloud className="w-2.5 h-2.5 text-slate-400 shrink-0" />
-                      <span className="hidden sm:inline">Draf lokal</span>
+                      <span className="hidden 2xl:inline">Draf</span>
                     </>
                   ) : (
                     <>
                       <Cloud className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
-                      <span className="hidden sm:inline font-bold">Tersimpan</span>
+                      <span className="hidden 2xl:inline font-bold">Tersimpan</span>
                     </>
                   )}
                 </div>
               </div>
-              <p className="text-xs text-slate-500 hidden 2xl:block truncate">Editor CV Profesional & Ramah ATS</p>
             </div>
           </div>
 
@@ -170,59 +170,52 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onSwitchMode?.('cv')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeMode === 'cv'
                   ? 'bg-white text-emerald-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-3.5 h-3.5" />
+              <FileText className="w-3.5 h-3.5 shrink-0" />
               <span>Editor CV</span>
             </button>
             <button
               type="button"
               onClick={() => onSwitchMode?.('cover_letter')}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeMode === 'cover_letter'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-emerald-700'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>Surat Lamaran</span>
-              <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase hidden xl:inline-block">
+              <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase hidden 2xl:inline-block">
                 Bonus
               </span>
             </button>
           </div>
 
           {/* 4. Action Controls Bar (Carefully responsive on mobile & desktop) */}
-          <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
 
             {/* ONLY IN CV MODE: Template Gallery, Theme Popover, Language, Reset, and Download */}
             {activeMode === 'cv' && (
               <>
-                {/* Template Gallery Picker (Prominent & Clearly Labeled) */}
+                {/* Template Gallery Picker (Compact, Single-Line & Clearly Labeled) */}
                 <button
                   type="button"
                   onClick={handleOpenGalleryClick}
-                  className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 text-slate-800 font-bold transition-all shadow-xs hover:shadow-md cursor-pointer group active:scale-98 shrink-0 ring-2 ring-emerald-500/10"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-emerald-500/80 bg-emerald-50/90 hover:bg-emerald-100/90 text-slate-800 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer group active:scale-98 shrink-0 whitespace-nowrap"
                   title="Klik untuk memilih dari 10+ pilihan templat & desain CV"
                 >
-                  <div className="w-5.5 h-5.5 sm:w-6 sm:h-6 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                    <LayoutTemplate className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="flex flex-col text-left leading-tight hidden xs:flex">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 whitespace-nowrap">
-                        Template
-                      </span>
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 truncate max-w-[70px] sm:max-w-[95px] xl:max-w-[120px]">
-                      {currentTemplate.name}
-                    </span>
-                  </div>
-                  <ChevronDown className="w-3 h-3 text-emerald-700/80 shrink-0 group-hover:translate-y-0.5 transition-transform ml-0.5" />
+                  <LayoutTemplate className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="text-emerald-800 font-semibold hidden sm:inline">Pilih Template:</span>
+                  <span className="text-emerald-800 font-semibold sm:hidden">Template:</span>
+                  <span className="font-extrabold text-slate-900 truncate max-w-[75px] sm:max-w-[95px] xl:max-w-[120px]">
+                    {currentTemplate.name}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:translate-y-0.5 transition-transform" />
                 </button>
 
                 {/* Theme (Color & Font) Compact Popover - Hidden on mobile, accessible in ... menu */}
@@ -230,17 +223,20 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     type="button"
                     onClick={() => setThemeMenuOpen(!themeMenuOpen)}
-                    className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 transition-colors cursor-pointer whitespace-nowrap"
                     title="Atur warna aksen & jenis font CV"
                   >
                     <span
-                      className="w-3 h-3 rounded-full shadow-2xs border border-white shrink-0"
+                      className="w-3.5 h-3.5 rounded-full shadow-2xs border border-white shrink-0"
                       style={{ backgroundColor: theme.accentColor || '#1e40af' }}
                     />
-                    <span className="hidden xl:inline capitalize font-semibold text-[11px]">
-                      {theme.fontFamily || 'Sans'}
+                    <span className="capitalize font-semibold text-[11px] hidden xl:inline">
+                      Warna & {theme.fontFamily || 'Sans'}
                     </span>
-                    <ChevronDown className="w-3 h-3 text-slate-400" />
+                    <span className="capitalize font-semibold text-[11px] xl:hidden">
+                      Tema
+                    </span>
+                    <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
                   </button>
 
                   {themeMenuOpen && (
@@ -376,11 +372,11 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   type="button"
                   onClick={onOpenContact}
-                  className="hidden md:inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-50 hover:bg-emerald-50/80 transition-all cursor-pointer border border-slate-200 hover:border-emerald-300 shadow-2xs shrink-0 whitespace-nowrap"
+                  className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-emerald-800 bg-slate-50 hover:bg-emerald-50/80 transition-all cursor-pointer border border-slate-200 hover:border-emerald-300 shadow-2xs shrink-0 whitespace-nowrap"
                   title="Hubungi tim support & bantuan resmi cvbagus.id"
                 >
                   <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Contact Us</span>
+                  <span className="hidden xl:inline">Contact Us</span>
                 </button>
 
                 {/* Download / Print PDF Button (FULL TEXT & NEVER CLIPPED) */}
@@ -388,7 +384,7 @@ export const Header: React.FC<HeaderProps> = ({
                   type="button"
                   disabled={isDownloading}
                   onClick={onDownloadClick}
-                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
+                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
                   title="Unduh file CV Anda dalam format PDF standar A4 siap cetak"
                 >
                   {isDownloading ? (

@@ -342,7 +342,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, Livin Mandiri, BRImo, dll.
                       </p>
                       <p className="text-[10px] text-emerald-700 font-semibold">
-                        Nominal: Pas Rp 25.000
+                        Nominal: Pas {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'}
                       </p>
                     </div>
                   </div>
@@ -369,7 +369,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <span>
                   {isProcessing
                     ? 'Memverifikasi Pembayaran...'
-                    : 'Konfirmasi Bayar Rp 25.000 & Unduh CV'}
+                    : `Konfirmasi Bayar ${selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'} & Unduh CV`}
                 </span>
                 <ArrowRight className="w-4 h-4" />
               </button>

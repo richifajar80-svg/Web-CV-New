@@ -10,6 +10,15 @@ interface SendEmailParams {
 const GMAIL_SENDER = process.env.GMAIL_USER || 'admin.cvbagusid@gmail.com';
 const GMAIL_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 /**
  * Send OTP Verification or Password Reset email using Gmail SMTP
  * Optimized for high deliverability (multipart/alternative text + HTML, anti-spam headers)
@@ -20,7 +29,8 @@ export async function sendVerificationEmail({ to, name, code, type }: SendEmailP
     ? `${code} adalah kode reset kata sandi cvbagus.id Anda`
     : `${code} adalah kode verifikasi akun cvbagus.id Anda`;
 
-  const greeting = name ? `Halo, <b>${name}</b>!` : 'Halo!';
+  const safeName = name ? escapeHtml(name.trim()) : '';
+  const greeting = safeName ? `Halo, <b>${safeName}</b>!` : 'Halo!';
   const title = isReset ? 'Reset Kata Sandi Akun' : 'Verifikasi Akun Baru';
   const description = isReset
     ? 'Kami menerima permintaan untuk mereset kata sandi akun Anda di <b>cvbagus.id</b>. Gunakan kode 6 digit berikut untuk membuat kata sandi baru:'

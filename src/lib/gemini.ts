@@ -16,9 +16,9 @@ export async function translateJobDescriptionWithGemini(
   options: GeminiTranslateOptions = {}
 ): Promise<string> {
   const apiKey =
-    options.customApiKey?.trim() ||
     process.env.GEMINI_API_KEY?.trim() ||
-    process.env.GOOGLE_API_KEY?.trim();
+    process.env.GOOGLE_API_KEY?.trim() ||
+    options.customApiKey?.trim();
 
   if (!apiKey) {
     const error: any = new Error(
@@ -214,9 +214,9 @@ export async function translateFullCVWithGemini(
   options: { customApiKey?: string } = {}
 ): Promise<FullCVTranslateOutput> {
   const apiKey =
-    options.customApiKey?.trim() ||
     process.env.GEMINI_API_KEY?.trim() ||
-    process.env.GOOGLE_API_KEY?.trim();
+    process.env.GOOGLE_API_KEY?.trim() ||
+    options.customApiKey?.trim();
 
   if (!apiKey) {
     const error: any = new Error(

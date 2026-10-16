@@ -4,6 +4,25 @@ import { verifyAdminRequest, hashPassword } from '@/lib/security';
 
 export const runtime = 'nodejs';
 
+function sanitizeUser(u: UserRecord) {
+  const { user: effective } = getEffectiveUserQuotas(u);
+  return {
+    id: effective.id,
+    name: effective.name,
+    email: effective.email,
+    role: effective.role || (effective.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
+    isVerified: effective.isVerified,
+    isPaid: effective.isPaid,
+    subscriptionExpiresAt: effective.subscriptionExpiresAt,
+    createdAt: effective.createdAt,
+    plan: effective.plan || 'personal',
+    downloadCountThisMonth: effective.downloadCountThisMonth ?? 0,
+    translateCountThisMonth: effective.translateCountThisMonth ?? 0,
+    lastQuotaResetMonth: effective.lastQuotaResetMonth,
+    pass: effective.pass ? '••••••••' : undefined,
+  };
+}
+
 // GET: Retrieve all users for Admin Dashboard (Protected by Admin Token)
 export async function GET(request: Request) {
   try {
@@ -15,24 +34,7 @@ export async function GET(request: Request) {
     }
 
     const users = await getAllUsers();
-    const safeUsers = users.map((u) => {
-      const { user: effective } = getEffectiveUserQuotas(u);
-      return {
-        id: effective.id,
-        name: effective.name,
-        email: effective.email,
-        role: effective.role || (effective.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
-        isVerified: effective.isVerified,
-        isPaid: effective.isPaid,
-        subscriptionExpiresAt: effective.subscriptionExpiresAt,
-        createdAt: effective.createdAt,
-        plan: effective.plan || 'personal',
-        downloadCountThisMonth: effective.downloadCountThisMonth ?? 0,
-        translateCountThisMonth: effective.translateCountThisMonth ?? 0,
-        lastQuotaResetMonth: effective.lastQuotaResetMonth,
-        pass: effective.pass ? '••••••••' : undefined,
-      };
-    });
+    const safeUsers = users.map(sanitizeUser);
 
     return NextResponse.json({ success: true, users: safeUsers });
   } catch (error: any) {
@@ -106,26 +108,11 @@ export async function POST(request: Request) {
 
       await saveAllUsers(updated);
 
-      const safeCreated = {
-        id: userRecord.id,
-        name: userRecord.name,
-        email: userRecord.email,
-        role: userRecord.role,
-        isVerified: userRecord.isVerified,
-        isPaid: userRecord.isPaid,
-        subscriptionExpiresAt: userRecord.subscriptionExpiresAt,
-        createdAt: userRecord.createdAt,
-      };
-
       return NextResponse.json({
         success: true,
         message: existingIdx !== -1 ? 'Akun berhasil diperbarui.' : 'Akun berhasil dibuat.',
-        user: safeCreated,
-        users: updated.map((u) => ({
-          ...u,
-          role: u.role || (u.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
-          pass: '••••••••',
-        })),
+        user: sanitizeUser(userRecord),
+        users: updated.map(sanitizeUser),
       });
     }
 
@@ -148,7 +135,7 @@ export async function POST(request: Request) {
       });
 
       await saveAllUsers(updated);
-      return NextResponse.json({ success: true, users: updated });
+      return NextResponse.json({ success: true, users: updated.map(sanitizeUser) });
     }
 
     // 3. TOGGLE / SET PLAN (Personal <-> Enterprise)
@@ -165,7 +152,7 @@ export async function POST(request: Request) {
       });
 
       await saveAllUsers(updated);
-      return NextResponse.json({ success: true, users: updated });
+      return NextResponse.json({ success: true, users: updated.map(sanitizeUser) });
     }
 
     // 4. RESET QUOTA (Reset download and translate counters)
@@ -182,14 +169,14 @@ export async function POST(request: Request) {
       });
 
       await saveAllUsers(updated);
-      return NextResponse.json({ success: true, users: updated });
+      return NextResponse.json({ success: true, users: updated.map(sanitizeUser) });
     }
 
     // 5. DELETE USER
     if (action === 'delete-user') {
       const filtered = users.filter((u) => u.id !== userId);
       await saveAllUsers(filtered);
-      return NextResponse.json({ success: true, users: filtered });
+      return NextResponse.json({ success: true, users: filtered.map(sanitizeUser) });
     }
 
     return NextResponse.json({ success: false, error: 'Aksi tidak valid.' }, { status: 400 });
