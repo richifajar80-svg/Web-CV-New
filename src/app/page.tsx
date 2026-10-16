@@ -122,11 +122,46 @@ export default function Home() {
 
   // Synchronize active CV on initial login / mount
   useEffect(() => {
+    try {
+      const savedBackup = localStorage.getItem('cvbagus_original_cv_backup');
+      if (savedBackup) {
+        setOriginalCVBackup(JSON.parse(savedBackup));
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  useEffect(() => {
     if (user && userCVs.length > 0 && !activeCVId) {
       const current = userCVs[0];
       setActiveCVId(current.id);
       setActiveCVTitle(current.title);
-      setCvData(current.data);
+
+      // If the saved CV is the dummy profile ("Baim Maulana") that was previously left in English,
+      // automatically restore it to the Indonesian dummy data so the user can test translating from Indonesian.
+      const isEnglishDummy =
+        current.data?.personalInfo?.fullName === 'Baim Maulana' &&
+        (current.data?.theme?.language === 'en' ||
+          current.data?.summary?.startsWith('Accomplished Full Stack'));
+
+      if (isEnglishDummy) {
+        const restoredDummy: CVData = {
+          ...initialCVData,
+          theme: {
+            ...initialCVData.theme,
+            ...(current.data?.theme || {}),
+            language: 'id',
+          },
+        };
+        setCvData(restoredDummy);
+        setOriginalCVBackup(null);
+        localStorage.removeItem('cvbagus_original_cv_backup');
+        saveCV(current.title || 'CV Utama Saya', restoredDummy, current.id);
+      } else {
+        setCvData(current.data);
+      }
+
       initialLoadDoneRef.current = true;
     }
   }, [user, userCVs, activeCVId]);
@@ -252,7 +287,13 @@ export default function Home() {
 
     // Save full original backup if not already saved
     if (!originalCVBackup) {
-      setOriginalCVBackup(JSON.parse(JSON.stringify(cvData)));
+      const backup = JSON.parse(JSON.stringify(cvData));
+      setOriginalCVBackup(backup);
+      try {
+        localStorage.setItem('cvbagus_original_cv_backup', JSON.stringify(backup));
+      } catch {
+        // ignore storage errors
+      }
     }
 
     setIsTranslatingCV(true);
@@ -414,32 +455,59 @@ export default function Home() {
   };
 
   const handleUndoFullCV = () => {
-    if (originalCVBackup) {
-      setCvData(originalCVBackup);
-      try {
-        saveCV(activeCVTitle || 'CV Utama Saya', originalCVBackup, activeCVId || undefined);
-        setSaveStatus('saved');
-      } catch (err) {
-        console.warn('Undo save notice:', err);
-      }
-      setOriginalCVBackup(null);
-      showToast('Seluruh isi CV dikembalikan ke Bahasa Indonesia aslinya.');
+    const targetRestore: CVData =
+      originalCVBackup || {
+        ...initialCVData,
+        theme: {
+          ...initialCVData.theme,
+          ...cvData.theme,
+          language: 'id',
+        },
+      };
+
+    setCvData(targetRestore);
+    try {
+      saveCV(activeCVTitle || 'CV Utama Saya', targetRestore, activeCVId || undefined);
+      setSaveStatus('saved');
+      localStorage.removeItem('cvbagus_original_cv_backup');
+    } catch (err) {
+      console.warn('Undo save notice:', err);
     }
+    setOriginalCVBackup(null);
+    showToast('Seluruh isi CV dikembalikan ke Bahasa Indonesia aslinya.');
   };
 
   const handleReset = () => {
     setModalConfig({
       isOpen: true,
       title: 'Muat Data Contoh (Demo)?',
-      description: 'Semua isian formulir saat ini akan ditimpa dengan data profil contoh profesional.',
+      description: 'Semua isian formulir saat ini akan ditimpa dengan data profil contoh profesional (Bahasa Indonesia).',
       confirmText: 'Muat Data Contoh',
       cancelText: 'Batal',
       variant: 'warning',
       icon: 'reset',
       isPrompt: false,
       onConfirm: () => {
-        setCvData(initialCVData);
-        showToast('Data contoh berhasil dimuat!');
+        const resetData: CVData = {
+          ...initialCVData,
+          theme: {
+            ...initialCVData.theme,
+            template: cvData.theme.template,
+            accentColor: cvData.theme.accentColor,
+            fontFamily: cvData.theme.fontFamily,
+            language: 'id',
+          },
+        };
+        setCvData(resetData);
+        setOriginalCVBackup(null);
+        try {
+          localStorage.removeItem('cvbagus_original_cv_backup');
+          saveCV(activeCVTitle || 'CV Utama Saya', resetData, activeCVId || undefined);
+          setSaveStatus('saved');
+        } catch {
+          // ignore
+        }
+        showToast('Data contoh (Bahasa Indonesia) berhasil dimuat!');
       },
     });
   };
@@ -855,7 +923,7 @@ export default function Home() {
                 </button>
 
                 {/* Undo / Revert to Original ID if translated */}
-                {originalCVBackup && (
+                {(originalCVBackup || cvData.theme.language === 'en') && (
                   <button
                     type="button"
                     onClick={handleUndoFullCV}
