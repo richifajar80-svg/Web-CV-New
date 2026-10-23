@@ -126,12 +126,12 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
             value={newSkillName}
             onChange={(e) => setNewSkillName(e.target.value)}
             placeholder="Ketik keahlian (contoh: Next.js, Python, Figma)..."
-            className="flex-1 text-xs px-3 py-2 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+            className="flex-1 text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
           />
           <select
             value={newSkillLevel}
             onChange={(e) => setNewSkillLevel(e.target.value as Skill['level'])}
-            className="text-xs px-3 py-2 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 rounded-xl text-slate-700 outline-none cursor-pointer"
+            className="text-xs sm:text-[13px] font-semibold px-3 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 rounded-xl shadow-2xs text-slate-800 outline-none cursor-pointer"
           >
             <option value="Pemula">Pemula</option>
             <option value="Menengah">Menengah</option>
@@ -140,7 +140,7 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
           </select>
           <button
             type="submit"
-            className="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
+            className="px-4 py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-xs flex items-center gap-1 cursor-pointer shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Tambah</span>
@@ -219,14 +219,14 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
 
         <div className="space-y-2.5">
           {languages.map((lang, idx) => (
-            <div key={lang.id} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-50/70 p-2.5 rounded-xl border border-slate-200">
+            <div key={lang.id} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-50/80 p-3 rounded-xl border border-slate-300/80">
               <input
                 type="text"
                 spellCheck={false}
                 value={lang.name}
                 onChange={(e) => handleUpdateLanguage(idx, { name: e.target.value })}
                 placeholder="Bahasa (e.g. Bahasa Indonesia, English)"
-                className="flex-1 text-xs px-3 py-2 bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-slate-800 placeholder:text-slate-400 outline-none"
+                className="flex-1 text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
               <div className="flex items-center gap-2">
                 <input
@@ -235,7 +235,7 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
                   value={lang.level}
                   onChange={(e) => handleUpdateLanguage(idx, { level: e.target.value })}
                   placeholder="Tingkat (e.g. Fasih / Konversasi)"
-                  className="flex-1 sm:w-44 text-xs px-3 py-2 bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-slate-800 placeholder:text-slate-400 outline-none"
+                  className="flex-1 sm:w-44 text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                 />
                 <button
                   type="button"
@@ -275,7 +275,7 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
           {certifications.map((cert, idx) => (
             <div
               key={cert.id}
-              className="p-3.5 bg-slate-50/70 border border-slate-200 rounded-2xl space-y-2.5 relative group"
+              className="p-3.5 bg-slate-50/80 border border-slate-300/80 rounded-2xl space-y-2.5 relative group"
             >
               <button
                 type="button"
@@ -292,7 +292,7 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
                   value={cert.title}
                   onChange={(e) => handleUpdateCert(idx, { title: e.target.value })}
                   placeholder="Nama Sertifikat (e.g. AWS Solutions Architect)"
-                  className="sm:col-span-2 text-xs px-3 py-2 bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-slate-800 placeholder:text-slate-400 outline-none"
+                  className="sm:col-span-2 text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                 />
                 <input
                   type="text"
@@ -300,7 +300,7 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
                   value={cert.date}
                   onChange={(e) => handleUpdateCert(idx, { date: e.target.value })}
                   placeholder="Tahun (e.g. 2023)"
-                  className="text-xs px-3 py-2 bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-slate-800 placeholder:text-slate-400 outline-none"
+                  className="text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                 />
               </div>
               <input
@@ -309,7 +309,7 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
                 value={cert.issuer}
                 onChange={(e) => handleUpdateCert(idx, { issuer: e.target.value })}
                 placeholder="Lembaga Penerbit (e.g. Google Cloud, BNSP, Microsoft)"
-                className="w-full text-xs px-3 py-2 bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg text-slate-800 placeholder:text-slate-400 outline-none"
+                className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           ))}

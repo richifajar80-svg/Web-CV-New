@@ -235,14 +235,14 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                 onDragOver={(e) => handleDragOver(e, idx)}
                 onDragLeave={(e) => handleDragLeave(e, idx)}
                 onDrop={(e) => handleDrop(e, idx)}
-                className={`bg-white border rounded-2xl transition-all relative ${
+                className={`border rounded-2xl transition-all relative ${
                   isDragging
                     ? 'opacity-40 border-dashed border-emerald-500 bg-emerald-50/40 scale-[0.99] shadow-none'
                     : isDragOver
                     ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/20 shadow-md scale-[1.01]'
                     : isCollapsed
-                    ? 'border-slate-200/80 hover:border-slate-300 shadow-2xs p-3.5 sm:p-4'
-                    : 'border-slate-200/90 hover:border-slate-300 shadow-xs p-4 sm:p-5 space-y-4'
+                    ? 'bg-white border-slate-300 hover:border-slate-400 shadow-2xs p-3.5 sm:p-4'
+                    : 'bg-slate-50/80 border-slate-300 shadow-xs p-4 sm:p-5 space-y-4'
                 }`}
               >
                 {/* Drag target indicator */}
@@ -361,8 +361,8 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                     {/* Row 1: Degree & Institution */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                          Gelar / Jenjang & Jurusan
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+                          Gelar / Jenjang & Jurusan <span className="text-emerald-600">*</span>
                         </label>
                         <input
                           type="text"
@@ -370,12 +370,12 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                           value={edu.degree}
                           onChange={(e) => handleUpdate(idx, { degree: e.target.value })}
                           placeholder="Contoh: S1 Ilmu Komputer"
-                          className="w-full text-xs px-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                          className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                          Nama Universitas / Institusi
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+                          Nama Universitas / Institusi <span className="text-emerald-600">*</span>
                         </label>
                         <input
                           type="text"
@@ -383,60 +383,60 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                           value={edu.institution}
                           onChange={(e) => handleUpdate(idx, { institution: e.target.value })}
                           placeholder="Contoh: Universitas Indonesia"
-                          className="w-full text-xs px-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                          className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                         />
                       </div>
                     </div>
 
                     {/* Row 2: Location, Start Year, End Year */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      <div className="group">
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
                           Kota Kampus
                         </label>
                         <div className="relative">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <MapPin className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type="text"
                             spellCheck={false}
                             value={edu.location}
                             onChange={(e) => handleUpdate(idx, { location: e.target.value })}
                             placeholder="Depok / Jakarta"
-                            className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      <div className="group">
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
                           Tahun Masuk
                         </label>
                         <div className="relative">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Calendar className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type="text"
                             spellCheck={false}
                             value={edu.startDate}
                             onChange={(e) => handleUpdate(idx, { startDate: e.target.value })}
                             placeholder="2018"
-                            className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      <div className="group">
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
                           Tahun Lulus
                         </label>
                         <div className="relative">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Calendar className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type="text"
                             spellCheck={false}
                             value={edu.endDate}
                             onChange={(e) => handleUpdate(idx, { endDate: e.target.value })}
                             placeholder="2022 (atau Sekarang)"
-                            className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
@@ -444,25 +444,25 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
 
                     {/* Row 3: GPA & Description */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      <div className="group">
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
                           Nilai IPK / GPA (Opsional)
                         </label>
                         <div className="relative">
-                          <Award className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Award className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type="text"
                             spellCheck={false}
                             value={edu.gpa || ''}
                             onChange={(e) => handleUpdate(idx, { gpa: e.target.value })}
                             placeholder="Contoh: 3.85 / 4.00"
-                            className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                        <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
                           Prestasi / Fokus Studi / Judul Skripsi (Opsional)
                         </label>
                         <input
@@ -471,7 +471,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                           value={edu.description || ''}
                           onChange={(e) => handleUpdate(idx, { description: e.target.value })}
                           placeholder="Contoh: Lulusan Cum Laude, Fokus Arsitektur Sistem Terdistribusi"
-                          className="w-full text-xs px-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+                          className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                         />
                       </div>
                     </div>

@@ -28,27 +28,29 @@ const TEMPLATE_PRESETS = [
 export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange, language = 'id' }) => {
   return (
     <div className="space-y-5">
-      <div className="border-b border-slate-200/80 pb-3">
-        <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-          <FileText className="w-4 h-4 text-emerald-600" />
+      <div className="border-b border-slate-200 pb-3.5">
+        <h3 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4" />
+          </div>
           <span>Ringkasan Profesional (Bio / Summary)</span>
         </h3>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <p className="text-xs text-slate-600 mt-1">
           Tuliskan 2–4 kalimat singkat yang merangkum pengalaman terbaik, keahlian utama, dan nilai tambah yang Anda tawarkan.
         </p>
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
+      <div className="p-4 sm:p-5 bg-slate-50/80 border border-slate-200/90 rounded-2xl">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-slate-700">Ringkasan Diri</label>
+            <label className="text-xs font-extrabold text-slate-800">Ringkasan Diri</label>
             {language === 'en' && (
               <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                 Mode CV English
               </span>
             )}
           </div>
-          <span className="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+          <span className="text-[11px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full">
             {summary.length} karakter
           </span>
         </div>
@@ -59,9 +61,9 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange, lan
           value={summary}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Tuliskan deskripsi profesional Anda di sini..."
-          className="w-full text-xs p-3.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl leading-relaxed resize-y transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+          className="w-full text-xs sm:text-[13px] font-medium p-3.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl leading-relaxed resize-y shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
         />
-        <p className="text-[11px] text-slate-500 mt-1.5">
+        <p className="text-[11px] text-slate-600 font-medium mt-2">
           💡 Rekruter membaca ringkasan ini dalam 6 detik pertama. Fokuskan pada pencapaian tertinggi Anda.
         </p>
       </div>

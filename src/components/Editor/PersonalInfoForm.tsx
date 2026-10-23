@@ -78,149 +78,154 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
 
   return (
     <div className="space-y-5">
-      <div className="border-b border-slate-200/80 pb-3">
-        <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-          <User className="w-4 h-4 text-emerald-600" />
+      <div className="border-b border-slate-200 pb-3.5">
+        <h3 className="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <User className="w-4 h-4" />
+          </div>
           <span>Informasi Kontak & Diri</span>
         </h3>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <p className="text-xs text-slate-600 mt-1">
           Lengkapi data pribadi agar perekrut dapat menghubungi Anda dengan cepat.
         </p>
       </div>
 
-      {/* Full Name & Job Title */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Nama Lengkap & Gelar
-          </label>
-          <div className="relative">
-            <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              spellCheck={false}
-              value={data.fullName}
-              onChange={(e) => onChange({ fullName: e.target.value })}
-              placeholder="Contoh: Budi Santoso, S.Kom"
-              className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Posisi / Judul Pekerjaan
-          </label>
-          <div className="relative">
-            <Briefcase className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              spellCheck={false}
-              value={data.jobTitle}
-              onChange={(e) => onChange({ jobTitle: e.target.value })}
-              placeholder="Contoh: Senior Full Stack Developer"
-              className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Email & Phone */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Alamat Email Aktif
-          </label>
-          <div className="relative">
-            <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="email"
-              spellCheck={false}
-              value={data.email}
-              onChange={(e) => onChange({ email: e.target.value })}
-              placeholder="budi.santoso@email.com"
-              className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Nomor Telepon / WhatsApp
-          </label>
-          <div className="relative">
-            <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              spellCheck={false}
-              value={data.phone}
-              onChange={(e) => onChange({ phone: e.target.value })}
-              placeholder="+62 812 3456 7890"
-              className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Location */}
-      <div>
-        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-          Domisili / Lokasi Tempat Tinggal
-        </label>
-        <div className="relative">
-          <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            spellCheck={false}
-            value={data.location}
-            onChange={(e) => onChange({ location: e.target.value })}
-            placeholder="Contoh: Jakarta Selatan, Indonesia"
-            className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
-          />
-        </div>
-      </div>
-
-      {/* LinkedIn & Portfolio */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Tautan Profil LinkedIn
-          </label>
-          <div className="relative">
-            <div className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
-              <LinkedinIcon className="w-3.5 h-3.5" />
+      {/* Crisp Form Container */}
+      <div className="p-4 sm:p-5 bg-slate-50/80 border border-slate-200/90 rounded-2xl space-y-4">
+        {/* Full Name & Job Title */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="group">
+            <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+              Nama Lengkap & Gelar <span className="text-emerald-600">*</span>
+            </label>
+            <div className="relative">
+              <User className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                spellCheck={false}
+                value={data.fullName}
+                onChange={(e) => onChange({ fullName: e.target.value })}
+                placeholder="Contoh: Budi Santoso, S.Kom"
+                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+              />
             </div>
+          </div>
+
+          <div className="group">
+            <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+              Posisi / Judul Pekerjaan <span className="text-emerald-600">*</span>
+            </label>
+            <div className="relative">
+              <Briefcase className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                spellCheck={false}
+                value={data.jobTitle}
+                onChange={(e) => onChange({ jobTitle: e.target.value })}
+                placeholder="Contoh: Senior Full Stack Developer"
+                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Email & Phone */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="group">
+            <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+              Alamat Email Aktif <span className="text-emerald-600">*</span>
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="email"
+                spellCheck={false}
+                value={data.email}
+                onChange={(e) => onChange({ email: e.target.value })}
+                placeholder="budi.santoso@email.com"
+                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="group">
+            <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+              Nomor Telepon / WhatsApp <span className="text-emerald-600">*</span>
+            </label>
+            <div className="relative">
+              <Phone className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                spellCheck={false}
+                value={data.phone}
+                onChange={(e) => onChange({ phone: e.target.value })}
+                placeholder="+62 812 3456 7890"
+                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Location */}
+        <div className="group">
+          <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+            Domisili / Lokasi Tempat Tinggal
+          </label>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               spellCheck={false}
-              value={data.linkedin || ''}
-              onChange={(e) => onChange({ linkedin: e.target.value })}
-              placeholder="linkedin.com/in/budisantoso"
-              className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
+              value={data.location}
+              onChange={(e) => onChange({ location: e.target.value })}
+              placeholder="Contoh: Jakarta Selatan, Indonesia"
+              className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Website / Portofolio Pribadi
-          </label>
-          <div className="relative">
-            <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              spellCheck={false}
-              value={data.website || ''}
-              onChange={(e) => onChange({ website: e.target.value })}
-              placeholder="budisantoso.dev"
-              className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl transition-all text-slate-800 placeholder:text-slate-400 outline-none"
-            />
+        {/* LinkedIn & Portfolio */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="group">
+            <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+              Tautan Profil LinkedIn
+            </label>
+            <div className="relative">
+              <div className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                <LinkedinIcon className="w-4 h-4" />
+              </div>
+              <input
+                type="text"
+                spellCheck={false}
+                value={data.linkedin || ''}
+                onChange={(e) => onChange({ linkedin: e.target.value })}
+                placeholder="linkedin.com/in/budisantoso"
+                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="group">
+            <label className="block text-xs font-extrabold text-slate-800 mb-1.5">
+              Website / Portofolio Pribadi
+            </label>
+            <div className="relative">
+              <Globe className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                spellCheck={false}
+                value={data.website || ''}
+                onChange={(e) => onChange({ website: e.target.value })}
+                placeholder="budisantoso.dev"
+                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Direct Photo Upload Card (No Links Required) */}
-      <div className="p-4 sm:p-5 bg-white border border-slate-200/90 rounded-2xl shadow-xs space-y-3.5">
+      <div className="p-4 sm:p-5 bg-white border-2 border-slate-200 rounded-2xl shadow-xs space-y-3.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-slate-800 flex items-center gap-2 cursor-pointer">
             <Camera className="w-4 h-4 text-emerald-600" />
