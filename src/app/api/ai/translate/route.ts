@@ -6,6 +6,8 @@ import {
   translateJobDescriptionWithGemini,
   translateFullCVWithGemini,
   FullCVTranslateInput,
+  generateApplicationKitWithGemini,
+  ApplicationKitInput,
 } from '@/lib/gemini';
 
 export const runtime = 'nodejs';
@@ -117,6 +119,36 @@ export async function POST(request: Request) {
         success: true,
         mode: 'full_cv',
         translatedData,
+        translatesUsed: callingUser?.translateCountThisMonth || 0,
+        translateLimit: isAdmin ? 999999 : limit,
+      });
+    }
+
+    // MODE 1B: APPLICATION KIT GENERATOR (Surat Lamaran A4 + Body Email + Chat WA HRD)
+    if (body.mode === 'application_kit') {
+      const kitInput = body.kitInput as ApplicationKitInput;
+      if (!kitInput || typeof kitInput !== 'object') {
+        return NextResponse.json(
+          { success: false, error: 'Data lamaran tidak valid.' },
+          { status: 400 }
+        );
+      }
+
+      const generatedKit = await generateApplicationKitWithGemini(kitInput, { customApiKey });
+
+      if (callingUser && userIdx !== -1 && !isAdmin) {
+        callingUser.translateCountThisMonth = (callingUser.translateCountThisMonth || 0) + 1;
+        allUsers[userIdx] = callingUser;
+        await saveAllUsers(allUsers);
+      }
+
+      const plan: UserPlan = callingUser?.plan === 'enterprise' ? 'enterprise' : 'personal';
+      const limit = PLAN_LIMITS[plan].translateLimit;
+
+      return NextResponse.json({
+        success: true,
+        mode: 'application_kit',
+        generatedKit,
         translatesUsed: callingUser?.translateCountThisMonth || 0,
         translateLimit: isAdmin ? 999999 : limit,
       });

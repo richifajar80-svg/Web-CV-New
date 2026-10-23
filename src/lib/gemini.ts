@@ -318,3 +318,126 @@ STRICT ELEVATION RULES:
   throw lastError || new Error('Gagal menerjemahkan seluruh CV dengan Google Gemini AI.');
 }
 
+export interface ApplicationKitInput {
+  applicantName: string;
+  applicantPhone: string;
+  applicantEmail: string;
+  applicantLinkedIn?: string;
+  applicantSummary?: string;
+  experiences?: Array<{ role: string; company: string; description?: string }>;
+  education?: Array<{ degree: string; institution: string }>;
+  skills?: string[];
+  targetCompany: string;
+  targetJob: string;
+  recipientName: string;
+  companyAddress?: string;
+  templateType: string;
+  jobRequirements?: string;
+}
+
+export interface ApplicationKitOutput {
+  subject: string;
+  openingParagraph: string;
+  bodyParagraph1: string;
+  bodyParagraph2: string;
+  closingParagraph: string;
+  emailSubject: string;
+  emailBody: string;
+  whatsappMessage: string;
+}
+
+export async function generateApplicationKitWithGemini(
+  input: ApplicationKitInput,
+  options: { customApiKey?: string } = {}
+): Promise<ApplicationKitOutput> {
+  const apiKey =
+    process.env.GEMINI_API_KEY?.trim() ||
+    process.env.GOOGLE_API_KEY?.trim() ||
+    options.customApiKey?.trim();
+
+  if (!apiKey) {
+    const error: any = new Error(
+      'Google Gemini API Key belum dikonfigurasi di server.'
+    );
+    error.needsKey = true;
+    error.status = 400;
+    throw error;
+  }
+
+  const isEnglish = input.templateType === 'english_pro';
+
+  const systemInstruction = `You are an expert Indonesian HRD Recruitment Manager & Executive Career Coach.
+Your task is to generate a complete, highly persuasive, customized Job Application Kit based on the candidate's actual CV data, target company, target position, and optional job requirements.
+
+Generate the output in ${isEnglish ? 'Professional International Business English' : 'Polite, Natural, High-Impact Professional Bahasa Indonesia (Standar HRD Indonesia)'}.
+
+You must return a valid JSON object with EXACTLY these 8 fields:
+{
+  "subject": "Perihal surat lamaran resmi (e.g., Lamaran Pekerjaan: [Posisi] - [Nama])",
+  "openingParagraph": "Paragraf 1 Surat Lamaran A4 (3-4 kalimat): Menyatakan posisi yang dilamar di perusahaan tujuan serta ringkasan profil utama kandidat.",
+  "bodyParagraph1": "Paragraf 2 Surat Lamaran A4 (3-5 kalimat): Menonjolkan pengalaman kerja/pendidikan dan pencapaian/keahlian nyata dari CV kandidat yang paling relevan dengan posisi yang dilamar.",
+  "bodyParagraph2": "Paragraf 3 Surat Lamaran A4 (3-4 kalimat): Menunjukkan antusiasme terhadap perusahaan tujuan dan nilai tambah yang bisa diberikan kandidat.",
+  "closingParagraph": "Paragraf 4 Surat Lamaran A4 (2-3 kalimat): Menyebutkan lampiran CV, harapan wawancara, dan ucapan terima kasih.",
+  "emailSubject": "Subjek Email Lamaran yang disukai HRD (contoh: Lamaran Kerja - [Posisi] - [Nama Lengkap])",
+  "emailBody": "Isi Body Email Lamaran Kerja lengkap dari salam pembuka, 3 paragraf padat & sopan (tidak terlalu panjang seperti surat PDF, tetapi langsung menonjolkan kualifikasi utama dan memberitahukan lampiran CV di email), hingga tanda tangan lengkap berisi Nama, No HP/WA, dan Email.",
+  "whatsappMessage": "Pesan Chat WhatsApp ke HRD yang sopan sesuai etika melamar kerja via WA di Indonesia (Salam waktu pagi/siang, perkenalan nama & latar belakang singkat, maksud melamar posisi di perusahaan tersebut, izin melampirkan file PDF CV, dan ucapan terima kasih). Gunakan tanda *teks* untuk cetak tebal WhatsApp pada nama dan posisi."
+}
+
+Return ONLY raw JSON without markdown code blocks.`;
+
+  const models = [
+    'gemini-flash-lite-latest',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-flash',
+    'gemini-3.5-flash-lite',
+  ];
+
+  let lastError: any = null;
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: 'user', parts: [{ text: JSON.stringify(input) }] }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.35,
+            topP: 0.85,
+            maxOutputTokens: 2500,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const message = errorData?.error?.message || `Status ${res.status}`;
+        if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 503) {
+          lastError = new Error(message);
+          continue;
+        }
+        throw new Error(message);
+      }
+
+      const data = await res.json();
+      const rawOutput = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawOutput) {
+        throw new Error('Gemini AI tidak mengembalikan respons teks.');
+      }
+
+      const parsed: ApplicationKitOutput = JSON.parse(rawOutput);
+      return parsed;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal menyusun paket lamaran dengan Google Gemini AI.');
+}
+
+

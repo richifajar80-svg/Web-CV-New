@@ -29,6 +29,10 @@ export interface CoverLetterData {
   closingParagraph: string;
   signOff: string;
 
+  emailSubject: string;
+  emailBody: string;
+  whatsappMessage: string;
+
   accentColor: string;
   fontFamily: 'font-sans' | 'font-serif' | 'font-mono';
 }

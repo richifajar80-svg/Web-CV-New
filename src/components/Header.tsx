@@ -189,7 +189,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Surat Lamaran</span>
+              <span>Surat, Email & WA HRD</span>
               <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase hidden 2xl:inline-block">
                 Bonus
               </span>
@@ -451,7 +451,7 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     <span className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-emerald-600" />
-                      <span>{activeMode === 'cv' ? 'Buka Surat Lamaran (Bonus)' : 'Kembali ke Editor CV'}</span>
+                      <span>{activeMode === 'cv' ? 'Chat WA, Email & Surat Lamaran' : 'Kembali ke Editor CV'}</span>
                     </span>
                   </button>
 

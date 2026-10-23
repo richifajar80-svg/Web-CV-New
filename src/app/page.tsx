@@ -736,6 +736,52 @@ export default function Home() {
           cvbagus.id - Platform Pembuat CV ATS Friendly & Resume Profesional Standar HRD Online
         </h1>
 
+        {/* Mobile View Switcher (Visible on small screens only: Formulir CV | Pratinjau A4 | WA & Email HRD) */}
+        <div className="lg:hidden no-print flex items-center justify-center p-1 bg-white rounded-2xl shadow-xs border border-slate-200 mb-4 max-w-md mx-auto gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMode('cv');
+              setMobileView('editor');
+            }}
+            className={`flex-1 py-2 px-1.5 text-[11px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              activeMode === 'cv' && mobileView === 'editor'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Formulir CV</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMode('cv');
+              setMobileView('preview');
+            }}
+            className={`flex-1 py-2 px-1.5 text-[11px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              activeMode === 'cv' && mobileView === 'preview'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Pratinjau A4</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMode('cover_letter')}
+            className={`flex-1 py-2 px-1.5 text-[11px] sm:text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer ${
+              activeMode === 'cover_letter'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/80'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate">WA & Email HRD</span>
+          </button>
+        </div>
+
         {activeMode === 'cover_letter' ? (
           <CoverLetterView
             cvData={cvData}
@@ -745,33 +791,6 @@ export default function Home() {
           />
         ) : (
           <>
-            {/* Mobile View Switcher (Visible on small screens only) */}
-        <div className="lg:hidden no-print flex items-center justify-center p-1 bg-white rounded-2xl shadow-xs border border-slate-200 mb-4 max-w-sm mx-auto">
-          <button
-            type="button"
-            onClick={() => setMobileView('editor')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              mobileView === 'editor'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>Formulir CV</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileView('preview')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              mobileView === 'preview'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Pratinjau A4</span>
-          </button>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start w-full min-w-0">
           {/* LEFT PANEL: Editor Forms (5 of 12 cols on desktop) */}
