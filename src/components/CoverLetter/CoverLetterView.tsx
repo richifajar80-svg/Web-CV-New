@@ -478,7 +478,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     {COVER_LETTER_PRESETS.map((preset, idx) => {
                       const isActive = activePreset === preset.id;
                       const presetMeta: Record<
-                        CoverLetterTemplateType,
+                        string,
                         { shortTitle: string; subtitle: string; icon: React.ComponentType<{ className?: string }>; color: string }
                       > = {
                         fresh_grad: {
@@ -493,7 +493,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           icon: Briefcase,
                           color: 'bg-blue-100 text-blue-700',
                         },
-                        bumn_corporate: {
+                        bumn_formal: {
                           shortTitle: 'BUMN & Korporat',
                           subtitle: 'Baku & Standar FHCI',
                           icon: Landmark,
@@ -512,7 +512,12 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           color: 'bg-teal-100 text-teal-700',
                         },
                       };
-                      const meta = presetMeta[preset.id];
+                      const meta = presetMeta[preset.id] || {
+                        shortTitle: preset.name,
+                        subtitle: preset.tag,
+                        icon: FileText,
+                        color: 'bg-emerald-100 text-emerald-700',
+                      };
                       const IconComp = meta.icon;
                       const isLastOdd = idx === COVER_LETTER_PRESETS.length - 1;
 
