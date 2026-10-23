@@ -13,14 +13,14 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-8 sm:p-10 min-h-[297mm] space-y-6">
+    <div className="w-full bg-white text-slate-800 p-10 min-h-[297mm] space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5" style={{ borderColor: `${accent}30` }}>
+      <div className="flex flex-row justify-between items-center gap-4 border-b pb-5" style={{ borderColor: `${accent}30` }}>
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             {personalInfo.fullName || 'Nama Lengkap Anda'}
           </h1>
-          <h2 className="text-sm sm:text-base font-bold" style={{ color: accent }}>
+          <h2 className="text-base font-bold" style={{ color: accent }}>
             {personalInfo.jobTitle || 'Profesi / Posisi Anda'}
           </h2>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 pt-1">
@@ -32,7 +32,7 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
         </div>
 
         {personalInfo.showPhoto && personalInfo.photoUrl && (
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 shadow-sm shrink-0" style={{ borderColor: accent }}>
+          <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 shadow-sm shrink-0" style={{ borderColor: accent }}>
             <img src={personalInfo.photoUrl} alt={personalInfo.fullName} className="w-full h-full object-cover" />
           </div>
         )}
@@ -46,9 +46,9 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
       )}
 
       {/* Grid: Main Timeline (65%) + Sidebar (35%) */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-12 gap-8 items-start">
         {/* LEFT: Timeline Experience & Education */}
-        <div className="sm:col-span-8 space-y-6">
+        <div className="col-span-8 space-y-6">
           {/* Work Experience with visual timeline */}
           {experiences.length > 0 && (
             <div className="space-y-4">
@@ -65,7 +65,7 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
                       className="absolute -left-[27px] top-1 w-3.5 h-3.5 rounded-full bg-white border-2 shadow-2xs"
                       style={{ borderColor: accent }}
                     />
-                    <div className="flex flex-col sm:flex-row sm:items-baseline justify-between">
+                    <div className="flex flex-row items-baseline justify-between">
                       <span className="text-xs font-bold text-slate-900">{exp.role}</span>
                       <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                         {exp.startDate} - {exp.current ? t.present : exp.endDate}
@@ -114,7 +114,7 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
         </div>
 
         {/* RIGHT: Skills, Languages, Certifications */}
-        <div className="sm:col-span-4 space-y-6">
+        <div className="col-span-4 space-y-6">
           {skills.length > 0 && (
             <div className="space-y-2.5">
               <h4 className="text-xs font-bold uppercase tracking-wider pb-1 border-b" style={{ color: accent, borderColor: `${accent}30` }}>

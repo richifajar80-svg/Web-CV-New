@@ -13,10 +13,10 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-10 sm:p-14 min-h-[297mm] space-y-7">
+    <div className="w-full bg-white text-slate-800 p-14 min-h-[297mm] space-y-7">
       {/* Header: Name, Title, and Clean Inline Contact */}
       <div className="space-y-2 border-b border-slate-200 pb-5">
-        <h1 className="text-3xl sm:text-4xl font-light text-slate-900 tracking-tight">
+        <h1 className="text-4xl font-light text-slate-900 tracking-tight">
           <span className="font-extrabold">{personalInfo.fullName?.split(' ')[0]}</span>{' '}
           {personalInfo.fullName?.split(' ').slice(1).join(' ')}
         </h1>
@@ -34,11 +34,11 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
 
       {/* Summary */}
       {summary && (
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-          <div className="sm:col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
             {t.profile}
           </div>
-          <div className="sm:col-span-9 text-xs text-slate-700 leading-relaxed text-justify">
+          <div className="col-span-9 text-xs text-slate-700 leading-relaxed text-justify">
             {summary}
           </div>
         </div>
@@ -46,11 +46,11 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
 
       {/* Experience */}
       {experiences.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 border-t border-slate-100 pt-5">
-          <div className="sm:col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="grid grid-cols-12 gap-4 border-t border-slate-100 pt-5">
+          <div className="col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
             {t.workExperience}
           </div>
-          <div className="sm:col-span-9 space-y-5">
+          <div className="col-span-9 space-y-5">
             {experiences.map((exp) => (
               <div key={exp.id} className="space-y-1">
                 <div className="flex justify-between items-baseline">
@@ -75,11 +75,11 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
 
       {/* Education */}
       {education.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 border-t border-slate-100 pt-5">
-          <div className="sm:col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="grid grid-cols-12 gap-4 border-t border-slate-100 pt-5">
+          <div className="col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
             {t.education}
           </div>
-          <div className="sm:col-span-9 space-y-3">
+          <div className="col-span-9 space-y-3">
             {education.map((edu) => (
               <div key={edu.id} className="space-y-0.5 text-xs">
                 <div className="flex justify-between items-baseline">
@@ -97,11 +97,11 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
 
       {/* Skills */}
       {skills.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 border-t border-slate-100 pt-5">
-          <div className="sm:col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="grid grid-cols-12 gap-4 border-t border-slate-100 pt-5">
+          <div className="col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
             {t.skills}
           </div>
-          <div className="sm:col-span-9 flex flex-wrap gap-2">
+          <div className="col-span-9 flex flex-wrap gap-2">
             {skills.map((s) => (
               <span key={s.id} className="text-xs font-medium px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 inline-flex items-center gap-1">
                 <span>{s.name}</span>
@@ -118,11 +118,11 @@ export const MinimalistTemplate: React.FC<{ data: CVData }> = ({ data }) => {
 
       {/* Languages & Certs */}
       {(languages.length > 0 || certifications.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 border-t border-slate-100 pt-5">
-          <div className="sm:col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="grid grid-cols-12 gap-4 border-t border-slate-100 pt-5">
+          <div className="col-span-3 text-xs font-bold uppercase tracking-wider text-slate-400">
             {t.certificationsLicenses}
           </div>
-          <div className="sm:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="col-span-9 grid grid-cols-2 gap-4 text-xs">
             {languages.length > 0 && (
               <div className="space-y-1">
                 <span className="font-bold text-slate-700">{t.languages}:</span>

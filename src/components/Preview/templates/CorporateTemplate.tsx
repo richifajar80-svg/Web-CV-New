@@ -13,11 +13,11 @@ export const CorporateTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-6 sm:p-8 min-h-[297mm] space-y-4.5 border-t-8" style={{ borderColor: accent }}>
+    <div className="w-full bg-white text-slate-800 p-8 min-h-[297mm] space-y-4.5 border-t-8" style={{ borderColor: accent }}>
       {/* Formal Header with Framed Contact Box */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 pb-5" style={{ borderColor: `${accent}40` }}>
+      <div className="flex flex-row justify-between items-center gap-4 border-b-2 pb-5" style={{ borderColor: `${accent}40` }}>
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">
             {personalInfo.fullName || 'Nama Lengkap Anda'}
           </h1>
           <p className="text-sm font-bold tracking-wider uppercase text-slate-700" style={{ color: accent }}>
@@ -99,7 +99,7 @@ export const CorporateTemplate: React.FC<{ data: CVData }> = ({ data }) => {
       )}
 
       {/* Skills & Certs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
+      <div className="grid grid-cols-2 gap-5 pt-1">
         {skills.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-900 bg-slate-100 px-2 py-1 rounded-sm border-l-4" style={{ borderColor: accent }}>

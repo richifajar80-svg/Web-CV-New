@@ -11,13 +11,13 @@ export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-900 p-8 sm:p-12 min-h-[297mm] space-y-5">
+    <div className="w-full bg-white text-slate-900 p-12 min-h-[297mm] space-y-5">
       {/* Centered Academic Header with Double Border */}
       <div className="text-center space-y-1.5 pb-4 border-b-2 border-slate-900">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wider uppercase">
+        <h1 className="text-3xl font-extrabold tracking-wider uppercase">
           {personalInfo.fullName || 'Nama Lengkap Anda'}
         </h1>
-        <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-slate-700">
+        <p className="text-sm font-semibold tracking-widest uppercase text-slate-700">
           {personalInfo.jobTitle}
         </p>
 
@@ -95,7 +95,7 @@ export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
 
       {/* Certifications & Skills */}
       {(certifications.length > 0 || skills.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
+        <div className="grid grid-cols-2 gap-5 pt-1">
           {skills.length > 0 && (
             <div className="space-y-1.5">
               <h2 className="text-xs font-bold uppercase tracking-wider border-b border-slate-400 pb-0.5 text-slate-900">

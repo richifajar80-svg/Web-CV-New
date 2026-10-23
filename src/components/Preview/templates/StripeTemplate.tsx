@@ -15,17 +15,17 @@ export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   return (
     <div className="w-full bg-white text-slate-800 min-h-[297mm] flex">
       {/* Left Thick Vertical Stripe */}
-      <div className="w-4 sm:w-6 shrink-0" style={{ backgroundColor: accent }} />
+      <div className="w-6 shrink-0" style={{ backgroundColor: accent }} />
 
       {/* Main Content Area */}
-      <div className="flex-1 p-8 sm:p-10 space-y-6">
+      <div className="flex-1 p-10 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-5" style={{ borderColor: `${accent}30` }}>
+        <div className="flex flex-row justify-between items-center gap-4 border-b pb-5" style={{ borderColor: `${accent}30` }}>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {personalInfo.fullName || t.candidateDefaultName}
             </h1>
-            <h2 className="text-sm sm:text-base font-bold uppercase tracking-wider mt-0.5" style={{ color: accent }}>
+            <h2 className="text-base font-bold uppercase tracking-wider mt-0.5" style={{ color: accent }}>
               {personalInfo.jobTitle}
             </h2>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 pt-2">
@@ -37,7 +37,7 @@ export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
           </div>
 
           {personalInfo.showPhoto && personalInfo.photoUrl && (
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 shadow-sm shrink-0" style={{ borderColor: accent }}>
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 shadow-sm shrink-0" style={{ borderColor: accent }}>
               <img src={personalInfo.photoUrl} alt={personalInfo.fullName} className="w-full h-full object-cover" />
             </div>
           )}
@@ -81,7 +81,7 @@ export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
         )}
 
         {/* Education & Skills */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-1">
+        <div className="grid grid-cols-2 gap-6 pt-1">
           {education.length > 0 && (
             <div className="space-y-2.5">
               <h3 className="text-xs font-bold uppercase tracking-wider border-b pb-1" style={{ borderColor: `${accent}30`, color: accent }}>

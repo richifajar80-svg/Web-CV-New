@@ -17,13 +17,13 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 flex flex-col sm:flex-row min-h-[297mm]">
+    <div className="w-full bg-white text-slate-800 flex flex-row min-h-[297mm]">
       {/* LEFT SIDEBAR (30% width, Professional Dark Slate) */}
-      <div className="w-full sm:w-[30%] bg-slate-800 text-white p-5 sm:p-5.5 flex flex-col justify-start shrink-0 space-y-5">
+      <div className="w-[30%] bg-slate-800 text-white p-5.5 flex flex-col justify-start shrink-0 space-y-5">
         {/* Photo & Candidate Subtitle */}
         {personalInfo.showPhoto && personalInfo.photoUrl && (
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-full overflow-hidden border-2 border-white/70 shadow-sm">
+            <div className="w-26 h-26 rounded-full overflow-hidden border-2 border-white/70 shadow-sm">
               <img
                 src={personalInfo.photoUrl}
                 alt={personalInfo.fullName}
@@ -142,13 +142,13 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
       </div>
 
       {/* RIGHT MAIN CONTENT (70% width, Balanced A4 Content Density) */}
-      <div className="w-full sm:w-[70%] p-5 sm:p-6.5 space-y-4.5">
+      <div className="w-[70%] p-6.5 space-y-4.5">
         {/* Name & Title Header */}
         <div className="border-b pb-3" style={{ borderColor: `${accent}30` }}>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-tight">
             {personalInfo.fullName || t.candidateDefaultName}
           </h1>
-          <h2 className="text-xs sm:text-sm font-semibold tracking-wide uppercase mt-0.5" style={{ color: accent }}>
+          <h2 className="text-sm font-semibold tracking-wide uppercase mt-0.5" style={{ color: accent }}>
             {personalInfo.jobTitle || t.candidateDefaultJob}
           </h2>
         </div>
@@ -162,7 +162,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
             >
               {t.aboutMe}
             </h3>
-            <p className="text-[10px] sm:text-[10.5px] text-slate-600 leading-relaxed text-justify">{summary}</p>
+            <p className="text-[10.5px] text-slate-600 leading-relaxed text-justify">{summary}</p>
           </div>
         )}
 
@@ -178,8 +178,8 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
             <div className="space-y-3">
               {experiences.map((exp) => (
                 <div key={exp.id} className="space-y-1">
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                    <span className="text-[11px] sm:text-[11.5px] font-bold text-slate-900">{exp.role}</span>
+                  <div className="flex flex-row items-baseline justify-between gap-1">
+                    <span className="text-[11.5px] font-bold text-slate-900">{exp.role}</span>
                     <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 w-fit shrink-0">
                       {exp.startDate} - {exp.current ? t.present : exp.endDate}
                     </span>
@@ -189,7 +189,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
                   </div>
                   <FormattedDescription
                     text={exp.description}
-                    className="text-[10px] sm:text-[10.5px] text-slate-600 leading-relaxed pt-0.5"
+                    className="text-[10.5px] text-slate-600 leading-relaxed pt-0.5"
                   />
                 </div>
               ))}
@@ -209,8 +209,8 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
             <div className="space-y-2.5">
               {education.map((edu) => (
                 <div key={edu.id} className="space-y-0.5">
-                  <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
-                    <span className="text-[11px] sm:text-[11.5px] font-bold text-slate-900">{edu.degree}</span>
+                  <div className="flex flex-row items-baseline justify-between gap-1">
+                    <span className="text-[11.5px] font-bold text-slate-900">{edu.degree}</span>
                     <span className="text-[9.5px] text-slate-500 shrink-0">
                       {edu.startDate} - {edu.endDate}
                     </span>

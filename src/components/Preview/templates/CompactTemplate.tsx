@@ -13,7 +13,7 @@ export const CompactTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-6 sm:p-8 min-h-[297mm] space-y-4 text-xs">
+    <div className="w-full bg-white text-slate-800 p-8 min-h-[297mm] space-y-4 text-xs">
       {/* Header bar */}
       <div className="flex justify-between items-start border-b-2 pb-3" style={{ borderColor: accent }}>
         <div>
@@ -43,9 +43,9 @@ export const CompactTemplate: React.FC<{ data: CVData }> = ({ data }) => {
       )}
 
       {/* 2-Column Balanced Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 pt-1">
+      <div className="grid grid-cols-12 gap-5 pt-1">
         {/* Left Col (7 of 12): Experiences */}
-        <div className="sm:col-span-7 space-y-3.5">
+        <div className="col-span-7 space-y-3.5">
           <h3 className="text-[11px] font-bold uppercase tracking-wider border-b pb-1 flex items-center justify-between" style={{ borderColor: `${accent}40`, color: accent }}>
             <span>{t.workExperience}</span>
             <span className="text-[9px] font-normal text-slate-400">{theme.language === 'en' ? 'Reverse Chronological' : 'Kronologis Terbalik'}</span>
@@ -71,7 +71,7 @@ export const CompactTemplate: React.FC<{ data: CVData }> = ({ data }) => {
         </div>
 
         {/* Right Col (5 of 12): Education, Skills, Langs, Certs */}
-        <div className="sm:col-span-5 space-y-3.5">
+        <div className="col-span-5 space-y-3.5">
           {/* Education */}
           {education.length > 0 && (
             <div className="space-y-2">

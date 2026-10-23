@@ -15,10 +15,10 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-900 p-6 sm:p-8 min-h-[297mm] space-y-4">
+    <div className="w-full bg-white text-slate-900 p-8 min-h-[297mm] space-y-4">
       {/* Centered Header */}
       <div className="text-center border-b pb-4 space-y-1" style={{ borderColor: accent }}>
-        <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-wide">
+        <h1 className="text-3xl font-bold uppercase tracking-wide">
           {personalInfo.fullName || 'Nama Lengkap Anda'}
         </h1>
         <p className="text-sm font-semibold tracking-wider uppercase text-slate-700">
@@ -134,7 +134,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
 
       {/* Languages & Certifications */}
       {(languages.length > 0 || certifications.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+        <div className="grid grid-cols-2 gap-4 pt-1">
           {languages.length > 0 && (
             <div className="space-y-1">
               <h2

@@ -40,15 +40,26 @@ export const UserMenu: React.FC<UserMenuProps> = ({
   const [deletingCV, setDeletingCV] = useState<SavedCV | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click/touch or Escape key
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   if (!user) return null;
@@ -250,7 +261,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                           e.stopPropagation();
                           setDeletingCV(cv);
                         }}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 transition-opacity"
+                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 transition-opacity cursor-pointer"
                         title="Hapus CV"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -262,22 +273,24 @@ export const UserMenu: React.FC<UserMenuProps> = ({
             </div>
           </div>
 
-          {/* Admin Panel Link */}
-          <div className="pt-1.5 px-2 border-t border-slate-100">
-            <Link
-              href="/admin"
-              onClick={() => setIsOpen(false)}
-              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Panel Admin</span>
-              </span>
-              <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded">
-                /admin
-              </span>
-            </Link>
-          </div>
+          {/* Admin Panel Link (Only visible to Admin users) */}
+          {(user.role === 'admin' || user.email.toLowerCase().includes('admin')) && (
+            <div className="pt-1.5 px-2 border-t border-slate-100">
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Panel Admin</span>
+                </span>
+                <span className="text-[9px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded">
+                  /admin
+                </span>
+              </Link>
+            </div>
+          )}
 
           {/* Logout Button */}
           <div className="pt-1 px-2">

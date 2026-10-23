@@ -20,11 +20,11 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
     <div className="w-full bg-white text-slate-800 min-h-[297mm]">
       {/* Top Accent Banner */}
       <div
-        className="px-6 py-5.5 sm:px-8 sm:py-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        className="px-8 py-6 text-white flex flex-row justify-between items-center gap-4"
         style={{ backgroundColor: accent }}
       >
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-3xl font-extrabold tracking-tight">
             {personalInfo.fullName || 'Nama Lengkap Anda'}
           </h1>
           <p className="text-sm font-medium tracking-wide text-white/90">
@@ -34,7 +34,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
 
         {/* Optional Photo */}
         {personalInfo.showPhoto && personalInfo.photoUrl && (
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-white/60 shadow-md shrink-0">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/60 shadow-md shrink-0">
             <img
               src={personalInfo.photoUrl}
               alt={personalInfo.fullName}
@@ -73,7 +73,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
       </div>
 
       {/* Main Body */}
-      <div className="px-6 py-5 sm:px-8 sm:py-6 space-y-4.5">
+      <div className="px-8 py-6 space-y-4.5">
         {/* Summary */}
         {summary && (
           <div className="space-y-2">
@@ -119,7 +119,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Education & Skills Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-2 gap-6 pt-2">
           {/* Education */}
           {education.length > 0 && (
             <div className="space-y-3">
