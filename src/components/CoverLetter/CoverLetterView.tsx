@@ -31,6 +31,10 @@ import {
   Send,
   ExternalLink,
   Loader2,
+  GraduationCap,
+  Landmark,
+  Globe,
+  Rocket,
 } from 'lucide-react';
 
 interface CoverLetterViewProps {
@@ -407,90 +411,165 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* LEFT COLUMN: Controls & Form */}
         <div
-          className={`w-full lg:w-[440px] xl:w-[480px] shrink-0 bg-white border-r border-slate-200 flex flex-col h-full z-10 ${
+          className={`w-full lg:w-[440px] xl:w-[475px] shrink-0 bg-white border-r border-slate-200 flex flex-col h-full z-10 ${
             mobileView === 'preview' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          {/* Preset Selector Banner */}
-          <div className="p-3.5 sm:p-4 border-b border-slate-100 bg-slate-50/70 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                1. Pilih Gaya Bahasa Lamaran
-              </span>
+          {/* Sub-tab Navigation (Pinned at top of left sidebar) */}
+          <div className="flex items-center justify-between border-b border-slate-200 bg-slate-100/90 px-3 sm:px-4 pt-2 gap-1.5 text-xs font-bold shrink-0">
+            <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={handleApplyQuickInputs}
-                className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 hover:underline cursor-pointer"
-                title="Tarik ulang data nama, keahlian, dan riwayat dari CV"
+                onClick={() => setActiveSubTab('quick')}
+                className={`py-2 px-3 rounded-t-xl border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeSubTab === 'quick'
+                    ? 'bg-white border-emerald-600 text-emerald-700 font-extrabold shadow-xs ring-1 ring-slate-200/80'
+                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
               >
-                <RefreshCw className="w-3 h-3" />
-                Sinkronkan CV
+                <Building className="w-3.5 h-3.5" />
+                <span>Target & Gaya Bahasa</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('paragraphs')}
+                className={`py-2 px-3 rounded-t-xl border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeSubTab === 'paragraphs'
+                    ? 'bg-white border-emerald-600 text-emerald-700 font-extrabold shadow-xs ring-1 ring-slate-200/80'
+                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                }`}
+              >
+                <PenLine className="w-3.5 h-3.5" />
+                <span>Edit Paragraf</span>
               </button>
             </div>
 
-            {/* Presets Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-1.5">
-              {COVER_LETTER_PRESETS.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => handleSelectPreset(preset.id)}
-                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                    activePreset === preset.id
-                      ? 'border-emerald-500 bg-emerald-50/80 shadow-2xs ring-1 ring-emerald-500'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-bold text-slate-900">{preset.name}</span>
-                    <span
-                      className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-full border shrink-0 ${preset.badgeColor}`}
-                    >
-                      {preset.tag}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                    {preset.description}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Sub-tab Navigation */}
-          <div className="flex border-b border-slate-200 bg-white px-4 pt-2 gap-2 text-xs font-bold">
             <button
               type="button"
-              onClick={() => setActiveSubTab('quick')}
-              className={`pb-2.5 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeSubTab === 'quick'
-                  ? 'border-emerald-600 text-emerald-700 font-extrabold'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
+              onClick={handleApplyQuickInputs}
+              className="text-[11px] font-extrabold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg mb-1.5 flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+              title="Tarik ulang data nama, keahlian, dan riwayat dari CV"
             >
-              <Building className="w-3.5 h-3.5" />
-              <span>2. Perusahaan & Posisi</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSubTab('paragraphs')}
-              className={`pb-2.5 px-3 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeSubTab === 'paragraphs'
-                  ? 'border-emerald-600 text-emerald-700 font-extrabold'
-                  : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <PenLine className="w-3.5 h-3.5" />
-              <span>Edit Manual</span>
+              <RefreshCw className="w-3 h-3" />
+              <span>Sinkron CV</span>
             </button>
           </div>
 
-          {/* Form Scroll Area */}
+          {/* Unified Form Scroll Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {activeSubTab === 'quick' ? (
               <>
-                <div className="space-y-3">
+                {/* STEP 1: Sleek Modern Preset Grid */}
+                <div className="p-3.5 bg-slate-50/90 border border-slate-200/90 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-md bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center">
+                        1
+                      </span>
+                      <span>Pilih Gaya Bahasa Lamaran</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-500">
+                      5 Pilihan Standar HRD
+                    </span>
+                  </div>
+
+                  {/* Compact 2-Column Icon Cards */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {COVER_LETTER_PRESETS.map((preset, idx) => {
+                      const isActive = activePreset === preset.id;
+                      const presetMeta: Record<
+                        CoverLetterTemplateType,
+                        { shortTitle: string; subtitle: string; icon: React.ComponentType<{ className?: string }>; color: string }
+                      > = {
+                        fresh_grad: {
+                          shortTitle: 'Fresh Graduate',
+                          subtitle: 'Magang & Lulusan Baru',
+                          icon: GraduationCap,
+                          color: 'bg-emerald-100 text-emerald-700',
+                        },
+                        experienced: {
+                          shortTitle: 'Profesional',
+                          subtitle: 'Fokus Pengalaman & Hasil',
+                          icon: Briefcase,
+                          color: 'bg-blue-100 text-blue-700',
+                        },
+                        bumn_corporate: {
+                          shortTitle: 'BUMN & Korporat',
+                          subtitle: 'Baku & Standar FHCI',
+                          icon: Landmark,
+                          color: 'bg-amber-100 text-amber-700',
+                        },
+                        english_pro: {
+                          shortTitle: 'English (MNC)',
+                          subtitle: 'Global & Multinasional',
+                          icon: Globe,
+                          color: 'bg-purple-100 text-purple-700',
+                        },
+                        career_switch: {
+                          shortTitle: 'Pindah Karir',
+                          subtitle: 'Lintas Jurusan / Industri',
+                          icon: Rocket,
+                          color: 'bg-teal-100 text-teal-700',
+                        },
+                      };
+                      const meta = presetMeta[preset.id];
+                      const IconComp = meta.icon;
+                      const isLastOdd = idx === COVER_LETTER_PRESETS.length - 1;
+
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset.id)}
+                          className={`group relative p-2.5 rounded-xl border-2 text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                            isLastOdd ? 'col-span-2' : ''
+                          } ${
+                            isActive
+                              ? 'border-emerald-600 bg-white shadow-sm ring-2 ring-emerald-500/15'
+                              : 'border-slate-200/90 bg-white/80 hover:bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                              isActive ? 'bg-emerald-600 text-white shadow-xs' : meta.color
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <span
+                                className={`text-xs font-extrabold truncate ${
+                                  isActive ? 'text-emerald-950' : 'text-slate-800'
+                                }`}
+                              >
+                                {meta.shortTitle}
+                              </span>
+                              {isActive && (
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-[10px] text-slate-500 truncate mt-0.2">
+                              {meta.subtitle}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* STEP 2: Target Perusahaan & Posisi */}
+                <div className="p-3.5 bg-slate-50/90 border border-slate-200/90 rounded-2xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-md bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center">
+                        2
+                      </span>
+                      <span>Perusahaan & Posisi Tujuan</span>
+                    </span>
+                  </div>
+
                   <div className="group">
                     <label className="block text-xs font-extrabold text-slate-800 mb-1">
                       Nama Perusahaan yang Dilamar
@@ -635,9 +714,9 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
               </>
             ) : (
               /* Fine-tuning Paragraphs */
-              <div className="space-y-3.5">
+              <div className="p-3.5 bg-slate-50/90 border border-slate-200/90 rounded-2xl space-y-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
                     Perihal Surat (Subject)
                   </label>
                   <input
@@ -646,12 +725,12 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, subject: e.target.value })
                     }
-                    className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
                     Paragraf 1: Pembuka & Posisi
                   </label>
                   <textarea
@@ -660,12 +739,12 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, openingParagraph: e.target.value })
                     }
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-normal leading-relaxed"
+                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
                     Paragraf 2: Keahlian & Nilai Tambah
                   </label>
                   <textarea
@@ -674,12 +753,12 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, bodyParagraph1: e.target.value })
                     }
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-normal leading-relaxed"
+                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
                     Paragraf 3: Motivasi & Kecocokan Perusahaan
                   </label>
                   <textarea
@@ -688,12 +767,12 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, bodyParagraph2: e.target.value })
                     }
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-normal leading-relaxed"
+                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
                     Paragraf 4: Penutup & Harapan Wawancara
                   </label>
                   <textarea
@@ -702,7 +781,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, closingParagraph: e.target.value })
                     }
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-normal leading-relaxed"
+                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
               </div>
