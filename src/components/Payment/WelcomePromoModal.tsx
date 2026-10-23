@@ -67,7 +67,7 @@ export const WelcomePromoModal: React.FC<WelcomePromoModalProps> = ({
     {
       icon: Languages,
       title: '1-Klik Translate Inggris',
-      desc: 'Terjemahkan CV otomatis via Gemini AI',
+      desc: 'Terjemahkan CV otomatis dengan AI',
     },
     {
       icon: FileText,

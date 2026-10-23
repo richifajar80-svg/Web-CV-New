@@ -491,67 +491,67 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
             {activeSubTab === 'quick' ? (
               <>
                 <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <div className="group">
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
                       Nama Perusahaan yang Dilamar
                     </label>
                     <div className="relative">
-                      <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                      <Building className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         value={targetCompany}
                         onChange={(e) => setTargetCompany(e.target.value)}
                         placeholder="Contoh: PT Bank Central Asia Tbk"
-                        className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+                        className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <div className="group">
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
                       Posisi Pekerjaan yang Dilamar
                     </label>
                     <div className="relative">
-                      <Briefcase className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                      <Briefcase className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         value={targetJob}
                         onChange={(e) => setTargetJob(e.target.value)}
                         placeholder="Contoh: Staff Administrasi / Frontend Developer"
-                        className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+                        className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <div className="group">
+                      <label className="block text-xs font-extrabold text-slate-800 mb-1">
                         Sapaan Penerima (HRD)
                       </label>
                       <div className="relative">
-                        <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                        <User className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           value={recipient}
                           onChange={(e) => setRecipient(e.target.value)}
                           placeholder="Bapak/Ibu HRD"
-                          className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+                          className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                         />
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <div className="group">
+                      <label className="block text-xs font-extrabold text-slate-800 mb-1">
                         Kota Perusahaan
                       </label>
                       <div className="relative">
-                        <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                        <MapPin className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           value={companyCity}
                           onChange={(e) => setCompanyCity(e.target.value)}
                           placeholder="Jakarta"
-                          className="w-full text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-medium"
+                          className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -559,16 +559,16 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
 
                   {/* Optional Job Description / Requirements for AI */}
                   <div className="pt-1">
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
                       Info / Syarat Lowongan Kerja{' '}
-                      <span className="text-[10px] font-normal text-slate-400">(Opsional untuk AI)</span>
+                      <span className="text-[10px] font-semibold text-slate-500">(Opsional untuk AI)</span>
                     </label>
                     <textarea
                       rows={2}
                       value={jobRequirements}
                       onChange={(e) => setJobRequirements(e.target.value)}
                       placeholder="Tempel syarat loker di sini jika ingin AI menyesuaikan kalimat lamaran dengan kualifikasi yang diminta HRD..."
-                      className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-normal leading-relaxed"
+                      className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none leading-relaxed transition-all"
                     />
                   </div>
 
@@ -578,7 +578,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     </div>
                   )}
 
-                  {/* Action Buttons: Instant vs Gemini AI */}
+                  {/* Action Buttons: Instant vs AI */}
                   <div className="space-y-2 pt-1">
                     <button
                       type="button"
@@ -603,7 +603,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4 text-amber-300 fill-amber-300" />
-                          <span>Tulis Spesifik dengan Gemini AI</span>
+                          <span>Tulis Spesifik dengan AI</span>
                         </>
                       )}
                     </button>
