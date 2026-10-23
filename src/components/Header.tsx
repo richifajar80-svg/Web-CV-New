@@ -379,12 +379,12 @@ export const Header: React.FC<HeaderProps> = ({
                   <span className="hidden xl:inline">Contact Us</span>
                 </button>
 
-                {/* Download / Print PDF Button (FULL TEXT & NEVER CLIPPED) */}
+                {/* Download / Print PDF Button (Visible on sm+ in header; on <640px phones it lives in the Fixed Bottom Action Bar) */}
                 <button
                   type="button"
                   disabled={isDownloading}
                   onClick={onDownloadClick}
-                  className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
+                  className="shrink-0 whitespace-nowrap hidden sm:inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95 disabled:opacity-75 cursor-pointer"
                   title="Unduh file CV Anda dalam format PDF standar A4 siap cetak"
                 >
                   {isDownloading ? (
