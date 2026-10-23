@@ -79,7 +79,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetStep, setResetStep] = useState<'request' | 'verify'>('request');
   const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
-  const [simulatedEmailNotification, setSimulatedEmailNotification] = useState<{ email: string; code: string } | null>(null);
 
   // FAQ Accordion State (SEO)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -169,7 +168,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
       setResetStep('verify');
       setResetCode('');
-      setSimulatedEmailNotification({ email: resetEmail, code: res.code || '' });
       setLoading(false);
     } catch (err) {
       setError('Gagal mengirim kode reset ke email.');
@@ -202,7 +200,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
       }
 
       setLoading(false);
-      setSimulatedEmailNotification(null);
       setResetSuccessMessage('Kata sandi berhasil diperbarui! Silakan masuk dengan kata sandi baru Anda.');
       setMode('login');
       setEmail(resetEmail);
@@ -490,7 +487,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       onClick={() => {
                         setMode('login');
                         setError(null);
-                        setSimulatedEmailNotification(null);
                       }}
                       className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
                       title="Kembali ke Login"
@@ -509,32 +505,20 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     </div>
                   </div>
 
-                  {/* Simulated Email Notification Card */}
-                  {simulatedEmailNotification && (
-                    <div className="p-3.5 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl text-xs text-amber-900 shadow-sm animate-in fade-in duration-200">
-                      <div className="flex items-center justify-between pb-1.5 border-b border-amber-200/60 font-semibold">
-                        <span className="flex items-center gap-1.5 text-amber-950">
-                          <MailCheck className="w-4 h-4 text-emerald-600" />
-                          Simulasi Email Terkirim
-                        </span>
-                        <span className="text-[10px] bg-amber-200/70 text-amber-900 px-2 py-0.5 rounded font-mono font-bold">
-                          {simulatedEmailNotification.email}
-                        </span>
+                  {/* Real Email OTP Sent Notice Card */}
+                  {resetStep === 'verify' && (
+                    <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3.5 flex items-start gap-3 animate-in fade-in duration-200">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                        <MailCheck className="w-5 h-5" />
                       </div>
-                      <p className="mt-2 text-slate-700 leading-relaxed text-[11px]">
-                        Halo! Berikut kode konfirmasi untuk memperbarui kata sandi akun Anda:
-                      </p>
-                      <div className="mt-2 flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-amber-300">
-                        <span className="text-xl font-black font-mono tracking-widest text-emerald-800">
-                          {simulatedEmailNotification.code}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setResetCode(simulatedEmailNotification.code)}
-                          className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 hover:bg-emerald-100 transition-colors"
-                        >
-                          Isi Otomatis
-                        </button>
+                      <div className="text-xs text-slate-600 leading-snug flex-1">
+                        <div>
+                          Kode OTP reset kata sandi (6 digit) telah dikirim ke{' '}
+                          <b className="text-slate-800">{resetEmail}</b>.
+                        </div>
+                        <div className="mt-2 text-[11px] text-amber-900 bg-amber-50 p-2 rounded-lg border border-amber-200/80 leading-normal">
+                          💡 <b>Jika tidak ada di Inbox:</b> Silakan periksa folder <b>Spam</b> atau <b>Promosi</b> di Gmail Anda, lalu klik <b>&quot;Bukan Spam&quot;</b>.
+                        </div>
                       </div>
                     </div>
                   )}

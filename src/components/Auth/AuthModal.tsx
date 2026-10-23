@@ -396,6 +396,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ) : mode === 'forgot' ? (
             /* FORGOT PASSWORD FORM */
             <div className="space-y-4">
+              {resetStep === 'verify' && (
+                <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3.5 flex items-start gap-3 animate-in fade-in duration-200">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                    <MailCheck className="w-5 h-5" />
+                  </div>
+                  <div className="text-xs text-slate-600 leading-snug flex-1">
+                    <div>
+                      Kode OTP reset kata sandi (6 digit) telah dikirim ke{' '}
+                      <b className="text-slate-800">{resetEmail}</b>.
+                    </div>
+                    <div className="mt-2 text-[11px] text-amber-900 bg-amber-50 p-2 rounded-lg border border-amber-200/80 leading-normal">
+                      💡 <b>Jika tidak ada di Inbox:</b> Silakan periksa folder <b>Spam</b> atau <b>Promosi</b> di Gmail Anda, lalu klik <b>&quot;Bukan Spam&quot;</b>.
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {error && (
                 <div className="flex items-center gap-2 p-3 text-xs bg-red-50 text-red-700 border border-red-200 rounded-xl">
                   <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
