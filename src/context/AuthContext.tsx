@@ -292,6 +292,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.token) {
         localStorage.setItem(AUTH_TOKEN_KEY, data.token);
       }
+      try {
+        sessionStorage.removeItem(`cvbagus_welcome_promo_${newUser.id}`);
+      } catch {}
       loadUserCVs(newUser.id);
       refreshUserQuota();
 
@@ -400,6 +403,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Clean up legacy local user cache so no passwords remain in F12 LocalStorage
         try {
           localStorage.removeItem(USERS_STORAGE_KEY);
+          sessionStorage.removeItem(`cvbagus_welcome_promo_${loggedInUser.id}`);
         } catch {}
 
         loadUserCVs(loggedInUser.id);
@@ -441,6 +445,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 7. Logout
   const logout = () => {
+    if (user?.id) {
+      try {
+        sessionStorage.removeItem(`cvbagus_welcome_promo_${user.id}`);
+      } catch {}
+    }
     setUser(null);
     setUserCVs([]);
     setUserQuota(null);

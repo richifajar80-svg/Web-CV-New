@@ -10,6 +10,7 @@ import { CVCanvas } from '@/components/Preview/CVCanvas';
 import { AuthScreen } from '@/components/Auth/AuthScreen';
 import { AuthModal } from '@/components/Auth/AuthModal';
 import { PaymentModal } from '@/components/Payment/PaymentModal';
+import { WelcomePromoModal } from '@/components/Payment/WelcomePromoModal';
 import { TemplateGalleryModal } from '@/components/Templates/TemplateGalleryModal';
 import { ContactModal } from '@/components/Navigation/ContactModal';
 import { NewsModal } from '@/components/Navigation/NewsModal';
@@ -69,6 +70,9 @@ export default function Home() {
 
   // Payment modal state (Aktivasi Rp 25.000 / 1 Tahun)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+
+  // Welcome Promo Modal state (Muncul 1x setiap sesi login untuk akun belum bayar)
+  const [welcomePromoOpen, setWelcomePromoOpen] = useState(false);
 
   // Navigation Modals: Contact, News, Tips & CMS
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -131,6 +135,26 @@ export default function Home() {
       // ignore storage errors
     }
   }, []);
+
+  // Show Welcome Persuasion Pop-up ONCE per login session when an unpaid user logs in
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || !user) return;
+    if (isSubscriptionActive) {
+      setWelcomePromoOpen(false);
+      return;
+    }
+
+    try {
+      const sessionKey = `cvbagus_welcome_promo_${user.id}`;
+      const alreadyShown = sessionStorage.getItem(sessionKey);
+      if (!alreadyShown) {
+        sessionStorage.setItem(sessionKey, '1');
+        setWelcomePromoOpen(true);
+      }
+    } catch {
+      // fallback if sessionStorage is restricted
+    }
+  }, [isAuthenticated, isLoading, user, isSubscriptionActive]);
 
   useEffect(() => {
     if (user && userCVs.length > 0 && !activeCVId) {
@@ -1092,6 +1116,14 @@ export default function Home() {
           showToast('Akses 1 tahun aktif! Menyiapkan file PDF...');
           performPDFDownload();
         }}
+      />
+
+      {/* Persuasive Welcome Promo Modal (Muncul 1x tiap login untuk user yang belum bayar) */}
+      <WelcomePromoModal
+        isOpen={welcomePromoOpen}
+        userName={user?.name}
+        onClose={() => setWelcomePromoOpen(false)}
+        onActivateNow={() => setPaymentModalOpen(true)}
       />
 
       {/* Auth Modal for Secondary Triggers */}
