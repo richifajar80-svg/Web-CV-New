@@ -136,25 +136,30 @@ export default function Home() {
     }
   }, []);
 
-  // Show Welcome Persuasion Pop-up ONCE per login session when an unpaid user logs in
+  // Show Welcome Persuasion Pop-up ONCE per login session (10 seconds after login) when an unpaid user logs in
   useEffect(() => {
-    if (isLoading || !isAuthenticated || !user) return;
+    if (isLoading || !isAuthenticated || !user?.id) return;
     if (isSubscriptionActive) {
       setWelcomePromoOpen(false);
       return;
     }
 
+    const sessionKey = `cvbagus_welcome_promo_${user.id}`;
     try {
-      const sessionKey = `cvbagus_welcome_promo_${user.id}`;
-      const alreadyShown = sessionStorage.getItem(sessionKey);
-      if (!alreadyShown) {
-        sessionStorage.setItem(sessionKey, '1');
-        setWelcomePromoOpen(true);
-      }
+      if (sessionStorage.getItem(sessionKey)) return;
     } catch {
-      // fallback if sessionStorage is restricted
+      return;
     }
-  }, [isAuthenticated, isLoading, user, isSubscriptionActive]);
+
+    const timer = setTimeout(() => {
+      try {
+        sessionStorage.setItem(sessionKey, '1');
+      } catch {}
+      setWelcomePromoOpen(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, isLoading, user?.id, isSubscriptionActive]);
 
   useEffect(() => {
     if (user && userCVs.length > 0 && !activeCVId) {
