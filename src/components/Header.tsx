@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Download,
   RefreshCw,
@@ -84,6 +84,43 @@ export const Header: React.FC<HeaderProps> = ({
   const [resetMenuOpen, setResetMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+  const resetMenuRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  // Close any open header popover when clicking/touching anywhere outside or pressing Escape
+  useEffect(() => {
+    const handleOutsideInteraction = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (themeMenuRef.current && !themeMenuRef.current.contains(target)) {
+        setThemeMenuOpen(false);
+      }
+      if (resetMenuRef.current && !resetMenuRef.current.contains(target)) {
+        setResetMenuOpen(false);
+      }
+      if (mobileNavRef.current && !mobileNavRef.current.contains(target)) {
+        setMobileNavOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setThemeMenuOpen(false);
+        setResetMenuOpen(false);
+        setMobileNavOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideInteraction);
+    document.addEventListener('touchstart', handleOutsideInteraction);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideInteraction);
+      document.removeEventListener('touchstart', handleOutsideInteraction);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Find active template name
   const currentTemplate = TEMPLATE_LIST.find((t) => t.id === theme.template) || TEMPLATE_LIST[0];
@@ -219,10 +256,14 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
 
                 {/* Theme (Color & Font) Compact Popover - Hidden on mobile, accessible in ... menu */}
-                <div className="hidden md:block relative shrink-0">
+                <div ref={themeMenuRef} className="hidden md:block relative shrink-0">
                   <button
                     type="button"
-                    onClick={() => setThemeMenuOpen(!themeMenuOpen)}
+                    onClick={() => {
+                      setResetMenuOpen(false);
+                      setMobileNavOpen(false);
+                      setThemeMenuOpen(!themeMenuOpen);
+                    }}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 transition-colors cursor-pointer whitespace-nowrap"
                     title="Atur warna aksen & jenis font CV"
                   >
@@ -240,83 +281,94 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
 
                   {themeMenuOpen && (
-                    <>
-                      <div className="fixed inset-0 z-30" onClick={() => setThemeMenuOpen(false)} />
-                      <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-3 z-40 animate-in fade-in slide-in-from-top-1 duration-150 space-y-3">
-                        <div>
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                            Warna Aksen CV
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {COLOR_PRESETS.map((color) => (
-                              <button
-                                key={color.value}
-                                type="button"
-                                title={color.name}
-                                onClick={() => {
-                                  onUpdateTheme({ accentColor: color.value });
-                                }}
-                                className="w-7 h-7 rounded-full transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-2xs"
-                                style={{ backgroundColor: color.value }}
-                              >
-                                {theme.accentColor === color.value && (
-                                  <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
+                    <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-3 z-50 animate-in fade-in slide-in-from-top-1 duration-150 space-y-3">
+                      <div>
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                          Warna Aksen CV
                         </div>
-
-                        <div className="pt-2 border-t border-slate-100">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                            Gaya Font CV
-                          </div>
-                          <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                        <div className="flex items-center gap-2">
+                          {COLOR_PRESETS.map((color) => (
                             <button
+                              key={color.value}
                               type="button"
-                              onClick={() => onUpdateTheme({ fontFamily: 'sans' })}
-                              className={`py-1.5 rounded-lg transition-all ${
-                                (theme.fontFamily || 'sans') === 'sans'
-                                  ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
-                                  : 'text-slate-600 hover:text-slate-900'
-                              }`}
+                              title={color.name}
+                              onClick={() => {
+                                onUpdateTheme({ accentColor: color.value });
+                                setThemeMenuOpen(false);
+                              }}
+                              className="w-7 h-7 rounded-full transition-transform hover:scale-110 flex items-center justify-center cursor-pointer shadow-2xs"
+                              style={{ backgroundColor: color.value }}
                             >
-                              Sans
+                              {theme.accentColor === color.value && (
+                                <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
+                              )}
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => onUpdateTheme({ fontFamily: 'serif' })}
-                              className={`py-1.5 rounded-lg font-serif transition-all ${
-                                theme.fontFamily === 'serif'
-                                  ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
-                                  : 'text-slate-600 hover:text-slate-900'
-                              }`}
-                            >
-                              Serif
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => onUpdateTheme({ fontFamily: 'mono' })}
-                              className={`py-1.5 rounded-lg font-mono transition-all ${
-                                theme.fontFamily === 'mono'
-                                  ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
-                                  : 'text-slate-600 hover:text-slate-900'
-                              }`}
-                            >
-                              Mono
-                            </button>
-                          </div>
+                          ))}
                         </div>
                       </div>
-                    </>
+
+                      <div className="pt-2 border-t border-slate-100">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                          Gaya Font CV
+                        </div>
+                        <div className="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onUpdateTheme({ fontFamily: 'sans' });
+                              setThemeMenuOpen(false);
+                            }}
+                            className={`py-1.5 rounded-lg transition-all cursor-pointer ${
+                              (theme.fontFamily || 'sans') === 'sans'
+                                ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
+                                : 'text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            Sans
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onUpdateTheme({ fontFamily: 'serif' });
+                              setThemeMenuOpen(false);
+                            }}
+                            className={`py-1.5 rounded-lg font-serif transition-all cursor-pointer ${
+                              theme.fontFamily === 'serif'
+                                ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
+                                : 'text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            Serif
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onUpdateTheme({ fontFamily: 'mono' });
+                              setThemeMenuOpen(false);
+                            }}
+                            className={`py-1.5 rounded-lg font-mono transition-all cursor-pointer ${
+                              theme.fontFamily === 'mono'
+                                ? 'bg-white text-emerald-700 shadow-2xs font-extrabold'
+                                : 'text-slate-600 hover:text-slate-900'
+                            }`}
+                          >
+                            Mono
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 {/* Reset & Clear Form Dropdown - Hidden on mobile, in ... menu */}
-                <div className="hidden lg:block relative shrink-0">
+                <div ref={resetMenuRef} className="hidden lg:block relative shrink-0">
                   <button
                     type="button"
-                    onClick={() => setResetMenuOpen(!resetMenuOpen)}
+                    onClick={() => {
+                      setThemeMenuOpen(false);
+                      setMobileNavOpen(false);
+                      setResetMenuOpen(!resetMenuOpen);
+                    }}
                     title="Opsi Reset & Kosongkan Data"
                     className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200 flex items-center cursor-pointer"
                   >
@@ -324,47 +376,41 @@ export const Header: React.FC<HeaderProps> = ({
                   </button>
 
                   {resetMenuOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-30"
-                        onClick={() => setResetMenuOpen(false)}
-                      />
-                      <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-40 animate-in fade-in slide-in-from-top-1 duration-150 space-y-1">
-                        <div className="px-2.5 py-1.5 border-b border-slate-100">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                            Opsi Pengisian Form
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setResetMenuOpen(false);
-                            onReset();
-                          }}
-                          className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl text-xs hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors cursor-pointer"
-                        >
-                          <FileText className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-                          <div>
-                            <div className="font-bold text-slate-800">Isi Data Contoh (Demo)</div>
-                            <div className="text-[10px] text-slate-500">Kembalikan ke data profil contoh</div>
-                          </div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setResetMenuOpen(false);
-                            onClearAll();
-                          }}
-                          className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl text-xs hover:bg-red-50 text-slate-700 hover:text-red-700 transition-colors cursor-pointer"
-                        >
-                          <Eraser className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                          <div>
-                            <div className="font-bold text-red-600">Kosongkan Semua Form</div>
-                            <div className="text-[10px] text-slate-500">Mulai mengisi data Anda dari nol</div>
-                          </div>
-                        </button>
+                    <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150 space-y-1">
+                      <div className="px-2.5 py-1.5 border-b border-slate-100">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          Opsi Pengisian Form
+                        </p>
                       </div>
-                    </>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setResetMenuOpen(false);
+                          onReset();
+                        }}
+                        className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl text-xs hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 transition-colors cursor-pointer"
+                      >
+                        <FileText className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                        <div>
+                          <div className="font-bold text-slate-800">Isi Data Contoh (Demo)</div>
+                          <div className="text-[10px] text-slate-500">Kembalikan ke data profil contoh</div>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setResetMenuOpen(false);
+                          onClearAll();
+                        }}
+                        className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl text-xs hover:bg-red-50 text-slate-700 hover:text-red-700 transition-colors cursor-pointer"
+                      >
+                        <Eraser className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+                        <div>
+                          <div className="font-bold text-red-600">Kosongkan Semua Form</div>
+                          <div className="text-[10px] text-slate-500">Mulai mengisi data Anda dari nol</div>
+                        </div>
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -428,10 +474,14 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Mobile Navigation Dropdown Button (•••) */}
-            <div className="lg:hidden relative shrink-0">
+            <div ref={mobileNavRef} className="lg:hidden relative shrink-0">
               <button
                 type="button"
-                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+                onClick={() => {
+                  setThemeMenuOpen(false);
+                  setResetMenuOpen(false);
+                  setMobileNavOpen(!mobileNavOpen);
+                }}
                 className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer border border-slate-200 shadow-2xs"
                 title="Menu Navigasi Tambahan"
               >
