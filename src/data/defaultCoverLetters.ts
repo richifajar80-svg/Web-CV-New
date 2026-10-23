@@ -101,7 +101,7 @@ export function generateCoverLetterFromCV(
   switch (templateType) {
     case 'fresh_grad': {
       subject = `Lamaran Pekerjaan: ${targetJob} - ${name}`;
-      salutation = `Kepada Yth. ${recipient}\n${recipientTitle}\n${company}\nDi Tempat`;
+      salutation = `Dengan hormat,`;
       openingParagraph = `Berdasarkan informasi lowongan pekerjaan yang saya dapatkan mengenai posisi ${targetJob} di ${company}, saya bermaksud untuk mengajukan diri guna bergabung bersama tim Bapak/Ibu. Sebagai lulusan ${latestEducation ? `${latestEducation.degree} dari ${latestEducation.institution}` : 'perguruan tinggi'} yang memiliki ketertarikan mendalam pada industri ini, saya siap mendedikasikan energi, integritas, dan kompetensi yang saya miliki.`;
       bodyParagraph1 = `Selama masa studi, saya telah membekali diri dengan pemahaman teoretis yang kokoh serta keterampilan praktis dalam ${skillList}. Saya juga aktif berkontribusi dalam berbagai proyek ${latestExperience ? `serta memiliki pengalaman sebagai ${latestExperience.role} di ${latestExperience.company}` : 'akademik dan kepanitiaan'}, yang mengasah kemampuan problem solving, adaptasi cepat, serta kolaborasi lintas tim secara terstruktur.`;
       bodyParagraph2 = `Saya sangat mengagumi reputasi ${company} sebagai perusahaan yang terus berinovasi dan memiliki budaya kerja profesional. Saya meyakini latar belakang dan komitmen belajar yang saya miliki akan memungkinkan saya memberikan kontribusi nyata serta mendukung pencapaian target operasional perusahaan.`;
@@ -117,7 +117,7 @@ export function generateCoverLetterFromCV(
 
     case 'experienced': {
       subject = `Aplikasi Posisi ${targetJob} - ${name}`;
-      salutation = `Kepada Yth. ${recipient}\n${recipientTitle}\n${company}`;
+      salutation = `Dengan hormat,`;
       openingParagraph = `Saya menulis surat ini untuk menyatakan ketertarikan profesional saya terhadap posisi ${targetJob} di ${company}. Dengan pengalaman kerja yang solid ${latestExperience ? `terutama dalam peran saya sebagai ${latestExperience.role} di ${latestExperience.company}` : 'di industri terkait'}, saya yakin rekam jejak saya dalam mencapai target bisnis akan selaras dengan visi pertumbuhan perusahaan.`;
       bodyParagraph1 = `Sepanjang perjalanan karir saya, saya terbiasa mengelola tanggung jawab strategis yang melibatkan ${skillList}. ${latestExperience?.description ? latestExperience.description.split('\n')[0].replace(/^[•\-*]\s*/, '') : 'Saya berhasil mengoptimalkan proses kerja, meningkatkan efisiensi operasional tim, dan memberikan dampak positif terukur bagi perkembangan organisasi.'}`;
       bodyParagraph2 = `Ketertarikan saya bergabung dengan ${company} didasari oleh komitmen perusahaan terhadap keunggulan layanan dan inovasi industri. Saya siap membawa perspektif praktis, kepemimpinan adaptif, dan etos kerja berorientasi hasil untuk memperkuat performa divisi yang saya naungi.`;
@@ -133,8 +133,8 @@ export function generateCoverLetterFromCV(
 
     case 'bumn_formal': {
       subject = `Perihal: Surat Lamaran Pekerjaan - Formasi ${targetJob}`;
-      salutation = `Yth. ${recipient}\nPanitia Rekrutmen & Seleksi Pegawai\n${company}\n${companyAddress}`;
-      openingParagraph = `Dengan hormat,\n\nSehubungan dengan informasi pembukaan rekrutmen pegawai untuk formasi ${targetJob} di lingkungan ${company}, perkenankan saya mengajukan surat permohonan lamaran pekerjaan untuk dapat mengabdi dan berkontribusi secara profesional di instansi yang Bapak/Ibu pimpin.`;
+      salutation = `Dengan hormat,`;
+      openingParagraph = `Sehubungan dengan informasi pembukaan rekrutmen pegawai untuk formasi ${targetJob} di lingkungan ${company}, perkenankan saya mengajukan surat permohonan lamaran pekerjaan untuk dapat mengabdi dan berkontribusi secara profesional di instansi yang Bapak/Ibu pimpin.`;
       bodyParagraph1 = `Saya adalah pribadi yang berintegritas tinggi, disiplin, dan memiliki dedikasi kuat dalam menjalankan amanah tugas. Dengan latar belakang pendidikan ${latestEducation ? `${latestEducation.degree} dari ${latestEducation.institution}` : 'terkait'} serta kompetensi di bidang ${skillList}, saya meyakini mampu menjalankan tugas kedinasan dan operasional dengan penuh tanggung jawab sesuai nilai-nilai luhur AKHLAK BUMN dan tata kelola perusahaan yang baik.`;
       bodyParagraph2 = `Pengalaman saya ${latestExperience ? `sebagai ${latestExperience.role} di ${latestExperience.company}` : 'dalam mengelola berbagai proyek kerja'} telah membiasakan saya untuk bekerja secara cermat di bawah tekanan, menjunjung tinggi ketepatan waktu, dan menjaga komunikasi yang efektif dengan seluruh pemangku kepentingan.`;
       closingParagraph = `Demikian surat lamaran ini saya sampaikan dengan sungguh-sungguh. Sebagai kelengkapan data administratif, terlampir Daftar Riwayat Hidup (Curriculum Vitae) dan berkas pendukung saya. Besar harapan saya agar dapat diikutsertakan dalam tahapan seleksi selanjutnya. Atas perhatian dan perkenan Bapak/Ibu, saya haturkan terima kasih yang sebesar-besarnya.`;
@@ -149,7 +149,7 @@ export function generateCoverLetterFromCV(
 
     case 'english_pro': {
       subject = `Application for ${targetJob} - ${name}`;
-      salutation = `Dear ${recipient},\n${recipientTitle}\n${company}`;
+      salutation = `Dear ${recipient},`;
       openingParagraph = `I am writing to express my strong interest in the ${targetJob} position at ${company}. Having followed your company’s impressive milestones in the industry, I am eager to leverage my background in ${latestEducation?.degree || 'business and technology'} to contribute to your continued growth and market leadership.`;
       bodyParagraph1 = `Throughout my career${latestExperience ? `, notably as a ${latestExperience.role} at ${latestExperience.company}` : ''}, I have developed comprehensive proficiency in ${skillList}. My professional approach is characterized by data-driven problem solving, proactive team collaboration, and a relentless focus on delivering measurable business impact on schedule.`;
       bodyParagraph2 = `What excites me most about this opportunity at ${company} is your commitment to high standards, forward-thinking innovation, and impactful solutions. I am confident that my technical capabilities, combined with my strong work ethic and adaptability, make me a valuable addition to your team.`;
@@ -165,7 +165,7 @@ export function generateCoverLetterFromCV(
 
     case 'career_switch': {
       subject = `Lamaran Pekerjaan: ${targetJob} - ${name}`;
-      salutation = `Kepada Yth. ${recipient}\n${recipientTitle}\n${company}`;
+      salutation = `Dengan hormat,`;
       openingParagraph = `Melalui surat ini, saya ingin mengajukan diri untuk posisi ${targetJob} di ${company}. Sebagai seorang profesional yang memiliki latar belakang ${latestEducation?.degree || 'kuat'} dan pengalaman berharga di bidang sebelumnya, saya telah secara terencana membangun keahlian baru untuk bertransisi secara sukses ke peran ${targetJob}.`;
       bodyParagraph1 = `Meskipun berakar dari bidang yang berbeda, pengalaman saya ${latestExperience ? `sebagai ${latestExperience.role} di ${latestExperience.company}` : 'sebelumnya'} telah membekali saya dengan keterampilan yang sangat relevan (transferable skills), seperti ${skillList}. Saya terbiasa menghadapi tantangan baru, menganalisis persoalan secara multidimensi, dan menguasai konsep-konsep teknis dalam kurun waktu yang singkat.`;
       bodyParagraph2 = `Keputusan saya untuk beralih ke bidang ini didorong oleh komitmen jangka panjang serta antusiasme saya terhadap dinamika industri di ${company}. Saya yakin perspektif unik dan dedikasi tinggi yang saya bawa akan menjadi aset berharga dalam memperkaya kapabilitas tim Bapak/Ibu.`;

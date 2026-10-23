@@ -1057,7 +1057,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                 <div
                   ref={docRef}
                   id="cover-letter-paper-document"
-                  className={`cv-a4-page bg-white shadow-2xl px-8 sm:px-12 pt-7 sm:pt-9 pb-10 text-slate-800 flex flex-col justify-between ${letterData.fontFamily}`}
+                  className={`cv-a4-page bg-white shadow-2xl px-10 sm:px-14 pt-9 sm:pt-11 pb-12 text-slate-800 flex flex-col ${letterData.fontFamily}`}
                   style={{
                     width: '794px',
                     minHeight: '1123px',
