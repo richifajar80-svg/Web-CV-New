@@ -7,11 +7,10 @@ import {
   ShieldCheck,
   CheckCircle,
   QrCode,
-  CreditCard,
+  Wallet,
   Sparkles,
   ArrowRight,
   Download,
-  Calendar,
 } from 'lucide-react';
 
 interface PaymentModalProps {
@@ -27,7 +26,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const { user, activateSubscription } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<'personal' | 'enterprise'>('personal');
-  const [method, setMethod] = useState<'qris' | 'va'>('qris');
+  const [method, setMethod] = useState<'qris' | 'ewallet'>('qris');
+  const [selectedEwallet, setSelectedEwallet] = useState<'GoPay' | 'DANA' | 'ShopeePay' | 'OVO'>('GoPay');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
 
@@ -283,12 +283,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               </div>
 
-              {/* Payment Methods */}
+              {/* Payment Methods (Fokus QRIS & E-Wallet - Bebas Potongan Admin VA) */}
               <div className="space-y-3 pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700">Metode Pembayaran</span>
+                  <span className="text-xs font-bold text-slate-700">Metode Pembayaran Instan</span>
                   <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Pembayaran Aman
+                    <ShieldCheck className="w-3.5 h-3.5" /> Bebas Biaya Admin VA
                   </span>
                 </div>
 
@@ -296,30 +296,30 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setMethod('qris')}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                    className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
                       method === 'qris'
-                        ? 'border-emerald-600 bg-emerald-50/50 text-emerald-800 shadow-xs'
+                        ? 'border-emerald-600 bg-emerald-50/60 text-emerald-800 shadow-xs'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <QrCode className="w-4 h-4 text-emerald-600" />
-                    <span>QRIS (Semua E-Wallet)</span>
+                    <QrCode className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>QRIS (Semua Aplikasi)</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setMethod('va')}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                      method === 'va'
-                        ? 'border-emerald-600 bg-emerald-50/50 text-emerald-800 shadow-xs'
+                    onClick={() => setMethod('ewallet')}
+                    className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                      method === 'ewallet'
+                        ? 'border-emerald-600 bg-emerald-50/60 text-emerald-800 shadow-xs'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <CreditCard className="w-4 h-4 text-emerald-600" />
-                    <span>Transfer Bank / VA</span>
+                    <Wallet className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>E-Wallet Instan</span>
                   </button>
                 </div>
 
-                {/* QRIS / VA Preview Box */}
+                {/* QRIS / E-Wallet Preview Box */}
                 {method === 'qris' ? (
                   <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
                     <div className="w-24 h-24 bg-white p-2 rounded-xl border border-slate-300 shadow-2xs flex items-center justify-center shrink-0">
@@ -336,24 +336,47 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         <div className="bg-white rounded-xs"></div>
                       </div>
                     </div>
-                    <div className="space-y-1 text-xs">
-                      <p className="font-bold text-slate-800">Scan dengan Aplikasi Pembayaran</p>
-                      <p className="text-[11px] text-slate-500">
-                        Mendukung GoPay, OVO, DANA, ShopeePay, BCA Mobile, Livin Mandiri, BRImo, dll.
-                      </p>
-                      <p className="text-[10px] text-emerald-700 font-semibold">
-                        Nominal: Pas {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'}
+                    <div className="space-y-1.5 text-xs">
+                      <p className="font-bold text-slate-800">Scan QRIS dari E-Wallet / M-Banking</p>
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1">
+                        {['GoPay', 'DANA', 'OVO', 'ShopeePay', 'LinkAja', 'M-Banking QRIS'].map((badge) => (
+                          <span
+                            key={badge}
+                            className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700"
+                          >
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-emerald-700 font-semibold pt-0.5">
+                        Nominal Pas: {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'} (Tanpa biaya tambahan)
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-1">
-                    <div className="flex justify-between font-semibold text-slate-700">
-                      <span>BCA / Mandiri / BRI Virtual Account</span>
-                      <span className="text-emerald-700">Otomatis Terverifikasi</span>
+                  <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-2.5">
+                    <div className="flex items-center justify-between font-semibold text-slate-700">
+                      <span>Pilih Dompet Digital (E-Wallet):</span>
+                      <span className="text-[11px] text-emerald-700 font-bold">Otomatis Aktif</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(['GoPay', 'DANA', 'ShopeePay', 'OVO'] as const).map((wallet) => (
+                        <button
+                          key={wallet}
+                          type="button"
+                          onClick={() => setSelectedEwallet(wallet)}
+                          className={`py-2 px-2 rounded-xl border text-[11px] font-extrabold transition-all cursor-pointer ${
+                            selectedEwallet === wallet
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                              : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300'
+                          }`}
+                        >
+                          {wallet}
+                        </button>
+                      ))}
                     </div>
                     <p className="text-[11px] text-slate-500">
-                      Nomor Virtual Account akan diterbitkan setelah Anda mengklik konfirmasi.
+                      Pembayaran via <strong>{selectedEwallet}</strong> diproses instan tanpa potongan biaya transfer bank.
                     </p>
                   </div>
                 )}

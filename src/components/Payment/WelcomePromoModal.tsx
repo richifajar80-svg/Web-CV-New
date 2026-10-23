@@ -165,14 +165,14 @@ export const WelcomePromoModal: React.FC<WelcomePromoModalProps> = ({
           </div>
 
           {/* Trust Guarantee */}
-          <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 font-medium pt-1">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-500 font-medium pt-1">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              Tanpa Perpanjangan Otomatis
+              QRIS & E-Wallet Instan
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              Aktif Instan Detik Ini
+              Tanpa Perpanjangan Otomatis
             </span>
           </div>
 
@@ -205,3 +205,4 @@ export const WelcomePromoModal: React.FC<WelcomePromoModalProps> = ({
     document.body
   );
 };
+
