@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { checkRateLimit, getClientIp, verifyUserToken } from '@/lib/security';
+import { checkRateLimit, getClientIp, verifyUserToken, isAdminUser } from '@/lib/security';
 import { getAllUsers, saveAllUsers, getEffectiveUserQuotas, UserRecord } from '@/lib/serverDb';
 import { PLAN_LIMITS, UserPlan } from '@/types/auth';
 import {
@@ -57,20 +57,18 @@ export async function POST(request: Request) {
       }
     }
 
-    // Security: If client is not providing their own API key, require authentication
-    if (!customApiKey) {
-      if (!verified || !callingUser) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Otorisasi diperlukan: silakan masuk ke akun Anda untuk menggunakan layanan AI Translate.',
-          },
-          { status: 401 }
-        );
-      }
+    // Security: Always require valid authenticated user session
+    if (!verified || !callingUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Otorisasi diperlukan: silakan masuk ke akun Anda untuk menggunakan layanan AI.',
+        },
+        { status: 401 }
+      );
     }
 
-    const isAdmin = callingUser ? (callingUser.role === 'admin' || callingUser.email.toLowerCase().includes('admin')) : false;
+    const isAdmin = isAdminUser(callingUser);
 
     // Quota Enforcement: Check translate quota for authenticated non-admin users using server key
     if (callingUser && !isAdmin && !customApiKey) {

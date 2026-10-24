@@ -274,7 +274,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
           </div>
 
           {/* Admin Panel Link (Only visible to Admin users) */}
-          {(user.role === 'admin' || user.email.toLowerCase().includes('admin')) && (
+          {(user.role === 'admin' || userQuota?.isAdmin) && (
             <div className="pt-1.5 px-2 border-t border-slate-100">
               <Link
                 href="/admin"

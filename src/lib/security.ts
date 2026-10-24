@@ -8,6 +8,39 @@ const SERVER_SECRET =
   'cvbagus-secure-production-secret-key-2026';
 
 const ADMIN_PIN = process.env.ADMIN_PIN || 'cvbagus2026';
+const OWNER_ADMIN_EMAIL = (process.env.GMAIL_USER || 'admin.cvbagusid@gmail.com').trim().toLowerCase();
+
+/**
+ * Helper: Strictly check if a user record has Administrator privileges.
+ * Never use substring matching (.includes('admin')) to prevent privilege escalation.
+ */
+export function isAdminUser(user?: { role?: string; email?: string } | null): boolean {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  if (typeof user.email === 'string' && user.email.trim().toLowerCase() === OWNER_ADMIN_EMAIL) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Generate a cryptographically secure 6-digit OTP code (CSPRNG)
+ */
+export function generateSecureOTP(): string {
+  return crypto.randomInt(100000, 1000000).toString();
+}
+
+/**
+ * Constant-time OTP comparison to prevent timing side-channel attacks
+ */
+export function verifyOTPCode(inputCode: string, expectedCode: string): boolean {
+  if (!inputCode || !expectedCode) return false;
+  const cleanInput = inputCode.trim();
+  const cleanExpected = expectedCode.trim();
+  const hashA = crypto.createHash('sha256').update(cleanInput).digest();
+  const hashB = crypto.createHash('sha256').update(cleanExpected).digest();
+  return crypto.timingSafeEqual(hashA, hashB);
+}
 
 /**
  * 1. Password Hashing via Scrypt + Cryptographic Salt
@@ -164,15 +197,41 @@ export function verifyAdminRequest(request: Request): boolean {
  */
 export function createUserToken(userId: string, email: string): string {
   const timestamp = Date.now();
-  const payload = `${userId}:${email.toLowerCase()}:${timestamp}`;
-  const hmac = crypto.createHmac('sha256', SERVER_SECRET).update(payload).digest('hex');
-  return `${payload}:${hmac}`;
+  const payloadObj = { u: userId, e: email.trim().toLowerCase(), t: timestamp };
+  const payloadB64 = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
+  const hmac = crypto.createHmac('sha256', SERVER_SECRET).update(payloadB64).digest('hex');
+  return `v2.${payloadB64}.${hmac}`;
 }
 
 export function verifyUserToken(token: string | null): { userId: string; email: string } | null {
   try {
     if (!token) return null;
-    const parts = token.split(':');
+    const cleanToken = token.trim();
+
+    // New v2 Base64URL token format: v2.<payloadB64>.<hmac>
+    if (cleanToken.startsWith('v2.')) {
+      const dotParts = cleanToken.split('.');
+      if (dotParts.length !== 3) return null;
+      const [, payloadB64, signature] = dotParts;
+      const expectedHmac = crypto.createHmac('sha256', SERVER_SECRET).update(payloadB64).digest('hex');
+
+      const sigBuf = Buffer.from(signature, 'hex');
+      const expBuf = Buffer.from(expectedHmac, 'hex');
+      if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+        return null;
+      }
+
+      const decoded = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf-8'));
+      const timestamp = Number(decoded?.t);
+      if (!decoded?.u || !decoded?.e || isNaN(timestamp) || Date.now() - timestamp > 30 * 24 * 60 * 60 * 1000) {
+        return null;
+      }
+
+      return { userId: String(decoded.u), email: String(decoded.e) };
+    }
+
+    // Legacy v1 colon-separated format for backward compatibility with existing sessions
+    const parts = cleanToken.split(':');
     if (parts.length !== 4) return null;
 
     const [userId, email, timestampStr, signature] = parts;

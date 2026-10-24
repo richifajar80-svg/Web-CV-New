@@ -15,10 +15,9 @@ export async function translateJobDescriptionWithGemini(
   text: string,
   options: GeminiTranslateOptions = {}
 ): Promise<string> {
-  const apiKey =
-    process.env.GEMINI_API_KEY?.trim() ||
-    process.env.GOOGLE_API_KEY?.trim() ||
-    options.customApiKey?.trim();
+  const apiKey = options.customApiKey?.trim()
+    ? options.customApiKey.trim()
+    : process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
 
   if (!apiKey) {
     const error: any = new Error(
@@ -213,10 +212,9 @@ export async function translateFullCVWithGemini(
   cvInput: FullCVTranslateInput,
   options: { customApiKey?: string } = {}
 ): Promise<FullCVTranslateOutput> {
-  const apiKey =
-    process.env.GEMINI_API_KEY?.trim() ||
-    process.env.GOOGLE_API_KEY?.trim() ||
-    options.customApiKey?.trim();
+  const apiKey = options.customApiKey?.trim()
+    ? options.customApiKey.trim()
+    : process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
 
   if (!apiKey) {
     const error: any = new Error(
@@ -350,10 +348,9 @@ export async function generateApplicationKitWithGemini(
   input: ApplicationKitInput,
   options: { customApiKey?: string } = {}
 ): Promise<ApplicationKitOutput> {
-  const apiKey =
-    process.env.GEMINI_API_KEY?.trim() ||
-    process.env.GOOGLE_API_KEY?.trim() ||
-    options.customApiKey?.trim();
+  const apiKey = options.customApiKey?.trim()
+    ? options.customApiKey.trim()
+    : process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
 
   if (!apiKey) {
     const error: any = new Error(

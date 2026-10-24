@@ -13,6 +13,7 @@ import {
   createUserToken,
   isPasswordHashed,
   hashPassword,
+  verifyOTPCode,
 } from '@/lib/security';
 
 export async function POST(request: Request) {
@@ -30,13 +31,18 @@ export async function POST(request: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Rate Limiting: Max 5 OTP verification attempts per 10 minutes to prevent brute forcing 6-digit codes
-    const rateLimit = await checkRateLimit(`verify-otp:${cleanEmail}:${ip}`, 5, 10 * 60);
-    if (!rateLimit.success) {
+    // 1. Rate Limiting: Max 5 OTP verification attempts per 10 minutes per email AND per IP
+    const ipLimit = await checkRateLimit(`verify-otp-ip:${ip}`, 10, 10 * 60);
+    const emailLimit = await checkRateLimit(`verify-otp-email:${cleanEmail}`, 5, 10 * 60);
+    if (!ipLimit.success || !emailLimit.success) {
+      if (!emailLimit.success) {
+        // Invalidate OTP on target email after 5 failed attempts to prevent IP-rotation brute force
+        await removePendingVerification(cleanEmail);
+      }
       return NextResponse.json(
         {
           success: false,
-          error: 'Terlalu banyak percobaan kode verifikasi yang salah. Silakan minta kode baru.',
+          error: 'Terlalu banyak percobaan kode verifikasi yang salah. Demi keamanan, silakan klik Kirim Ulang Kode Baru.',
         },
         { status: 429 }
       );
@@ -51,7 +57,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (pending.code !== code.trim()) {
+    if (!verifyOTPCode(code, pending.code)) {
       return NextResponse.json(
         { success: false, error: 'Kode verifikasi 6 digit yang Anda masukkan salah. Cek email Anda lagi.' },
         { status: 400 }
@@ -70,9 +76,17 @@ export async function POST(request: Request) {
     // Code is valid! Create official user record
     const allUsers = await getAllUsers();
     
-    // Check again if already exists
+    // Prevent overwriting an already-registered account
     const existingIdx = allUsers.findIndex((u) => u.email.toLowerCase() === cleanEmail);
-    const userId = existingIdx >= 0 ? allUsers[existingIdx].id : `usr-${Date.now()}`;
+    if (existingIdx >= 0) {
+      await removePendingVerification(cleanEmail);
+      return NextResponse.json(
+        { success: false, error: 'Email ini sudah terdaftar dan aktif. Silakan masuk menggunakan kata sandi Anda.' },
+        { status: 400 }
+      );
+    }
+
+    const userId = `usr-${Date.now()}`;
 
     // Ensure password is cryptographically hashed
     const storedPass = isPasswordHashed(pending.pass) ? pending.pass : hashPassword(pending.pass);
@@ -84,6 +98,7 @@ export async function POST(request: Request) {
       pass: storedPass,
       isVerified: true,
       isPaid: false,
+      role: 'user',
       createdAt: new Date().toISOString(),
       plan: 'personal',
       downloadCountThisMonth: 0,
@@ -91,12 +106,7 @@ export async function POST(request: Request) {
       lastQuotaResetMonth: getCurrentMonthKey(),
     };
 
-    let updatedUsers: UserRecord[];
-    if (existingIdx >= 0) {
-      updatedUsers = allUsers.map((u, i) => (i === existingIdx ? newUser : u));
-    } else {
-      updatedUsers = [...allUsers, newUser];
-    }
+    const updatedUsers: UserRecord[] = [...allUsers, newUser];
 
     await saveAllUsers(updatedUsers);
     await removePendingVerification(cleanEmail);

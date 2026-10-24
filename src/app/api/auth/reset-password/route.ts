@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAllUsers, setPendingReset } from '@/lib/serverDb';
 import { sendVerificationEmail } from '@/lib/email';
-import { checkRateLimit, getClientIp } from '@/lib/security';
+import { checkRateLimit, getClientIp, generateSecureOTP } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = generateSecureOTP();
 
     await setPendingReset({
       email: cleanEmail,

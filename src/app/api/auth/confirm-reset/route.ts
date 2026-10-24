@@ -9,6 +9,7 @@ import {
   hashPassword,
   checkRateLimit,
   getClientIp,
+  verifyOTPCode,
 } from '@/lib/security';
 
 export async function POST(request: Request) {
@@ -26,13 +27,18 @@ export async function POST(request: Request) {
 
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Rate Limiting: Max 5 reset attempts per 10 minutes per IP/email
-    const rateLimit = await checkRateLimit(`confirm-reset:${cleanEmail}:${ip}`, 5, 10 * 60);
-    if (!rateLimit.success) {
+    // 1. Rate Limiting: Max 5 reset attempts per 10 minutes per email AND per IP
+    const ipLimit = await checkRateLimit(`confirm-reset-ip:${ip}`, 10, 10 * 60);
+    const emailLimit = await checkRateLimit(`confirm-reset-email:${cleanEmail}`, 5, 10 * 60);
+    if (!ipLimit.success || !emailLimit.success) {
+      if (!emailLimit.success) {
+        // Invalidate reset OTP after 5 failed attempts on target email
+        await removePendingReset(cleanEmail);
+      }
       return NextResponse.json(
         {
           success: false,
-          error: 'Terlalu banyak percobaan kode yang salah. Silakan minta kode baru.',
+          error: 'Terlalu banyak percobaan kode yang salah. Demi keamanan, silakan minta kode reset baru.',
         },
         { status: 429 }
       );
@@ -54,7 +60,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (pending.code !== code.trim()) {
+    if (!verifyOTPCode(code, pending.code)) {
       return NextResponse.json(
         { success: false, error: 'Kode verifikasi 6 digit yang Anda masukkan salah.' },
         { status: 400 }

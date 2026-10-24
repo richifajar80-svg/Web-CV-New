@@ -101,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             const syncedUser: User = {
               ...prev,
+              role: q.isAdmin ? 'admin' : 'user',
               isPaid: serverPaid,
               subscriptionExpiresAt: serverExpiry || undefined,
               plan: serverPlan,
@@ -113,6 +114,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           return q;
         }
+      } else if (res.status === 401 || res.status === 403 || res.status === 404) {
+        // Invalid or forged session token: force unpaid state locally
+        setUser((prev) => {
+          if (!prev || (!prev.isPaid && !prev.subscriptionExpiresAt)) return prev;
+          const revokedUser: User = {
+            ...prev,
+            role: 'user',
+            isPaid: false,
+            subscriptionExpiresAt: undefined,
+          };
+          try {
+            localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(revokedUser));
+          } catch {}
+          return revokedUser;
+        });
       }
     } catch (e) {
       console.warn('Failed to refresh user quota:', e);
@@ -425,18 +441,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 6b. Instant Demo Login (For immediate testing & evaluation)
+  // 6b. Instant Demo Login (For immediate testing & evaluation - unpaid by default)
   const loginDemoUser = async () => {
-    const oneYearLater = new Date();
-    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-
     const demoUser: User = {
       id: 'demo-user-baim',
       name: 'Baim Maulana (Demo)',
       email: 'baim@cvbagus.id',
       isVerified: true,
-      isPaid: true,
-      subscriptionExpiresAt: oneYearLater.toISOString(),
+      isPaid: false,
       createdAt: new Date().toISOString(),
       plan: 'personal',
       downloadCountThisMonth: 0,

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllUsers, saveAllUsers, UserRecord, getEffectiveUserQuotas } from '@/lib/serverDb';
-import { verifyAdminRequest, hashPassword } from '@/lib/security';
+import { verifyAdminRequest, hashPassword, isAdminUser } from '@/lib/security';
 
 export const runtime = 'nodejs';
 
@@ -10,7 +10,7 @@ function sanitizeUser(u: UserRecord) {
     id: effective.id,
     name: effective.name,
     email: effective.email,
-    role: effective.role || (effective.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
+    role: isAdminUser(effective) ? 'admin' : 'user',
     isVerified: effective.isVerified,
     isPaid: effective.isPaid,
     subscriptionExpiresAt: effective.subscriptionExpiresAt,
@@ -81,10 +81,9 @@ export async function POST(request: Request) {
       const existingIdx = users.findIndex((u) => u.email.toLowerCase() === cleanEmail);
 
       const isAccountPaid = isPaid ?? true;
-      const hundredYearsLater = new Date();
-      hundredYearsLater.setFullYear(hundredYearsLater.getFullYear() + 100);
-
-      const targetRole = role || (cleanEmail.includes('admin') ? 'admin' : 'user');
+      const targetRole: 'admin' | 'user' = role === 'admin' ? 'admin' : 'user';
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + (targetRole === 'admin' ? 100 : 1));
 
       const userRecord: UserRecord = {
         id: existingIdx !== -1 ? users[existingIdx].id : `usr-${Date.now()}`,
@@ -94,7 +93,7 @@ export async function POST(request: Request) {
         isVerified: true,
         isPaid: isAccountPaid,
         role: targetRole,
-        subscriptionExpiresAt: isAccountPaid ? hundredYearsLater.toISOString() : undefined,
+        subscriptionExpiresAt: isAccountPaid ? expiryDate.toISOString() : undefined,
         createdAt: existingIdx !== -1 ? users[existingIdx].createdAt : new Date().toISOString(),
       };
 

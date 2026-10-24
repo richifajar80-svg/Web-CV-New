@@ -7,6 +7,7 @@ import {
   checkRateLimit,
   getClientIp,
   createUserToken,
+  isAdminUser,
 } from '@/lib/security';
 
 export async function POST(request: Request) {
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
       email: effectiveUser.email,
       isVerified: effectiveUser.isVerified ?? true,
       isPaid: effectiveUser.isPaid ?? false,
-      role: effectiveUser.role || (effectiveUser.email.toLowerCase().includes('admin') ? 'admin' : 'user'),
+      role: isAdminUser(effectiveUser) ? 'admin' : 'user',
       subscriptionExpiresAt: effectiveUser.subscriptionExpiresAt,
       createdAt: effectiveUser.createdAt,
       plan: effectiveUser.plan || 'personal',

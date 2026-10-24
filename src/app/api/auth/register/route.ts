@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAllUsers, getPendingVerification, setPendingVerification } from '@/lib/serverDb';
 import { sendVerificationEmail } from '@/lib/email';
-import { hashPassword, checkRateLimit, getClientIp } from '@/lib/security';
+import { hashPassword, checkRateLimit, getClientIp, generateSecureOTP } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         );
       }
 
-      const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      const newOtp = generateSecureOTP();
       await setPendingVerification({
         ...existingPending,
         code: newOtp,
@@ -93,8 +93,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Generate secure 6-digit verification code
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // 2. Generate secure 6-digit verification code (CSPRNG)
+    const otp = generateSecureOTP();
 
     // 3. Store pending verification with one-way salted scrypt hash
     const hashedPassword = hashPassword(pass);

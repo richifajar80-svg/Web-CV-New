@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { verifyAdminPin, createAdminToken, checkRateLimit, getClientIp, verifyPassword } from '@/lib/security';
+import { verifyAdminPin, createAdminToken, checkRateLimit, getClientIp, verifyPassword, isAdminUser } from '@/lib/security';
 import { getAllUsers } from '@/lib/serverDb';
 
 export const runtime = 'nodejs';
@@ -52,8 +52,7 @@ export async function POST(request: Request) {
       if (candidatePass) {
         const users = await getAllUsers();
         const matchingAdmin = users.find((u) => {
-          const isRoleAdmin = u.role === 'admin' || u.email.toLowerCase().includes('admin');
-          if (!isRoleAdmin) return false;
+          if (!isAdminUser(u)) return false;
           if (candidateEmail && u.email.toLowerCase() !== candidateEmail) return false;
           return verifyPassword(candidatePass, u.pass);
         });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllUsers, saveAllUsers, getEffectiveUserQuotas, getCurrentMonthKey } from '@/lib/serverDb';
-import { verifyUserToken } from '@/lib/security';
+import { verifyUserToken, isAdminUser } from '@/lib/security';
 import { PLAN_LIMITS, UserPlan } from '@/types/auth';
 
 export const runtime = 'nodejs';
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 
     const plan: UserPlan = (effective.plan === 'enterprise' ? 'enterprise' : 'personal');
     const limits = PLAN_LIMITS[plan];
-    const isAdmin = effective.role === 'admin' || effective.email.toLowerCase().includes('admin');
+    const isAdmin = isAdminUser(effective);
     const isServerSubscriptionActive =
       isAdmin ||
       Boolean(
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
     const plan: UserPlan = (effective.plan === 'enterprise' ? 'enterprise' : 'personal');
     const limits = PLAN_LIMITS[plan];
-    const isAdmin = effective.role === 'admin' || effective.email.toLowerCase().includes('admin');
+    const isAdmin = isAdminUser(effective);
     const isServerSubscriptionActive =
       isAdmin ||
       Boolean(
