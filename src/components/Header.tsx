@@ -149,16 +149,15 @@ export const Header: React.FC<HeaderProps> = ({
                   cvbagus<span className="text-emerald-600">.id</span>
                 </span>
                 {isSubscriptionActive ? (
-                  <span className="hidden xl:inline-flex text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300 items-center gap-1 shrink-0">
+                  <span className="hidden 2xl:inline-flex text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-300 items-center gap-1 shrink-0">
                     <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
-                    <span className="hidden 2xl:inline">Akses 1 Thn Aktif</span>
-                    <span className="2xl:hidden">PRO</span>
+                    <span>PRO</span>
                   </span>
                 ) : (
                   <button
                     type="button"
                     onClick={onOpenPayment}
-                    className="hidden xl:inline-flex text-[10px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
+                    className="hidden 2xl:inline-flex text-[10px] font-bold bg-amber-50 text-amber-800 hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 transition-colors cursor-pointer shrink-0"
                   >
                     Rp 25rb/Thn
                   </button>
@@ -166,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                 {/* Auto-Save Cloud Status Indicator */}
                 <div
-                  className={`hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold transition-all shrink-0 select-none border ${
+                  className={`hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold transition-all shrink-0 select-none border ${
                     saveStatus === 'saving'
                       ? 'bg-amber-50/90 text-amber-800 border-amber-200 animate-pulse'
                       : saveStatus === 'unsaved'
@@ -226,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Surat, Email & WA HRD</span>
+              <span>Surat & WA HRD</span>
               <span className="text-[9px] bg-amber-400/25 text-amber-950 font-black px-1.5 py-0.2 rounded-full uppercase hidden 2xl:inline-block">
                 Bonus
               </span>
@@ -247,9 +246,8 @@ export const Header: React.FC<HeaderProps> = ({
                   title="Klik untuk memilih dari 10+ pilihan templat & desain CV"
                 >
                   <LayoutTemplate className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="text-emerald-800 font-semibold hidden sm:inline">Pilih Template:</span>
-                  <span className="text-emerald-800 font-semibold sm:hidden">Template:</span>
-                  <span className="font-extrabold text-slate-900 truncate max-w-[75px] sm:max-w-[95px] xl:max-w-[120px]">
+                  <span className="text-emerald-800 font-semibold hidden 2xl:inline">Template:</span>
+                  <span className="font-extrabold text-slate-900 truncate max-w-[75px] sm:max-w-[90px] 2xl:max-w-[115px]">
                     {currentTemplate.name}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:translate-y-0.5 transition-transform" />
@@ -271,10 +269,10 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-3.5 h-3.5 rounded-full shadow-2xs border border-white shrink-0"
                       style={{ backgroundColor: theme.accentColor || '#1e40af' }}
                     />
-                    <span className="capitalize font-semibold text-[11px] hidden xl:inline">
+                    <span className="capitalize font-semibold text-[11px] hidden 2xl:inline">
                       Warna & {theme.fontFamily || 'Sans'}
                     </span>
-                    <span className="capitalize font-semibold text-[11px] xl:hidden">
+                    <span className="capitalize font-semibold text-[11px] 2xl:hidden">
                       Tema
                     </span>
                     <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
@@ -422,7 +420,7 @@ export const Header: React.FC<HeaderProps> = ({
                   title="Hubungi tim support & bantuan resmi cvbagus.id"
                 >
                   <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span className="hidden xl:inline">Contact Us</span>
+                  <span className="hidden 2xl:inline">Contact Us</span>
                 </button>
 
                 {/* Download / Print PDF Button (Visible on sm+ in header; on <640px phones it lives in the Fixed Bottom Action Bar) */}
