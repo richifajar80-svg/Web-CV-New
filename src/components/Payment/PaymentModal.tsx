@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, getUserAuthHeaders } from '@/context/AuthContext';
 import {
   X,
   ShieldCheck,
@@ -15,6 +15,48 @@ import {
   Mail,
   RefreshCw,
 } from 'lucide-react';
+
+declare global {
+  interface Window {
+    snap?: {
+      pay: (
+        token: string,
+        callbacks?: {
+          onSuccess?: (result: any) => void;
+          onPending?: (result: any) => void;
+          onError?: (result: any) => void;
+          onClose?: () => void;
+        }
+      ) => void;
+    };
+  }
+}
+
+function loadMidtransSnapScript(clientKey: string, isProduction: boolean): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if (window.snap) return resolve(true);
+
+    const existingScript = document.getElementById('midtrans-snap-script');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(Boolean(window.snap)));
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'midtrans-snap-script';
+    script.src = isProduction
+      ? 'https://app.midtrans.com/snap/snap.js'
+      : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    if (clientKey) {
+      script.setAttribute('data-client-key', clientKey);
+    }
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.snap));
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -34,6 +76,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
   const [paymentWarning, setPaymentWarning] = useState<string | null>(null);
+  const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   // Smooth fade-in animation
@@ -62,34 +105,122 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Verify real payment status against Server Database (Upstash Redis)
+  const triggerUnlockedDownload = () => {
+    setIsProcessing(false);
+    setIsPaidSuccess(true);
+    setTimeout(() => {
+      onSuccessDownload();
+      onClose();
+      setIsPaidSuccess(false);
+    }, 1400);
+  };
+
+  // Verify real payment status against Midtrans API & Server Database (Upstash Redis)
+  const checkServerAndMidtransStatus = async (orderIdToCheck?: string | null): Promise<boolean> => {
+    try {
+      const targetOrderId = orderIdToCheck || activeOrderId;
+      const statusUrl = targetOrderId
+        ? `/api/payment/webhook?orderId=${encodeURIComponent(targetOrderId)}`
+        : '/api/payment/webhook';
+
+      const webhookRes = await fetch(statusUrl, {
+        method: 'GET',
+        headers: getUserAuthHeaders(),
+      });
+
+      if (webhookRes.ok) {
+        const webhookData = await webhookRes.json().catch(() => ({}));
+        if (webhookData.paid) {
+          await refreshUserQuota();
+          return true;
+        }
+      }
+    } catch {}
+
+    const quota = await refreshUserQuota();
+    return Boolean(quota?.isSubscriptionActive);
+  };
+
+  // Primary Action: Open Midtrans Snap Automatic Checkout (or verify status if Midtrans not yet configured)
   const handleVerifyPaymentStatus = async () => {
     setIsProcessing(true);
     setPaymentWarning(null);
 
     try {
-      const quota = await refreshUserQuota();
-
-      if (quota?.isSubscriptionActive) {
-        setIsProcessing(false);
-        setIsPaidSuccess(true);
-
-        setTimeout(() => {
-          onSuccessDownload();
-          onClose();
-          setIsPaidSuccess(false);
-        }, 1400);
+      // 1. First check if account was already activated via webhook or Admin
+      const alreadyPaid = await checkServerAndMidtransStatus(activeOrderId);
+      if (alreadyPaid) {
+        triggerUnlockedDownload();
         return;
       }
 
-      // Server confirmed account is STILL UNPAID -> Block PDF download!
+      // 2. Request Midtrans Snap Transaction from Server
+      const createRes = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getUserAuthHeaders(),
+        },
+        body: JSON.stringify({ plan: selectedPlan }),
+      });
+
+      const createData = await createRes.json().catch(() => ({}));
+
+      if (createRes.ok && createData.success && createData.snapToken) {
+        setActiveOrderId(createData.orderId);
+
+        const snapReady = await loadMidtransSnapScript(
+          createData.clientKey || '',
+          Boolean(createData.isProduction)
+        );
+
+        if (snapReady && window.snap) {
+          setIsProcessing(false);
+          window.snap.pay(createData.snapToken, {
+            onSuccess: async () => {
+              setIsProcessing(true);
+              const verified = await checkServerAndMidtransStatus(createData.orderId);
+              if (verified) {
+                triggerUnlockedDownload();
+              } else {
+                setIsProcessing(false);
+                setPaymentWarning('Pembayaran diterima! Klik tombol di bawah sekali lagi untuk memuat ulang akses Pro Anda.');
+              }
+            },
+            onPending: () => {
+              setPaymentWarning(
+                'Menunggu penyelesaian pembayaran QRIS / E-Wallet Anda. Setelah membayar di aplikasi, klik tombol di bawah untuk mengunduh PDF.'
+              );
+            },
+            onError: () => {
+              setPaymentWarning('Pembayaran gagal atau dibatalkan. Silakan coba kembali.');
+            },
+            onClose: async () => {
+              const verified = await checkServerAndMidtransStatus(createData.orderId);
+              if (verified) {
+                triggerUnlockedDownload();
+              }
+            },
+          });
+          return;
+        } else if (createData.redirectUrl) {
+          window.open(createData.redirectUrl, '_blank', 'noopener,noreferrer');
+          setIsProcessing(false);
+          setPaymentWarning(
+            'Halaman pembayaran Midtrans telah dibuka di tab baru. Setelah selesai membayar, klik tombol di bawah untuk mengunduh PDF.'
+          );
+          return;
+        }
+      }
+
+      // 3. Fallback if Midtrans keys are not yet configured in .env / Vercel
       setIsProcessing(false);
       setPaymentWarning(
         'Pembayaran Anda belum terdeteksi aktif di server. Silakan selesaikan pembayaran QRIS / E-Wallet terlebih dahulu, atau kirim bukti bayar ke Admin untuk aktivasi instan.'
       );
     } catch {
       setIsProcessing(false);
-      setPaymentWarning('Gagal menghubungi server verifikasi pembayaran. Periksa koneksi internet Anda.');
+      setPaymentWarning('Gagal menghubungi server pembayaran. Periksa koneksi internet Anda.');
     }
   };
 
@@ -372,7 +503,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   ) : (
                     <>
                       <span>
-                        Saya Sudah Bayar {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'} (Cek Status)
+                        Bayar & Aktifkan {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'} Sekarang
                       </span>
                       <ArrowRight className="w-4 h-4" />
                     </>

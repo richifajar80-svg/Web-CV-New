@@ -21,6 +21,19 @@ export interface ResetRecord {
   createdAt: number;
 }
 
+export interface PaymentOrderRecord {
+  orderId: string;
+  userId: string;
+  email: string;
+  plan: 'personal' | 'enterprise';
+  amount: number;
+  status: 'pending' | 'paid' | 'expired' | 'failed';
+  snapToken?: string;
+  redirectUrl?: string;
+  createdAt: number;
+  paidAt?: number;
+}
+
 // Initialize Upstash Redis instance dynamically
 export function getRedisClient(): Redis | null {
   const url =
@@ -54,6 +67,7 @@ declare global {
   var __cvbagus_users_cache: UserRecord[] | undefined;
   var __cvbagus_pending_cache: Record<string, PendingRecord> | undefined;
   var __cvbagus_reset_cache: Record<string, ResetRecord> | undefined;
+  var __cvbagus_orders_cache: Record<string, PaymentOrderRecord> | undefined;
 }
 
 if (!global.__cvbagus_users_cache) {
@@ -64,6 +78,9 @@ if (!global.__cvbagus_pending_cache) {
 }
 if (!global.__cvbagus_reset_cache) {
   global.__cvbagus_reset_cache = {};
+}
+if (!global.__cvbagus_orders_cache) {
+  global.__cvbagus_orders_cache = {};
 }
 
 /**
@@ -302,4 +319,84 @@ export function getEffectiveUserQuotas(user: UserRecord): { user: UserRecord; ha
 
   return { user: updatedUser, hasChanged };
 }
+
+/**
+ * Payment Order Store & Automatic 1-Year Subscription Activation (Midtrans)
+ */
+export async function savePaymentOrder(order: PaymentOrderRecord): Promise<void> {
+  if (!global.__cvbagus_orders_cache) global.__cvbagus_orders_cache = {};
+  global.__cvbagus_orders_cache[order.orderId] = order;
+
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      // Keep order record for 7 days
+      await redis.set(`payment_order_${order.orderId}`, order, { ex: 7 * 24 * 3600 });
+      await redis.set(`payment_latest_user_${order.userId}`, order.orderId, { ex: 7 * 24 * 3600 });
+    } catch (e) {
+      console.error('Error saving payment order to Redis:', e);
+    }
+  }
+}
+
+export async function getPaymentOrder(orderId: string): Promise<PaymentOrderRecord | null> {
+  const cleanId = orderId.trim();
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      const data = await redis.get<PaymentOrderRecord>(`payment_order_${cleanId}`);
+      if (data) return data;
+    } catch (e) {
+      console.error('Error reading payment order from Redis:', e);
+    }
+  }
+  return global.__cvbagus_orders_cache?.[cleanId] || null;
+}
+
+export async function getLatestUserPaymentOrder(userId: string): Promise<PaymentOrderRecord | null> {
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      const latestOrderId = await redis.get<string>(`payment_latest_user_${userId}`);
+      if (latestOrderId) {
+        return await getPaymentOrder(latestOrderId);
+      }
+    } catch (e) {
+      console.error('Error reading latest user order from Redis:', e);
+    }
+  }
+
+  if (global.__cvbagus_orders_cache) {
+    const userOrders = Object.values(global.__cvbagus_orders_cache)
+      .filter((o) => o.userId === userId)
+      .sort((a, b) => b.createdAt - a.createdAt);
+    if (userOrders.length > 0) return userOrders[0];
+  }
+  return null;
+}
+
+export async function activateUserPaidSubscription(
+  userId: string,
+  plan: 'personal' | 'enterprise'
+): Promise<UserRecord | null> {
+  const allUsers = await getAllUsers();
+  const idx = allUsers.findIndex((u) => u.id === userId);
+  if (idx === -1) return null;
+
+  const oneYearLater = new Date();
+  oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+
+  const existing = allUsers[idx];
+  const updatedUser: UserRecord = {
+    ...existing,
+    isPaid: true,
+    plan,
+    subscriptionExpiresAt: oneYearLater.toISOString(),
+  };
+
+  allUsers[idx] = updatedUser;
+  await saveAllUsers(allUsers);
+  return updatedUser;
+}
+
 
