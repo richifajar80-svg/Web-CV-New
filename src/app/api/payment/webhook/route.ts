@@ -73,11 +73,14 @@ export async function POST(request: Request) {
 
     const existingOrder = await getPaymentOrder(String(order_id));
     const userId = existingOrder?.userId || (typeof custom_field1 === 'string' ? custom_field1 : '');
+    const paidAmount = Number(gross_amount) || 0;
     const plan: 'personal' | 'enterprise' =
-      existingOrder?.plan ||
-      (custom_field2 === 'enterprise' || String(order_id).startsWith('CVB-ENT-')
+      paidAmount >= 199000 &&
+      (existingOrder?.plan === 'enterprise' ||
+        custom_field2 === 'enterprise' ||
+        String(order_id).startsWith('CVB-ENT-'))
         ? 'enterprise'
-        : 'personal');
+        : 'personal';
 
     if (!userId) {
       console.warn(`[Midtrans Webhook] Order ${order_id} has no associated userId`);
@@ -238,3 +241,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

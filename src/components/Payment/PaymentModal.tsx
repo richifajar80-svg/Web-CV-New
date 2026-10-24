@@ -310,7 +310,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="grid grid-cols-2 gap-2.5">
                 {/* Personal Plan */}
                 <div
-                  onClick={() => setSelectedPlan('personal')}
+                  onClick={() => {
+                    setSelectedPlan('personal');
+                    setActiveOrderId(null);
+                    setPaymentWarning(null);
+                  }}
                   className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${
                     selectedPlan === 'personal'
                       ? 'border-emerald-500 bg-emerald-50/70 shadow-xs'
@@ -341,7 +345,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                 {/* Enterprise Plan */}
                 <div
-                  onClick={() => setSelectedPlan('enterprise')}
+                  onClick={() => {
+                    setSelectedPlan('enterprise');
+                    setActiveOrderId(null);
+                    setPaymentWarning(null);
+                  }}
                   className={`p-3 rounded-2xl border-2 cursor-pointer transition-all ${
                     selectedPlan === 'enterprise'
                       ? 'border-indigo-500 bg-indigo-50/70 shadow-xs'
