@@ -11,6 +11,9 @@ import {
   Sparkles,
   ArrowRight,
   Download,
+  AlertCircle,
+  Mail,
+  RefreshCw,
 } from 'lucide-react';
 
 interface PaymentModalProps {
@@ -24,17 +27,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   onSuccessDownload,
 }) => {
-  const { activateSubscription } = useAuth();
+  const { user, refreshUserQuota } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<'personal' | 'enterprise'>('personal');
   const [method, setMethod] = useState<'qris' | 'ewallet'>('qris');
   const [selectedEwallet, setSelectedEwallet] = useState<'GoPay' | 'DANA' | 'ShopeePay' | 'OVO'>('GoPay');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaidSuccess, setIsPaidSuccess] = useState(false);
+  const [paymentWarning, setPaymentWarning] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   // Smooth fade-in animation
   useEffect(() => {
     if (isOpen) {
+      setPaymentWarning(null);
       const raf = requestAnimationFrame(() => setIsVisible(true));
       return () => cancelAnimationFrame(raf);
     } else {
@@ -57,22 +62,35 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSimulatePayment = async () => {
+  // Verify real payment status against Server Database (Upstash Redis)
+  const handleVerifyPaymentStatus = async () => {
     setIsProcessing(true);
+    setPaymentWarning(null);
 
-    // Simulate payment verification delay (1 second)
-    setTimeout(async () => {
-      await activateSubscription(selectedPlan);
+    try {
+      const quota = await refreshUserQuota();
+
+      if (quota?.isSubscriptionActive) {
+        setIsProcessing(false);
+        setIsPaidSuccess(true);
+
+        setTimeout(() => {
+          onSuccessDownload();
+          onClose();
+          setIsPaidSuccess(false);
+        }, 1400);
+        return;
+      }
+
+      // Server confirmed account is STILL UNPAID -> Block PDF download!
       setIsProcessing(false);
-      setIsPaidSuccess(true);
-
-      // Automatically trigger download after 1.2s and close modal
-      setTimeout(() => {
-        onSuccessDownload();
-        onClose();
-        setIsPaidSuccess(false);
-      }, 1500);
-    }, 1000);
+      setPaymentWarning(
+        'Pembayaran Anda belum terdeteksi aktif di server. Silakan selesaikan pembayaran QRIS / E-Wallet terlebih dahulu, atau kirim bukti bayar ke Admin untuk aktivasi instan.'
+      );
+    } catch {
+      setIsProcessing(false);
+      setPaymentWarning('Gagal menghubungi server verifikasi pembayaran. Periksa koneksi internet Anda.');
+    }
   };
 
   // Format 1 year expiry date for preview
@@ -83,6 +101,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     month: 'long',
     year: 'numeric',
   });
+
+  const confirmMailHref = `mailto:no-reply.cvbagus@gmail.com?subject=${encodeURIComponent(
+    `Konfirmasi Pembayaran CVBagus.id - ${user?.email || ''}`
+  )}&body=${encodeURIComponent(
+    `Halo Admin CVBagus.id,\n\nSaya telah melakukan pembayaran aktivasi akun 1 tahun:\n- Email Akun: ${
+      user?.email || '-'
+    }\n- Nama: ${user?.name || '-'}\n- Paket: ${
+      selectedPlan === 'enterprise' ? 'Enterprise (Rp 199.000)' : 'Personal (Rp 25.000)'
+    }\n- Metode: ${method === 'qris' ? 'QRIS' : `E-Wallet (${selectedEwallet})`}\n\nMohon bantuannya untuk mengaktifkan akun saya. Terima kasih.`
+  )}`;
 
   return (
     <div
@@ -110,7 +138,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <CheckCircle className="w-10 h-10" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Pembayaran Berhasil!</h2>
+              <h2 className="text-xl font-bold text-slate-900">Pembayaran Terverifikasi!</h2>
               <p className="text-xs text-slate-600 mt-1">
                 Akses akun Anda telah aktif selama 1 tahun penuh hingga{' '}
                 <span className="font-semibold text-emerald-700">{formattedNextYear}</span>.
@@ -145,8 +173,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <h2 className="text-base sm:text-lg font-black">Pilih Paket & Metode Pembayaran</h2>
             </div>
 
-            {/* Compact Body (No scrolling needed on standard viewports) */}
-            <div className="p-4 sm:p-5 space-y-3.5">
+            {/* Compact Body */}
+            <div className="p-4 sm:p-5 space-y-3">
               {/* Plan Choice Selector */}
               <div className="grid grid-cols-2 gap-2.5">
                 {/* Personal Plan */}
@@ -212,8 +240,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
               </div>
 
-              {/* Payment Methods (Fokus QRIS & E-Wallet - Bebas Potongan Admin VA) */}
-              <div className="space-y-2.5 pt-1 border-t border-slate-100">
+              {/* Payment Methods (Fokus QRIS & E-Wallet) */}
+              <div className="space-y-2 pt-1 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-700">Metode Pembayaran Instan</span>
                   <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
@@ -311,20 +339,44 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 )}
               </div>
 
+              {/* Server Verification Warning if Unpaid */}
+              {paymentWarning && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-[11px] text-amber-900 space-y-2 animate-in fade-in duration-200">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <span className="leading-snug font-medium">{paymentWarning}</span>
+                  </div>
+                  <a
+                    href={confirmMailHref}
+                    className="w-full py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors text-[11px]"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Kirim Bukti Pembayaran ke Admin ({user?.email})</span>
+                  </a>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="space-y-1.5 pt-0.5">
                 <button
                   type="button"
                   disabled={isProcessing}
-                  onClick={handleSimulatePayment}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm py-3 rounded-xl shadow-lg shadow-emerald-600/25 transition-all hover:shadow-xl active:scale-98 disabled:opacity-60 cursor-pointer"
+                  onClick={handleVerifyPaymentStatus}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs sm:text-sm py-2.5 rounded-xl shadow-lg shadow-emerald-600/25 transition-all hover:shadow-xl active:scale-98 disabled:opacity-60 cursor-pointer"
                 >
-                  <span>
-                    {isProcessing
-                      ? 'Memverifikasi Pembayaran...'
-                      : `Konfirmasi Bayar ${selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'} & Unduh CV`}
-                  </span>
-                  <ArrowRight className="w-4 h-4" />
+                  {isProcessing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Mengecek Status Pembayaran di Server...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>
+                        Saya Sudah Bayar {selectedPlan === 'enterprise' ? 'Rp 199.000' : 'Rp 25.000'} (Cek Status)
+                      </span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
 
                 <button

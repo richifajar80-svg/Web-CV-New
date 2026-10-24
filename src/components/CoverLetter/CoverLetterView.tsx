@@ -8,7 +8,7 @@ import {
   generateCoverLetterFromCV,
 } from '@/data/defaultCoverLetters';
 import { exportCVToPDF } from '@/utils/pdfExport';
-import { getUserAuthHeaders } from '@/context/AuthContext';
+import { getUserAuthHeaders, useAuth } from '@/context/AuthContext';
 import {
   FileText,
   Copy,
@@ -50,6 +50,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
   onOpenPayment,
   onSwitchToCV,
 }) => {
+  const { consumeDownloadQuota } = useAuth();
   const [activePreset, setActivePreset] = useState<CoverLetterTemplateType>('fresh_grad');
   const [letterData, setLetterData] = useState<CoverLetterData>(() =>
     generateCoverLetterFromCV(cvData, 'fresh_grad')
@@ -290,6 +291,15 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
   const handleDownloadPDF = async () => {
     if (!isSubscriptionActive) {
       onOpenPayment();
+      return;
+    }
+
+    // Server-side verification of paid subscription & FUP download quota
+    const quotaRes = await consumeDownloadQuota();
+    if (!quotaRes.allowed) {
+      if (quotaRes.unpaid) {
+        onOpenPayment();
+      }
       return;
     }
 

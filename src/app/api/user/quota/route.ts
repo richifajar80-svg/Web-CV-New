@@ -44,12 +44,22 @@ export async function GET(request: Request) {
     const plan: UserPlan = (effective.plan === 'enterprise' ? 'enterprise' : 'personal');
     const limits = PLAN_LIMITS[plan];
     const isAdmin = effective.role === 'admin' || effective.email.toLowerCase().includes('admin');
+    const isServerSubscriptionActive =
+      isAdmin ||
+      Boolean(
+        effective.isPaid &&
+          effective.subscriptionExpiresAt &&
+          new Date(effective.subscriptionExpiresAt).getTime() > Date.now()
+      );
 
     return NextResponse.json({
       success: true,
       quota: {
         plan,
         isAdmin,
+        isPaid: isAdmin ? true : Boolean(effective.isPaid),
+        subscriptionExpiresAt: effective.subscriptionExpiresAt || null,
+        isSubscriptionActive: isServerSubscriptionActive,
         downloadsUsed: effective.downloadCountThisMonth || 0,
         downloadLimit: isAdmin ? 999999 : limits.downloadLimit,
         translatesUsed: effective.translateCountThisMonth || 0,
@@ -96,8 +106,27 @@ export async function POST(request: Request) {
     const plan: UserPlan = (effective.plan === 'enterprise' ? 'enterprise' : 'personal');
     const limits = PLAN_LIMITS[plan];
     const isAdmin = effective.role === 'admin' || effective.email.toLowerCase().includes('admin');
+    const isServerSubscriptionActive =
+      isAdmin ||
+      Boolean(
+        effective.isPaid &&
+          effective.subscriptionExpiresAt &&
+          new Date(effective.subscriptionExpiresAt).getTime() > Date.now()
+      );
 
     if (action === 'consume-download') {
+      // STRICT SERVER-SIDE PAYMENT CHECK: Never allow unpaid users to consume download quota
+      if (!isServerSubscriptionActive) {
+        return NextResponse.json(
+          {
+            success: false,
+            unpaid: true,
+            error: 'Akses ditolak: Akun Anda belum aktif (Belum Bayar). Silakan aktifkan paket Rp 25.000/tahun terlebih dahulu.',
+          },
+          { status: 403 }
+        );
+      }
+
       const currentDownloads = effective.downloadCountThisMonth || 0;
       const downloadLimit = limits.downloadLimit;
 

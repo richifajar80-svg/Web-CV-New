@@ -25,6 +25,10 @@ export const PLAN_PRICES: Record<UserPlan, number> = {
 
 export interface UserQuotaInfo {
   plan: UserPlan;
+  isAdmin?: boolean;
+  isPaid?: boolean;
+  subscriptionExpiresAt?: string | null;
+  isSubscriptionActive?: boolean;
   downloadsUsed: number;
   downloadLimit: number;
   translatesUsed: number;

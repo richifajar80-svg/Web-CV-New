@@ -29,7 +29,7 @@ interface AuthContextType {
   pendingReset: PendingPasswordReset | null;
   userQuota: UserQuotaInfo | null;
   refreshUserQuota: () => Promise<UserQuotaInfo | null>;
-  consumeDownloadQuota: () => Promise<{ allowed: boolean; quotaExceeded?: boolean; error?: string; remaining?: number }>;
+  consumeDownloadQuota: () => Promise<{ allowed: boolean; unpaid?: boolean; quotaExceeded?: boolean; error?: string; remaining?: number }>;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   verifyEmail: (code: string) => Promise<{ success: boolean; error?: string }>;
@@ -80,8 +80,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.quota) {
-          setUserQuota(data.quota);
-          return data.quota;
+          const q: UserQuotaInfo = data.quota;
+          setUserQuota(q);
+
+          // Always synchronize local user payment status with authoritative server database
+          // (Prevents F12 localStorage tampering of isPaid / subscriptionExpiresAt)
+          setUser((prev) => {
+            if (!prev) return prev;
+            const serverPaid = Boolean(q.isPaid || q.isAdmin);
+            const serverExpiry = q.subscriptionExpiresAt || (q.isAdmin ? prev.subscriptionExpiresAt : undefined);
+            const serverPlan = q.plan || prev.plan || 'personal';
+
+            if (
+              prev.isPaid === serverPaid &&
+              prev.subscriptionExpiresAt === serverExpiry &&
+              prev.plan === serverPlan
+            ) {
+              return prev;
+            }
+
+            const syncedUser: User = {
+              ...prev,
+              isPaid: serverPaid,
+              subscriptionExpiresAt: serverExpiry || undefined,
+              plan: serverPlan,
+            };
+            try {
+              localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(syncedUser));
+            } catch {}
+            return syncedUser;
+          });
+
+          return q;
         }
       }
     } catch (e) {
@@ -90,7 +120,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   };
 
-  const consumeDownloadQuota = async (): Promise<{ allowed: boolean; quotaExceeded?: boolean; error?: string; remaining?: number }> => {
+  const consumeDownloadQuota = async (): Promise<{
+    allowed: boolean;
+    unpaid?: boolean;
+    quotaExceeded?: boolean;
+    error?: string;
+    remaining?: number;
+  }> => {
     try {
       const res = await fetch('/api/user/quota', {
         method: 'POST',
@@ -102,14 +138,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await refreshUserQuota();
         return { allowed: true, remaining: data.remainingDownloads };
       }
+      if (data.unpaid) {
+        await refreshUserQuota();
+        return { allowed: false, unpaid: true, error: data.error };
+      }
       if (data.quotaExceeded) {
         await refreshUserQuota();
         return { allowed: false, quotaExceeded: true, error: data.error };
       }
       return { allowed: false, error: data.error || 'Gagal memproses kuota unduh.' };
     } catch (e) {
-      console.warn('Network issue during consumeDownloadQuota, allowing fallback:', e);
-      return { allowed: true };
+      console.warn('Network issue during consumeDownloadQuota:', e);
+      return {
+        allowed: false,
+        error: 'Gagal memverifikasi status pembayaran ke server. Pastikan koneksi internet Anda stabil.',
+      };
     }
   };
 
@@ -331,47 +374,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(PENDING_STORAGE_KEY);
   };
 
-  // 5. Activate 1-Year Subscription (Personal Rp 25.000 / Enterprise Rp 199.000)
-  const activateSubscription = async (targetPlan: 'personal' | 'enterprise' = 'personal') => {
+  // 5. Verify 1-Year Subscription with Server Database (Never self-activate on client)
+  const activateSubscription = async (_targetPlan: 'personal' | 'enterprise' = 'personal') => {
     if (!user) return;
-
-    // Calculate expiry 1 year from now
-    const oneYearLater = new Date();
-    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-    const expiresAt = oneYearLater.toISOString();
-
-    const updatedUser: User = {
-      ...user,
-      isPaid: true,
-      plan: targetPlan,
-      subscriptionExpiresAt: expiresAt,
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedUser));
-
-    // Update in cloud server database
-    try {
-      await fetch('/api/auth/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'toggle-subscription',
-          userId: user.id,
-          isPaid: true,
-          plan: targetPlan,
-        }),
-      });
-    } catch (e) {
-      console.error('Failed to sync payment with server', e);
-    }
-
-    refreshUserQuota();
-
-    // Clean up local cache
-    try {
-      localStorage.removeItem(USERS_STORAGE_KEY);
-    } catch {}
+    await refreshUserQuota();
   };
 
   // 6. Login (Checks Central Server Database first, works across ALL devices)

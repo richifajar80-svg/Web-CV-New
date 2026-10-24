@@ -667,10 +667,12 @@ export default function Home() {
       return;
     }
 
-    // Check & consume FUP download quota on server
+    // Check & consume FUP download quota on server (also validates paid subscription on server)
     const quotaRes = await consumeDownloadQuota();
     if (!quotaRes.allowed) {
-      if (quotaRes.quotaExceeded) {
+      if (quotaRes.unpaid) {
+        setPaymentModalOpen(true);
+      } else if (quotaRes.quotaExceeded) {
         setQuotaModalType('download');
         setQuotaModalMessage(quotaRes.error);
         setQuotaModalOpen(true);
@@ -698,7 +700,9 @@ export default function Home() {
 
     const quotaRes = await consumeDownloadQuota();
     if (!quotaRes.allowed) {
-      if (quotaRes.quotaExceeded) {
+      if (quotaRes.unpaid) {
+        setPaymentModalOpen(true);
+      } else if (quotaRes.quotaExceeded) {
         setQuotaModalType('download');
         setQuotaModalMessage(quotaRes.error);
         setQuotaModalOpen(true);
@@ -717,6 +721,22 @@ export default function Home() {
     printCVToVectorPDF();
   };
 
+  // Security: Block Ctrl+P / Cmd+P keyboard shortcut when subscription is not active
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        if (!isSubscriptionActive) {
+          e.preventDefault();
+          e.stopPropagation();
+          setPaymentModalOpen(true);
+          showToast('Aktifkan Paket Full Access untuk mengunduh atau mencetak CV PDF.');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isSubscriptionActive]);
+
   const handleOpenAuth = (mode: 'login' | 'register') => {
     setAuthModalMode(mode);
     setAuthModalOpen(true);
@@ -726,7 +746,7 @@ export default function Home() {
   const currentTemplate = TEMPLATE_LIST.find((t) => t.id === cvData.theme.template) || TEMPLATE_LIST[0];
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
+    <div className={`min-h-screen bg-slate-100 flex flex-col ${!isSubscriptionActive ? 'unpaid-print-lock' : ''}`}>
       {/* Top Navbar with User Menu and Controls */}
       <Header
         theme={cvData.theme}

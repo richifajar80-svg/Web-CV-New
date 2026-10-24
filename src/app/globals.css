@@ -138,6 +138,30 @@ body {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
+
+  /* Security: Prevent unpaid users from bypassing payment via Browser Menu -> Print -> Save as PDF */
+  .unpaid-print-lock .cv-a4-page,
+  .unpaid-print-lock #cv-paper-document,
+  .unpaid-print-lock #cover-letter-paper-document {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .unpaid-print-lock::before {
+    content: "🔒 Akses Unduh & Cetak PDF Terkunci — Silakan aktifkan Paket Full Access (Rp 25.000 / 1 Tahun) di CVBagus.id terlebih dahulu untuk mengunduh atau mencetak dokumen CV & Surat Lamaran tanpa watermark.";
+    display: block !important;
+    padding: 48px 32px !important;
+    margin: 40px auto !important;
+    max-width: 520px !important;
+    text-align: center !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    line-height: 1.6 !important;
+    color: #1e293b !important;
+    border: 2px dashed #cbd5e1 !important;
+    border-radius: 16px !important;
+    background: #f8fafc !important;
+  }
 }
 
 /* Mobile-First: Prevent iOS Safari from auto-zooming viewport on input focus */
