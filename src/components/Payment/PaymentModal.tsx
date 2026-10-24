@@ -233,15 +233,15 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     year: 'numeric',
   });
 
-  const confirmMailHref = `mailto:no-reply.cvbagus@gmail.com?subject=${encodeURIComponent(
-    `Konfirmasi Pembayaran CVBagus.id - ${user?.email || ''}`
-  )}&body=${encodeURIComponent(
+  const mailSubject = encodeURIComponent(`Konfirmasi Pembayaran CVBagus.id - ${user?.email || ''}`);
+  const mailBody = encodeURIComponent(
     `Halo Admin CVBagus.id,\n\nSaya telah melakukan pembayaran aktivasi akun 1 tahun:\n- Email Akun: ${
       user?.email || '-'
     }\n- Nama: ${user?.name || '-'}\n- Paket: ${
       selectedPlan === 'enterprise' ? 'Enterprise (Rp 199.000)' : 'Personal (Rp 25.000)'
     }\n- Metode: ${method === 'qris' ? 'QRIS' : `E-Wallet (${selectedEwallet})`}\n\nMohon bantuannya untuk mengaktifkan akun saya. Terima kasih.`
-  )}`;
+  );
+  const confirmMailHref = `https://mail.google.com/mail/?view=cm&fs=1&to=admin.cvbagusid@gmail.com&su=${mailSubject}&body=${mailBody}`;
 
   return (
     <div
@@ -479,6 +479,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
                   <a
                     href={confirmMailHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors text-[11px]"
                   >
                     <Mail className="w-3.5 h-3.5" />
