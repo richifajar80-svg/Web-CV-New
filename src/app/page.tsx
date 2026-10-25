@@ -273,6 +273,23 @@ export default function Home() {
     };
   }, [mobileView]);
 
+  // Security: Block Ctrl+P / Cmd+P keyboard shortcut when subscription is not active
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        if (!isSubscriptionActive) {
+          e.preventDefault();
+          e.stopPropagation();
+          setPaymentModalOpen(true);
+          showToast('Aktifkan Paket Full Access untuk mengunduh atau mencetak CV PDF.');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isAuthenticated, isSubscriptionActive]);
+
   // GATE: If user is not logged in (including during SSR for Googlebot/crawlers),
   // render the full SEO-rich AuthScreen landing page immediately so H1, features, and FAQs are 100% indexed!
   if (!isAuthenticated) {
@@ -720,22 +737,6 @@ export default function Home() {
     showToast('Membuka dialog cetak... Pilih "Save as PDF" untuk hasil PDF Vektor asli!');
     printCVToVectorPDF();
   };
-
-  // Security: Block Ctrl+P / Cmd+P keyboard shortcut when subscription is not active
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
-        if (!isSubscriptionActive) {
-          e.preventDefault();
-          e.stopPropagation();
-          setPaymentModalOpen(true);
-          showToast('Aktifkan Paket Full Access untuk mengunduh atau mencetak CV PDF.');
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [isSubscriptionActive]);
 
   const handleOpenAuth = (mode: 'login' | 'register') => {
     setAuthModalMode(mode);
