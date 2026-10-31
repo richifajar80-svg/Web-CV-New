@@ -98,6 +98,7 @@ export default function Home() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
   const initialLoadDoneRef = useRef(false);
   const isSwitchingCVRef = useRef(false);
+  const isDirtyRef = useRef(false);
 
   // Custom In-App Action Modal (Replaces browser window.confirm & window.prompt)
   const [modalConfig, setModalConfig] = useState<{
@@ -162,7 +163,9 @@ export default function Home() {
   }, [isAuthenticated, isLoading, user?.id, isSubscriptionActive]);
 
   useEffect(() => {
-    if (user && userCVs.length > 0 && !activeCVId) {
+    if (!user || userCVs.length === 0) return;
+
+    if (!activeCVId) {
       const current = userCVs[0];
       setActiveCVId(current.id);
       setActiveCVTitle(current.title);
@@ -183,26 +186,40 @@ export default function Home() {
             language: 'id',
           },
         };
+        isSwitchingCVRef.current = true;
+        isDirtyRef.current = false;
         setCvData(restoredDummy);
         setOriginalCVBackup(null);
         localStorage.removeItem('cvbagus_original_cv_backup');
         saveCV(current.title || 'CV Utama Saya', restoredDummy, current.id);
       } else {
+        isSwitchingCVRef.current = true;
+        isDirtyRef.current = false;
         setCvData(current.data);
       }
 
       initialLoadDoneRef.current = true;
+      return;
+    }
+
+    // If activeCVId exists and user has NOT made unsaved edits, sync fresh cloud data from userCVs
+    if (!isDirtyRef.current) {
+      const matching = userCVs.find((c) => c.id === activeCVId);
+      if (matching && matching.data) {
+        if (matching.title && matching.title !== activeCVTitle) {
+          setActiveCVTitle(matching.title);
+        }
+        if (JSON.stringify(matching.data) !== JSON.stringify(cvData)) {
+          isSwitchingCVRef.current = true;
+          setCvData(matching.data);
+        }
+      }
     }
   }, [user, userCVs, activeCVId]);
 
-  // Debounced Auto-Save to Account & Cloud
+  // Debounced Auto-Save to Account & Cloud (ONLY triggers when user has actively edited fields)
   useEffect(() => {
-    if (!user || !activeCVId) return;
-
-    if (!initialLoadDoneRef.current) {
-      initialLoadDoneRef.current = true;
-      return;
-    }
+    if (!user || !activeCVId || !isDirtyRef.current) return;
 
     if (isSwitchingCVRef.current) {
       isSwitchingCVRef.current = false;
@@ -214,6 +231,7 @@ export default function Home() {
     const timer = setTimeout(() => {
       try {
         saveCV(activeCVTitle || 'CV Utama Saya', cvData, activeCVId || undefined);
+        isDirtyRef.current = false;
         setSaveStatus('saved');
       } catch (err) {
         console.warn('Auto-save notice:', err);
@@ -222,7 +240,7 @@ export default function Home() {
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [cvData]);
+  }, [cvData, activeCVTitle, activeCVId, user]);
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -304,10 +322,12 @@ export default function Home() {
 
   // IF AUTHENTICATED: Show the full CV Editor & Builder Workspace
   const handleUpdateCV = (updatedFields: Partial<CVData>) => {
+    isDirtyRef.current = true;
     setCvData((prev) => ({ ...prev, ...updatedFields }));
   };
 
   const handleUpdateTheme = (updatedTheme: Partial<CVTheme>) => {
+    isDirtyRef.current = true;
     setCvData((prev) => ({
       ...prev,
       theme: { ...prev.theme, ...updatedTheme },
@@ -589,6 +609,7 @@ export default function Home() {
   // Switch to another saved CV
   const handleSelectCV = (selected: SavedCV) => {
     isSwitchingCVRef.current = true;
+    isDirtyRef.current = false;
     setActiveCVId(selected.id);
     setActiveCVTitle(selected.title);
     setCvData(selected.data);
@@ -612,6 +633,7 @@ export default function Home() {
         if (title && user) {
           const newSaved = saveCV(title, initialCVData);
           isSwitchingCVRef.current = true;
+          isDirtyRef.current = false;
           setActiveCVId(newSaved.id);
           setActiveCVTitle(newSaved.title);
           setCvData(newSaved.data);
