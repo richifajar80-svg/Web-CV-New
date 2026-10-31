@@ -59,6 +59,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
     if (file) {
       processImageFile(file);
     }
+    e.target.value = '';
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -239,13 +240,14 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
           />
         </div>
 
-        {/* Hidden File Input for Image Selection */}
+        {/* Native Accessible File Input for Image Selection */}
         <input
+          id="cv-photo-upload-input"
           ref={fileInputRef}
           type="file"
-          accept="image/png, image/jpeg, image/jpg, image/webp"
+          accept="image/png, image/jpeg, image/jpg, image/webp, image/*"
           onChange={handleFileUpload}
-          className="hidden"
+          className="sr-only"
         />
 
         {data.showPhoto && (
@@ -272,14 +274,13 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-3 py-1.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  <label
+                    htmlFor="cv-photo-upload-input"
+                    className="px-3 py-1.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer select-none"
                   >
                     <Upload className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Ganti Foto</span>
-                  </button>
+                  </label>
 
                   <button
                     type="button"
@@ -293,16 +294,23 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
               </div>
             ) : (
               /* Upload Dropzone when no photo is uploaded yet */
-              <div
-                onClick={() => fileInputRef.current?.click()}
+              <label
+                htmlFor="cv-photo-upload-input"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
-                className="border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-5 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-2"
+                className="relative border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-5 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-2 overflow-hidden select-none"
               >
-                <div className="w-12 h-12 rounded-2xl bg-white border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-108 transition-transform">
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg, image/webp, image/*"
+                  onChange={handleFileUpload}
+                  title="Pilih file pas foto"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <div className="w-12 h-12 rounded-2xl bg-white border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-108 transition-transform pointer-events-none">
                   <Upload className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="pointer-events-none">
                   <div className="text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">
                     Klik untuk Unggah Pas Foto dari Komputer / HP
                   </div>
@@ -310,7 +318,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                     Format: JPG, PNG, atau WebP (Bisa Drag & Drop langsung ke sini)
                   </p>
                 </div>
-              </div>
+              </label>
             )}
           </div>
         )}
