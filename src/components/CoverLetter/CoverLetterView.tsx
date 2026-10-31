@@ -594,8 +594,20 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                       <input
                         type="text"
                         value={targetCompany}
-                        onChange={(e) => setTargetCompany(e.target.value)}
-                        placeholder="Contoh: PT Bank Central Asia Tbk"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setTargetCompany(val);
+                          const isGeneral = val.toLowerCase().trim() === 'di tempat';
+                          setLetterData((prev: CoverLetterData) => ({
+                            ...prev,
+                            companyName: val,
+                            companyAddress: isGeneral ? '' : prev.companyAddress,
+                          }));
+                          if (isGeneral) {
+                            setCompanyCity('');
+                          }
+                        }}
+                        placeholder="Contoh: Di tempat / PT Nama Perusahaan"
                         className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                       />
                     </div>
@@ -610,8 +622,16 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                       <input
                         type="text"
                         value={targetJob}
-                        onChange={(e) => setTargetJob(e.target.value)}
-                        placeholder="Contoh: Staff Administrasi / Frontend Developer"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setTargetJob(val);
+                          setLetterData((prev: CoverLetterData) => ({
+                            ...prev,
+                            jobTitle: val,
+                            subject: `Lamaran Pekerjaan: ${val} - ${prev.applicantName}`,
+                          }));
+                        }}
+                        placeholder="Contoh: Store Manager / Retail Operations"
                         className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                       />
                     </div>
@@ -627,7 +647,14 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         <input
                           type="text"
                           value={recipient}
-                          onChange={(e) => setRecipient(e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setRecipient(val);
+                            setLetterData((prev: CoverLetterData) => ({
+                              ...prev,
+                              recipientName: val,
+                            }));
+                          }}
                           placeholder="Bapak/Ibu HRD"
                           className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                         />
@@ -636,15 +663,23 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
 
                     <div className="group">
                       <label className="block text-xs font-extrabold text-slate-800 mb-1">
-                        Kota Perusahaan
+                        Kota Perusahaan{' '}
+                        <span className="text-[10px] font-normal text-slate-500">(Bisa kosong)</span>
                       </label>
                       <div className="relative">
                         <MapPin className="w-4 h-4 text-slate-500 group-focus-within:text-emerald-600 transition-colors absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           value={companyCity}
-                          onChange={(e) => setCompanyCity(e.target.value)}
-                          placeholder="Jakarta"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCompanyCity(val);
+                            setLetterData((prev: CoverLetterData) => ({
+                              ...prev,
+                              companyAddress: val,
+                            }));
+                          }}
+                          placeholder="Kosongkan jika Di Tempat"
                           className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                         />
                       </div>
@@ -1205,9 +1240,63 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
 
                     <div className="space-y-0.5 text-slate-800">
                       <p className="font-bold">Kepada Yth.</p>
-                      <p className="font-extrabold text-slate-900">{letterData.recipientName}</p>
-                      <p className="font-semibold">{letterData.companyName}</p>
-                      <p className="text-slate-600">{letterData.companyAddress}</p>
+                      <p
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
+                          const val = e.currentTarget.innerText.trim();
+                          setLetterData((prev: CoverLetterData) => ({
+                            ...prev,
+                            recipientName: val || prev.recipientName,
+                          }));
+                          setRecipient(val || recipient);
+                        }}
+                        className="font-extrabold text-slate-900 rounded cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
+                        title="Klik langsung untuk mengedit sapaan penerima"
+                      >
+                        {letterData.recipientName}
+                      </p>
+                      <p
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={(e) => {
+                          const val = e.currentTarget.innerText.trim();
+                          setLetterData((prev: CoverLetterData) => ({
+                            ...prev,
+                            companyName: val,
+                            companyAddress: val.toLowerCase() === 'di tempat' ? '' : prev.companyAddress,
+                          }));
+                          setTargetCompany(val);
+                          if (val.toLowerCase() === 'di tempat') {
+                            setCompanyCity('');
+                          }
+                        }}
+                        className="font-semibold rounded cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
+                        title="Klik langsung untuk mengedit nama perusahaan atau ganti jadi Di tempat"
+                      >
+                        {letterData.companyName}
+                      </p>
+                      {letterData.companyAddress &&
+                        letterData.companyAddress.trim() !== '' &&
+                        letterData.companyName?.toLowerCase().trim() !== 'di tempat' &&
+                        letterData.companyAddress.toLowerCase().trim() !== 'di tempat' && (
+                          <p
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) => {
+                              const val = e.currentTarget.innerText.trim();
+                              setLetterData((prev: CoverLetterData) => ({
+                                ...prev,
+                                companyAddress: val,
+                              }));
+                              setCompanyCity(val);
+                            }}
+                            className="text-slate-600 rounded cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
+                            title="Klik langsung untuk mengedit kota perusahaan (kosongkan jika Di Tempat)"
+                          >
+                            {letterData.companyAddress}
+                          </p>
+                        )}
                     </div>
 
                     {/* SUBJECT LINE */}
