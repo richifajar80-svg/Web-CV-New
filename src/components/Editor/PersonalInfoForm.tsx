@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { PersonalInfo } from '@/types/cv';
 import { User, Mail, Phone, MapPin, Globe, Camera, Upload, Trash2, CheckCircle2, Briefcase } from 'lucide-react';
 import { LinkedinIcon } from '@/components/icons/LinkedinIcon';
@@ -15,7 +15,8 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
 
   // Process and compress image file to standard sharp A4 dimensions (<100KB base64)
   const processImageFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
+    const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|jfif|avif)$/i.test(file.name);
+    if (!isImage) {
       alert('Mohon pilih file gambar yang valid (JPG, PNG, atau WebP).');
       return;
     }
@@ -54,15 +55,37 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
     reader.readAsDataURL(file);
   };
 
+  // Support pasting image from clipboard (Ctrl+V) directly
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (!data.showPhoto) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) {
+            processImageFile(file);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [data.showPhoto]);
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       processImageFile(file);
     }
-    e.target.value = '';
+    setTimeout(() => {
+      if (e.target) e.target.value = '';
+    }, 150);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
@@ -264,18 +287,17 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="relative overflow-hidden px-3 py-1.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer select-none">
+                  <label className="px-3 py-1.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer select-none">
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/png, image/jpeg, image/jpg, image/webp, image/*"
+                      accept="image/*"
                       onChange={handleFileUpload}
-                      title="Ganti file pas foto"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                      className="sr-only"
                     />
                     <Upload className="w-3.5 h-3.5 text-emerald-600 pointer-events-none" />
                     <span className="pointer-events-none">Ganti Foto</span>
-                  </div>
+                  </label>
 
                   <button
                     type="button"
@@ -289,18 +311,17 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
               </div>
             ) : (
               /* Upload Dropzone when no photo is uploaded yet */
-              <div
+              <label
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
-                className="relative border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-5 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-2 overflow-hidden select-none"
+                className="border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-5 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-2 select-none"
               >
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/png, image/jpeg, image/jpg, image/webp, image/*"
+                  accept="image/*"
                   onChange={handleFileUpload}
-                  title="Pilih file pas foto"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                  className="sr-only"
                 />
                 <div className="w-12 h-12 rounded-2xl bg-white border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-xs group-hover:scale-108 transition-transform pointer-events-none">
                   <Upload className="w-5 h-5" />
@@ -310,10 +331,10 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                     Klik untuk Unggah Pas Foto dari Komputer / HP
                   </div>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Format: JPG, PNG, atau WebP (Bisa Drag & Drop langsung ke sini)
+                    Format: JPG, PNG, atau WebP (Bisa Drag & Drop atau Paste Ctrl+V)
                   </p>
                 </div>
-              </div>
+              </label>
             )}
           </div>
         )}
