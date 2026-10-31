@@ -802,7 +802,7 @@ export default function Home() {
       )}
 
       {/* Main Split-Screen Workspace */}
-      <main className="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-5 lg:p-6 pb-28 lg:pb-12 min-w-0 overflow-x-hidden">
+      <main className="flex-1 max-w-[1700px] w-full mx-auto p-3 sm:p-5 lg:p-6 pb-28 lg:pb-12 min-w-0 overflow-x-clip">
         {/* Semantic H1 for Search Engine Indexing & Screen Readers */}
         <h1 className="sr-only">
           cvbagus.id - Platform Pembuat CV ATS Friendly & Resume Profesional Standar HRD Online
@@ -925,11 +925,11 @@ export default function Home() {
           {/* RIGHT PANEL: Real-time Live A4 Preview (7 of 12 cols on desktop) */}
           <div
             ref={previewContainerRef}
-            className={`lg:col-span-7 xl:col-span-7 space-y-3 min-w-0 print:block print:w-full print:max-w-none print:m-0 print:p-0 ${
+            className={`lg:col-span-7 xl:col-span-7 space-y-3 min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto lg:pr-1.5 print:block print:w-full print:max-w-none print:m-0 print:p-0 ${
               mobileView === 'preview' ? 'block' : 'hidden lg:block'
             }`}
           >
-            <div className="no-print flex items-center justify-between px-1 gap-1.5 flex-wrap bg-white lg:bg-transparent p-2.5 lg:p-0 rounded-2xl lg:rounded-none border border-slate-200 lg:border-none shadow-2xs lg:shadow-none">
+            <div className="no-print sticky top-0 z-20 flex items-center justify-between px-2.5 py-2 gap-1.5 flex-wrap bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-2xs mb-2">
               {/* Left side: Preview Title, Template Switcher, AI Translate */}
               <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                 <div className="hidden sm:flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">
