@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { GoogleSignInButton } from '@/components/Auth/GoogleSignInButton';
 import {
   User as UserIcon,
   Mail,
@@ -733,6 +734,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       <span>{error}</span>
                     </div>
                   )}
+
+                  {/* 1-Click Google Sign-In */}
+                  <div className="mb-4">
+                    <GoogleSignInButton
+                      mode={mode}
+                      onSuccess={() => {
+                        if (onSuccess) onSuccess();
+                      }}
+                      onError={(err) => setError(err)}
+                    />
+
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-200" />
+                      </div>
+                      <div className="relative flex justify-center text-[10px] uppercase">
+                        <span className="bg-white px-3 text-slate-400 font-semibold tracking-wider">
+                          atau dengan email
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
                   <form onSubmit={handleSubmit} className="space-y-3.5">
                     {mode === 'register' && (

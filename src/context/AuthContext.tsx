@@ -31,6 +31,7 @@ interface AuthContextType {
   refreshUserQuota: () => Promise<UserQuotaInfo | null>;
   consumeDownloadQuota: () => Promise<{ allowed: boolean; unpaid?: boolean; quotaExceeded?: boolean; error?: string; remaining?: number }>;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: (data: { credential?: string; profile?: { email: string; name: string; picture?: string } }) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, pass: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   verifyEmail: (code: string) => Promise<{ success: boolean; error?: string }>;
   resendVerificationCode: () => Promise<{ success: boolean; code?: string }>;
@@ -441,6 +442,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // 6a. Google Sign-In (Token verification and cloud user sync)
+  const loginWithGoogle = async (data: { credential?: string; profile?: { email: string; name: string; picture?: string } }) => {
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const resData = await res.json();
+      if (!res.ok || !resData.success || !resData.user) {
+        return { success: false, error: resData.error || 'Gagal masuk dengan Google.' };
+      }
+
+      const loggedInUser: User = resData.user;
+      setUser(loggedInUser);
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(loggedInUser));
+      if (resData.token) {
+        localStorage.setItem(AUTH_TOKEN_KEY, resData.token);
+      }
+
+      try {
+        localStorage.removeItem(USERS_STORAGE_KEY);
+        sessionStorage.removeItem(`cvbagus_welcome_promo_${loggedInUser.id}`);
+      } catch {}
+
+      loadUserCVs(loggedInUser.id);
+      refreshUserQuota();
+      return { success: true };
+    } catch (err) {
+      console.error('Google login error:', err);
+      return { success: false, error: 'Terjadi kesalahan koneksi saat login dengan akun Google.' };
+    }
+  };
+
   // 6b. Instant Demo Login (For immediate testing & evaluation - unpaid by default)
   const loginDemoUser = async () => {
     const demoUser: User = {
@@ -632,6 +668,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshUserQuota,
         consumeDownloadQuota,
         login,
+        loginWithGoogle,
         register,
         verifyEmail,
         resendVerificationCode,

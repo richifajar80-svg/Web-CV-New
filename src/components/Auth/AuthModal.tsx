@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { GoogleSignInButton } from '@/components/Auth/GoogleSignInButton';
 import {
   X,
   Mail,
@@ -564,8 +565,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </div>
           ) : (
-            /* LOGIN / REGISTER FORM */
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div>
+              {/* Google 1-Click Sign-In */}
+              <div className="mb-3">
+                <GoogleSignInButton
+                  mode={mode}
+                  onSuccess={() => {
+                    onClose();
+                    if (onSuccess) onSuccess();
+                  }}
+                  onError={(err) => setError(err)}
+                />
+
+                <div className="relative my-3.5">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200" />
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase">
+                    <span className="bg-white px-3 text-slate-400 font-semibold tracking-wider">
+                      atau dengan email
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* LOGIN / REGISTER FORM */}
+              <form onSubmit={handleSubmit} className="space-y-3.5">
               {resetSuccessMessage && mode === 'login' && (
                 <div className="flex items-center gap-2 p-3 text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl">
                   <CheckCircle className="w-4 h-4 shrink-0 text-emerald-600" />
@@ -687,6 +712,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </span>
               </div>
             </form>
+            </div>
           )}
         </div>
       </div>
