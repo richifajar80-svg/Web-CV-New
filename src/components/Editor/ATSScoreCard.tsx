@@ -16,14 +16,19 @@ export function calculateATSScore(cvData: CVData): number {
   const hasExperience = cvData.experiences.length > 0;
   const hasEducation = cvData.education.length > 0;
   const hasSkills = cvData.skills.length >= 3;
+  const hasBonus =
+    (cvData.languages && cvData.languages.length > 0) ||
+    (cvData.certifications && cvData.certifications.length > 0) ||
+    (cvData.organizations && cvData.organizations.length > 0);
 
   const checklist = [
-    { met: hasName && hasContact, weight: 25 },
+    { met: hasName && hasContact, weight: 20 },
     { met: hasTitle, weight: 15 },
     { met: hasSummary, weight: 15 },
     { met: hasExperience, weight: 20 },
     { met: hasEducation, weight: 15 },
     { met: hasSkills, weight: 10 },
+    { met: Boolean(hasBonus), weight: 5 },
   ];
 
   return checklist.reduce((acc, item) => acc + (item.met ? item.weight : 0), 0);
@@ -40,14 +45,19 @@ export const ATSScoreCard: React.FC<ATSScoreCardProps> = ({ cvData }) => {
   const hasExperience = cvData.experiences.length > 0;
   const hasEducation = cvData.education.length > 0;
   const hasSkills = cvData.skills.length >= 3;
+  const hasBonus =
+    (cvData.languages && cvData.languages.length > 0) ||
+    (cvData.certifications && cvData.certifications.length > 0) ||
+    (cvData.organizations && cvData.organizations.length > 0);
 
   const checklist = [
-    { label: 'Nama lengkap & kontak (Email & No. HP)', met: hasName && hasContact, weight: 25 },
+    { label: 'Nama lengkap & kontak (Email & No. HP)', met: hasName && hasContact, weight: 20 },
     { label: 'Posisi / jabatan tujuan pekerjaan', met: hasTitle, weight: 15 },
     { label: 'Ringkasan profesional / bio singkat (min. 40 karakter)', met: hasSummary, weight: 15 },
     { label: 'Minimal 1 riwayat pengalaman kerja', met: hasExperience, weight: 20 },
     { label: 'Minimal 1 riwayat pendidikan formal', met: hasEducation, weight: 15 },
     { label: 'Minimal 3 keahlian utama relevan', met: hasSkills, weight: 10 },
+    { label: 'Kredensial pendukung (Bahasa, Sertifikasi, atau Organisasi)', met: Boolean(hasBonus), weight: 5 },
   ];
 
   const score = checklist.reduce((acc, item) => acc + (item.met ? item.weight : 0), 0);

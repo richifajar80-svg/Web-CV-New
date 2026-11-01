@@ -12,7 +12,17 @@ interface TemplateProps {
 }
 
 export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, summary, experiences, education, skills, languages, certifications, theme } = data;
+  const {
+    personalInfo,
+    summary,
+    experiences,
+    education,
+    skills,
+    languages,
+    certifications,
+    organizations,
+    theme,
+  } = data;
   const accent = theme.accentColor || '#0f766e';
   const t = getCVTranslations(theme.language);
 
@@ -172,6 +182,39 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
             </div>
           )}
         </div>
+
+        {/* Organizations */}
+        {organizations && organizations.length > 0 && (
+          <div className="space-y-3 pt-2">
+            <h3
+              className="text-xs font-bold uppercase tracking-wider pb-1 border-b"
+              style={{ color: accent, borderColor: `${accent}30` }}
+            >
+              {t.organizations}
+            </h3>
+            <div className="space-y-2.5">
+              {organizations.map((org) => (
+                <div key={org.id} className="space-y-0.5">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-bold text-slate-900">{org.role}</span>
+                    <span className="text-[11px] font-medium text-slate-500">
+                      {org.startDate} – {org.current ? t.present : org.endDate}
+                    </span>
+                  </div>
+                  <div className="text-xs font-semibold" style={{ color: accent }}>
+                    {org.name}
+                  </div>
+                  {org.description && (
+                    <FormattedDescription
+                      text={org.description}
+                      className="text-xs text-slate-600 leading-relaxed pt-0.5"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

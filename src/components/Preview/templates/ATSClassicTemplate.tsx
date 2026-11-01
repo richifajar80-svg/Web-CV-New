@@ -10,9 +10,20 @@ interface TemplateProps {
 }
 
 export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, summary, experiences, education, skills, languages, certifications, theme } = data;
+  const {
+    personalInfo,
+    summary,
+    experiences,
+    education,
+    skills,
+    languages,
+    certifications,
+    organizations,
+    theme,
+  } = data;
   const accent = theme.accentColor || '#1e293b';
   const t = getCVTranslations(theme.language);
+  const isEducationFirst = theme.sectionOrder === 'education_first';
 
   return (
     <div className="w-full bg-white text-slate-900 p-8 min-h-[297mm] space-y-4 flex-1 self-stretch min-h-full">
@@ -48,62 +59,162 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
         </div>
       )}
 
-      {/* Work Experience */}
-      {experiences.length > 0 && (
-        <div className="space-y-3">
-          <h2
-            className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
-            style={{ borderColor: `${accent}40`, color: accent }}
-          >
-            {t.workExperience}
-          </h2>
-          <div className="space-y-3">
-            {experiences.map((exp) => (
-              <div key={exp.id} className="space-y-1">
-                <div className="flex justify-between items-baseline text-xs">
-                  <span className="font-bold text-slate-900">{exp.role}</span>
-                  <span className="text-slate-500 font-medium">
-                    {exp.startDate} - {exp.current ? t.present : exp.endDate}
-                  </span>
-                </div>
-                <div className="flex justify-between items-baseline text-xs text-slate-700 font-semibold italic">
-                  <span>{exp.company}</span>
-                  {exp.location && <span className="font-normal not-italic text-slate-500">{exp.location}</span>}
-                </div>
-                <FormattedDescription
-                  text={exp.description}
-                  className="text-xs text-slate-700 leading-relaxed pl-1 pt-0.5"
-                />
+      {/* Experience & Education - Ordered by User Setting */}
+      {isEducationFirst ? (
+        <>
+          {/* Education First */}
+          {education.length > 0 && (
+            <div className="space-y-2.5">
+              <h2
+                className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
+                style={{ borderColor: `${accent}40`, color: accent }}
+              >
+                {t.education}
+              </h2>
+              <div className="space-y-2">
+                {education.map((edu) => (
+                  <div key={edu.id} className="text-xs space-y-0.5">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-bold text-slate-900">{edu.degree}</span>
+                      <span className="text-slate-500">
+                        {edu.startDate} - {edu.endDate}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-slate-700">
+                      <span>
+                        {edu.institution} {edu.gpa ? `• ${t.gpa}: ${edu.gpa}` : ''}
+                      </span>
+                      {edu.location && <span className="text-slate-500">{edu.location}</span>}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          )}
+
+          {/* Experience Second */}
+          {experiences.length > 0 && (
+            <div className="space-y-3">
+              <h2
+                className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
+                style={{ borderColor: `${accent}40`, color: accent }}
+              >
+                {t.workExperience}
+              </h2>
+              <div className="space-y-3">
+                {experiences.map((exp) => (
+                  <div key={exp.id} className="space-y-1">
+                    <div className="flex justify-between items-baseline text-xs">
+                      <span className="font-bold text-slate-900">{exp.role}</span>
+                      <span className="text-slate-500 font-medium">
+                        {exp.startDate} - {exp.current ? t.present : exp.endDate}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-baseline text-xs text-slate-700 font-semibold italic">
+                      <span>{exp.company}</span>
+                      {exp.location && <span className="font-normal not-italic text-slate-500">{exp.location}</span>}
+                    </div>
+                    <FormattedDescription
+                      text={exp.description}
+                      className="text-xs text-slate-700 leading-relaxed pl-1 pt-0.5"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          {/* Experience First (Default) */}
+          {experiences.length > 0 && (
+            <div className="space-y-3">
+              <h2
+                className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
+                style={{ borderColor: `${accent}40`, color: accent }}
+              >
+                {t.workExperience}
+              </h2>
+              <div className="space-y-3">
+                {experiences.map((exp) => (
+                  <div key={exp.id} className="space-y-1">
+                    <div className="flex justify-between items-baseline text-xs">
+                      <span className="font-bold text-slate-900">{exp.role}</span>
+                      <span className="text-slate-500 font-medium">
+                        {exp.startDate} - {exp.current ? t.present : exp.endDate}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-baseline text-xs text-slate-700 font-semibold italic">
+                      <span>{exp.company}</span>
+                      {exp.location && <span className="font-normal not-italic text-slate-500">{exp.location}</span>}
+                    </div>
+                    <FormattedDescription
+                      text={exp.description}
+                      className="text-xs text-slate-700 leading-relaxed pl-1 pt-0.5"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Education Second */}
+          {education.length > 0 && (
+            <div className="space-y-2.5">
+              <h2
+                className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
+                style={{ borderColor: `${accent}40`, color: accent }}
+              >
+                {t.education}
+              </h2>
+              <div className="space-y-2">
+                {education.map((edu) => (
+                  <div key={edu.id} className="text-xs space-y-0.5">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-bold text-slate-900">{edu.degree}</span>
+                      <span className="text-slate-500">
+                        {edu.startDate} - {edu.endDate}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-slate-700">
+                      <span>
+                        {edu.institution} {edu.gpa ? `• ${t.gpa}: ${edu.gpa}` : ''}
+                      </span>
+                      {edu.location && <span className="text-slate-500">{edu.location}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Education */}
-      {education.length > 0 && (
+      {/* Organizations */}
+      {organizations && organizations.length > 0 && (
         <div className="space-y-2.5">
           <h2
             className="text-xs font-bold uppercase tracking-wider border-b pb-0.5"
             style={{ borderColor: `${accent}40`, color: accent }}
           >
-            {t.education}
+            {t.organizations}
           </h2>
           <div className="space-y-2">
-            {education.map((edu) => (
-              <div key={edu.id} className="text-xs space-y-0.5">
+            {organizations.map((org) => (
+              <div key={org.id} className="text-xs space-y-0.5">
                 <div className="flex justify-between items-baseline">
-                  <span className="font-bold text-slate-900">{edu.degree}</span>
-                  <span className="text-slate-500">
-                    {edu.startDate} - {edu.endDate}
+                  <span className="font-bold text-slate-900">{org.role}</span>
+                  <span className="text-slate-500 font-medium">
+                    {org.startDate} - {org.current ? t.present : org.endDate}
                   </span>
                 </div>
-                <div className="flex justify-between text-slate-700">
-                  <span>
-                    {edu.institution} {edu.gpa ? `• ${t.gpa}: ${edu.gpa}` : ''}
-                  </span>
-                  {edu.location && <span className="text-slate-500">{edu.location}</span>}
-                </div>
+                <div className="text-slate-700 font-semibold">{org.name}</div>
+                {org.description && (
+                  <FormattedDescription
+                    text={org.description}
+                    className="text-xs text-slate-700 leading-relaxed pl-1 pt-0.5"
+                  />
+                )}
               </div>
             ))}
           </div>

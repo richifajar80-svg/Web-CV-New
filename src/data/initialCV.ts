@@ -68,10 +68,22 @@ export const initialCVData: CVData = {
     { id: 'cert-1', title: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services', date: '2023' },
     { id: 'cert-2', title: 'Meta Certified Front-End Developer', issuer: 'Coursera / Meta', date: '2022' },
   ],
+  organizations: [
+    {
+      id: 'org-1',
+      role: 'Koordinator Divisi IT & Publikasi',
+      name: 'Himpunan Mahasiswa Ilmu Komputer',
+      startDate: '2017',
+      endDate: '2019',
+      current: false,
+      description: '• Mengelola website resmi himpunan dan menyelenggarakan workshop web development untuk 150+ mahasiswa baru.',
+    },
+  ],
   theme: {
     accentColor: '#1e40af', // royal blue
     fontFamily: 'sans',
     template: 'modern',
     language: 'id',
+    sectionOrder: 'experience_first',
   },
 };

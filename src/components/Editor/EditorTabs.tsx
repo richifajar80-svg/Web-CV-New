@@ -13,12 +13,19 @@ import {
   ArrowLeft,
   Sparkles,
   Eye,
+  Languages as LanguagesIcon,
+  Award,
+  Users,
+  ArrowUpDown,
 } from 'lucide-react';
 import { PersonalInfoForm } from './PersonalInfoForm';
 import { SummaryForm } from './SummaryForm';
 import { ExperienceForm } from './ExperienceForm';
 import { EducationForm } from './EducationForm';
 import { SkillsForm } from './SkillsForm';
+import { LanguagesForm } from './LanguagesForm';
+import { CertificationsForm } from './CertificationsForm';
+import { OrganizationsForm } from './OrganizationsForm';
 
 interface EditorTabsProps {
   cvData: CVData;
@@ -26,7 +33,15 @@ interface EditorTabsProps {
   onViewPreview?: () => void;
 }
 
-type TabKey = 'personal' | 'summary' | 'experience' | 'education' | 'skills';
+type TabKey =
+  | 'personal'
+  | 'summary'
+  | 'experience'
+  | 'education'
+  | 'skills'
+  | 'languages'
+  | 'certifications'
+  | 'organizations';
 
 export const EditorTabs: React.FC<EditorTabsProps> = ({
   cvData,
@@ -45,6 +60,9 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
   const isExperienceComplete = cvData.experiences.length > 0;
   const isEducationComplete = cvData.education.length > 0;
   const isSkillsComplete = cvData.skills.length >= 3;
+  const isLanguagesComplete = (cvData.languages || []).length > 0;
+  const isCertificationsComplete = (cvData.certifications || []).length > 0;
+  const isOrganizationsComplete = (cvData.organizations || []).length > 0;
 
   const tabs: Array<{
     key: TabKey;
@@ -53,6 +71,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
     icon: React.ComponentType<{ className?: string }>;
     count?: number;
     isComplete: boolean;
+    isOptional?: boolean;
   }> = [
     {
       key: 'personal',
@@ -92,6 +111,33 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
       count: cvData.skills.length > 0 ? cvData.skills.length : undefined,
       isComplete: isSkillsComplete,
     },
+    {
+      key: 'languages',
+      label: 'Bahasa',
+      stepNumber: 6,
+      icon: LanguagesIcon,
+      count: cvData.languages?.length ? cvData.languages.length : undefined,
+      isComplete: isLanguagesComplete,
+      isOptional: true,
+    },
+    {
+      key: 'certifications',
+      label: 'Sertifikasi',
+      stepNumber: 7,
+      icon: Award,
+      count: cvData.certifications?.length ? cvData.certifications.length : undefined,
+      isComplete: isCertificationsComplete,
+      isOptional: true,
+    },
+    {
+      key: 'organizations',
+      label: 'Organisasi',
+      stepNumber: 8,
+      icon: Users,
+      count: cvData.organizations?.length ? cvData.organizations.length : undefined,
+      isComplete: isOrganizationsComplete,
+      isOptional: true,
+    },
   ];
 
   const tabRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
@@ -114,7 +160,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
 
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-slate-300/90 overflow-hidden flex flex-col transition-all">
-      {/* Mobile-First Step Status Header (Compact on smartphones) */}
+      {/* Mobile-First Step Status Header */}
       <div className="sm:hidden px-3.5 pt-3 pb-2.5 bg-gradient-to-r from-slate-100 to-emerald-50/60 border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
@@ -135,7 +181,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
         </div>
       </div>
 
-      {/* Tab Navigation Bar with Progress Indicators */}
+      {/* Tab Navigation Bar with Smooth Scroll & Badges */}
       <div className="flex border-b border-slate-200 bg-slate-100/90 overflow-x-auto scrollbar-none px-2 sm:px-3.5 pt-2 sm:pt-2.5 gap-1 sm:gap-1.5 shrink-0 touch-pan-x">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -148,7 +194,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
               }}
               type="button"
               onClick={() => switchTab(tab.key)}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-xs font-extrabold rounded-t-xl transition-all border-b-2 whitespace-nowrap cursor-pointer group ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 sm:py-2.5 text-[11px] sm:text-xs font-extrabold rounded-t-xl transition-all border-b-2 whitespace-nowrap cursor-pointer group shrink-0 ${
                 isActive
                   ? 'bg-white text-emerald-700 border-emerald-600 shadow-xs ring-1 ring-slate-200/80'
                   : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-white/60'
@@ -186,8 +232,64 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
         })}
       </div>
 
-      {/* Tab Content Body - Flows naturally without inner scrollbar */}
+      {/* Tab Content Body */}
       <div className="p-4 sm:p-6 space-y-6">
+        {/* Quick Setting Banner: Section Order Priority Toggle */}
+        <div className="bg-gradient-to-r from-slate-50 via-emerald-50/30 to-teal-50/20 border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <ArrowUpDown className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <span>Urutan Prioritas di Lembar CV:</span>
+                <span className="text-[11px] font-extrabold text-emerald-700">
+                  {(cvData.theme.sectionOrder || 'experience_first') === 'experience_first'
+                    ? 'Pengalaman Di Atas'
+                    : 'Pendidikan Di Atas'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                Sesuaikan urutan section agar profil Anda paling memikat HRD saat pertama dilihat.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center bg-slate-200/90 p-1 rounded-xl text-[11px] sm:text-xs font-bold shrink-0 self-start sm:self-auto shadow-inner">
+            <button
+              type="button"
+              onClick={() =>
+                onUpdateCV({
+                  theme: { ...cvData.theme, sectionOrder: 'experience_first' },
+                })
+              }
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                (cvData.theme.sectionOrder || 'experience_first') === 'experience_first'
+                  ? 'bg-white text-emerald-800 shadow-xs font-extrabold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              💼 Pengalaman Dahulu
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                onUpdateCV({
+                  theme: { ...cvData.theme, sectionOrder: 'education_first' },
+                })
+              }
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                cvData.theme.sectionOrder === 'education_first'
+                  ? 'bg-white text-emerald-800 shadow-xs font-extrabold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              🎓 Pendidikan Dahulu
+            </button>
+          </div>
+        </div>
+
+        {/* Form Components */}
         {activeTab === 'personal' && (
           <PersonalInfoForm
             data={cvData.personalInfo}
@@ -224,11 +326,28 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
         {activeTab === 'skills' && (
           <SkillsForm
             skills={cvData.skills}
-            languages={cvData.languages}
-            certifications={cvData.certifications}
             onUpdateSkills={(skills) => onUpdateCV({ skills })}
-            onUpdateLanguages={(languages) => onUpdateCV({ languages })}
-            onUpdateCertifications={(certifications) => onUpdateCV({ certifications })}
+          />
+        )}
+
+        {activeTab === 'languages' && (
+          <LanguagesForm
+            languages={cvData.languages || []}
+            onChange={(languages) => onUpdateCV({ languages })}
+          />
+        )}
+
+        {activeTab === 'certifications' && (
+          <CertificationsForm
+            certifications={cvData.certifications || []}
+            onChange={(certifications) => onUpdateCV({ certifications })}
+          />
+        )}
+
+        {activeTab === 'organizations' && (
+          <OrganizationsForm
+            organizations={cvData.organizations || []}
+            onChange={(organizations) => onUpdateCV({ organizations })}
           />
         )}
 

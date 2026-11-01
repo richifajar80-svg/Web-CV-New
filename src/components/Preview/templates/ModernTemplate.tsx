@@ -12,9 +12,20 @@ interface TemplateProps {
 }
 
 export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, summary, experiences, education, skills, languages, certifications, theme } = data;
+  const {
+    personalInfo,
+    summary,
+    experiences,
+    education,
+    skills,
+    languages,
+    certifications,
+    organizations,
+    theme,
+  } = data;
   const accent = theme.accentColor || '#1e40af';
   const t = getCVTranslations(theme.language);
+  const isEducationFirst = theme.sectionOrder === 'education_first';
 
   return (
     <div className="w-full bg-white text-slate-800 flex flex-row flex-1 self-stretch min-h-full">
@@ -166,61 +177,161 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
           </div>
         )}
 
-        {/* Work Experiences */}
-        {experiences.length > 0 && (
-          <div className="space-y-2.5">
-            <h3
-              className="text-[11px] font-bold uppercase tracking-wider pb-1 border-b"
-              style={{ color: accent, borderColor: `${accent}30` }}
-            >
-              {t.workExperience}
-            </h3>
-            <div className="space-y-3">
-              {experiences.map((exp) => (
-                <div key={exp.id} className="space-y-1">
-                  <div className="flex flex-row items-baseline justify-between gap-1">
-                    <span className="text-[11.5px] font-bold text-slate-900">{exp.role}</span>
-                    <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 w-fit shrink-0">
-                      {exp.startDate} - {exp.current ? t.present : exp.endDate}
-                    </span>
-                  </div>
-                  <div className="text-[10px] font-semibold text-slate-600">
-                    {exp.company} {exp.location ? `• ${exp.location}` : ''}
-                  </div>
-                  <FormattedDescription
-                    text={exp.description}
-                    className="text-[10.5px] text-slate-600 leading-relaxed pt-0.5"
-                  />
+        {/* Main Sections: Experience & Education Ordered by User Preference */}
+        {isEducationFirst ? (
+          <>
+            {/* Education First */}
+            {education.length > 0 && (
+              <div className="space-y-2">
+                <h3
+                  className="text-[11px] font-bold uppercase tracking-wider pb-1 border-b"
+                  style={{ color: accent, borderColor: `${accent}30` }}
+                >
+                  {t.education}
+                </h3>
+                <div className="space-y-2.5">
+                  {education.map((edu) => (
+                    <div key={edu.id} className="space-y-0.5">
+                      <div className="flex flex-row items-baseline justify-between gap-1">
+                        <span className="text-[11.5px] font-bold text-slate-900">{edu.degree}</span>
+                        <span className="text-[9.5px] text-slate-500 shrink-0">
+                          {edu.startDate} - {edu.endDate}
+                        </span>
+                      </div>
+                      <div className="text-[10px] font-semibold text-slate-600">
+                        {edu.institution} {edu.location ? `• ${edu.location}` : ''}
+                        {edu.gpa ? ` (${t.gpa}: ${edu.gpa})` : ''}
+                      </div>
+                      {edu.description && (
+                        <p className="text-[10px] text-slate-500 italic">{edu.description}</p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            )}
+
+            {/* Experience Second */}
+            {experiences.length > 0 && (
+              <div className="space-y-2.5">
+                <h3
+                  className="text-[11px] font-bold uppercase tracking-wider pb-1 border-b"
+                  style={{ color: accent, borderColor: `${accent}30` }}
+                >
+                  {t.workExperience}
+                </h3>
+                <div className="space-y-3">
+                  {experiences.map((exp) => (
+                    <div key={exp.id} className="space-y-1">
+                      <div className="flex flex-row items-baseline justify-between gap-1">
+                        <span className="text-[11.5px] font-bold text-slate-900">{exp.role}</span>
+                        <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 w-fit shrink-0">
+                          {exp.startDate} - {exp.current ? t.present : exp.endDate}
+                        </span>
+                      </div>
+                      <div className="text-[10px] font-semibold text-slate-600">
+                        {exp.company} {exp.location ? `• ${exp.location}` : ''}
+                      </div>
+                      <FormattedDescription
+                        text={exp.description}
+                        className="text-[10.5px] text-slate-600 leading-relaxed pt-0.5"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Experience First (Default) */}
+            {experiences.length > 0 && (
+              <div className="space-y-2.5">
+                <h3
+                  className="text-[11px] font-bold uppercase tracking-wider pb-1 border-b"
+                  style={{ color: accent, borderColor: `${accent}30` }}
+                >
+                  {t.workExperience}
+                </h3>
+                <div className="space-y-3">
+                  {experiences.map((exp) => (
+                    <div key={exp.id} className="space-y-1">
+                      <div className="flex flex-row items-baseline justify-between gap-1">
+                        <span className="text-[11.5px] font-bold text-slate-900">{exp.role}</span>
+                        <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 w-fit shrink-0">
+                          {exp.startDate} - {exp.current ? t.present : exp.endDate}
+                        </span>
+                      </div>
+                      <div className="text-[10px] font-semibold text-slate-600">
+                        {exp.company} {exp.location ? `• ${exp.location}` : ''}
+                      </div>
+                      <FormattedDescription
+                        text={exp.description}
+                        className="text-[10.5px] text-slate-600 leading-relaxed pt-0.5"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Education Second */}
+            {education.length > 0 && (
+              <div className="space-y-2">
+                <h3
+                  className="text-[11px] font-bold uppercase tracking-wider pb-1 border-b"
+                  style={{ color: accent, borderColor: `${accent}30` }}
+                >
+                  {t.education}
+                </h3>
+                <div className="space-y-2.5">
+                  {education.map((edu) => (
+                    <div key={edu.id} className="space-y-0.5">
+                      <div className="flex flex-row items-baseline justify-between gap-1">
+                        <span className="text-[11.5px] font-bold text-slate-900">{edu.degree}</span>
+                        <span className="text-[9.5px] text-slate-500 shrink-0">
+                          {edu.startDate} - {edu.endDate}
+                        </span>
+                      </div>
+                      <div className="text-[10px] font-semibold text-slate-600">
+                        {edu.institution} {edu.location ? `• ${edu.location}` : ''}
+                        {edu.gpa ? ` (${t.gpa}: ${edu.gpa})` : ''}
+                      </div>
+                      {edu.description && (
+                        <p className="text-[10px] text-slate-500 italic">{edu.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Education */}
-        {education.length > 0 && (
+        {/* Organizations */}
+        {organizations && organizations.length > 0 && (
           <div className="space-y-2">
             <h3
               className="text-[11px] font-bold uppercase tracking-wider pb-1 border-b"
               style={{ color: accent, borderColor: `${accent}30` }}
             >
-              {t.education}
+              {t.organizations}
             </h3>
             <div className="space-y-2.5">
-              {education.map((edu) => (
-                <div key={edu.id} className="space-y-0.5">
+              {organizations.map((org) => (
+                <div key={org.id} className="space-y-0.5">
                   <div className="flex flex-row items-baseline justify-between gap-1">
-                    <span className="text-[11.5px] font-bold text-slate-900">{edu.degree}</span>
-                    <span className="text-[9.5px] text-slate-500 shrink-0">
-                      {edu.startDate} - {edu.endDate}
+                    <span className="text-[11.5px] font-bold text-slate-900">{org.role}</span>
+                    <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">
+                      {org.startDate} - {org.current ? t.present : org.endDate}
                     </span>
                   </div>
-                  <div className="text-[10px] font-semibold text-slate-600">
-                    {edu.institution} {edu.location ? `• ${edu.location}` : ''}
-                    {edu.gpa ? ` (${t.gpa}: ${edu.gpa})` : ''}
-                  </div>
-                  {edu.description && (
-                    <p className="text-[10px] text-slate-500 italic">{edu.description}</p>
+                  <div className="text-[10px] font-semibold text-slate-600">{org.name}</div>
+                  {org.description && (
+                    <FormattedDescription
+                      text={org.description}
+                      className="text-[10.5px] text-slate-600 leading-relaxed pt-0.5"
+                    />
                   )}
                 </div>
               ))}

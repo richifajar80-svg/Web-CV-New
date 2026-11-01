@@ -20,6 +20,7 @@ export interface CVTranslations {
   languages: string;
   certifications: string;
   certificationsLicenses: string;
+  organizations: string;
   present: string;
   presentShort: string;
   gpa: string;
@@ -50,6 +51,7 @@ export const TRANSLATIONS: Record<CVLanguage, CVTranslations> = {
     languages: 'Bahasa',
     certifications: 'Sertifikasi',
     certificationsLicenses: 'Sertifikasi & Lisensi',
+    organizations: 'Pengalaman Organisasi',
     present: 'Sekarang',
     presentShort: 'Kini',
     gpa: 'IPK',
@@ -78,6 +80,7 @@ export const TRANSLATIONS: Record<CVLanguage, CVTranslations> = {
     languages: 'Languages',
     certifications: 'Certifications',
     certificationsLicenses: 'Certifications & Licenses',
+    organizations: 'Organizational Experience',
     present: 'Present',
     presentShort: 'Present',
     gpa: 'GPA',

@@ -8,7 +8,17 @@ import { getCVTranslations, formatSkillLevel } from '@/utils/translations';
 import { FormattedDescription } from '../FormattedDescription';
 
 export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
-  const { personalInfo, summary, experiences, education, skills, languages, certifications, theme } = data;
+  const {
+    personalInfo,
+    summary,
+    experiences,
+    education,
+    skills,
+    languages,
+    certifications,
+    organizations,
+    theme,
+  } = data;
   const accent = theme.accentColor || '#0284c7';
   const t = getCVTranslations(theme.language);
 
@@ -119,6 +129,36 @@ export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
             </div>
           )}
         </div>
+        {/* Organizations */}
+        {organizations && organizations.length > 0 && (
+          <div className="space-y-2.5 pt-2">
+            <h3
+              className="text-xs font-bold uppercase tracking-wider border-b pb-1"
+              style={{ borderColor: `${accent}30`, color: accent }}
+            >
+              {t.organizations}
+            </h3>
+            <div className="space-y-2">
+              {organizations.map((org) => (
+                <div key={org.id} className="text-xs space-y-0.5">
+                  <div className="flex justify-between items-baseline">
+                    <span className="font-bold text-slate-900">{org.role}</span>
+                    <span className="text-slate-500 font-medium text-[11px]">
+                      {org.startDate} - {org.current ? t.present : org.endDate}
+                    </span>
+                  </div>
+                  <div className="text-slate-600 font-semibold">{org.name}</div>
+                  {org.description && (
+                    <FormattedDescription
+                      text={org.description}
+                      className="text-xs text-slate-600 leading-relaxed pt-0.5"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

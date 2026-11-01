@@ -40,6 +40,16 @@ export interface Certification {
   date: string;
 }
 
+export interface Organization {
+  id: string;
+  role: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  current?: boolean;
+  description?: string;
+}
+
 export interface PersonalInfo {
   fullName: string;
   jobTitle: string;
@@ -79,6 +89,7 @@ export interface CVTheme {
   fontFamily: 'sans' | 'serif' | 'mono';
   template: TemplateId;
   language?: CVLanguage;
+  sectionOrder?: 'experience_first' | 'education_first';
 }
 
 export interface CVData {
@@ -89,6 +100,7 @@ export interface CVData {
   skills: Skill[];
   languages: Language[];
   certifications: Certification[];
+  organizations?: Organization[];
   theme: CVTheme;
 }
 
