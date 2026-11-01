@@ -12,13 +12,19 @@ import { CreativeTemplate } from './templates/CreativeTemplate';
 import { StripeTemplate } from './templates/StripeTemplate';
 import { CorporateTemplate } from './templates/CorporateTemplate';
 import { AcademicTemplate } from './templates/AcademicTemplate';
+import { WatermarkOverlay } from './WatermarkOverlay';
 
 interface CVCanvasProps {
   data: CVData;
   zoom?: number; // Zoom level in percentage: 35, 45, 75, 100, etc.
+  showWatermark?: boolean;
 }
 
-export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
+export const CVCanvas: React.FC<CVCanvasProps> = ({
+  data,
+  zoom = 100,
+  showWatermark = true,
+}) => {
   const docRef = useRef<HTMLDivElement>(null);
   const [docHeight, setDocHeight] = useState<number>(1123);
 
@@ -98,7 +104,7 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
       <div
         ref={docRef}
         id="cv-paper-document"
-        className={`cv-a4-page bg-white shadow-xl rounded-lg border border-slate-200/60 ${fontClass}`}
+        className={`cv-a4-page bg-white shadow-xl rounded-lg border border-slate-200/60 relative overflow-hidden ${fontClass}`}
         style={{
           width: '794px',
           minHeight: '1123px',
@@ -111,6 +117,7 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({ data, zoom = 100 }) => {
         }}
       >
         {renderTemplate()}
+        {showWatermark && <WatermarkOverlay text="cvbagus.id" />}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import {
 } from '@/data/defaultCoverLetters';
 import { exportCVToPDF } from '@/utils/pdfExport';
 import { getUserAuthHeaders, useAuth } from '@/context/AuthContext';
+import { WatermarkOverlay } from '@/components/Preview/WatermarkOverlay';
 import {
   FileText,
   Copy,
@@ -1188,7 +1189,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                 <div
                   ref={docRef}
                   id="cover-letter-paper-document"
-                  className={`cv-a4-page bg-white shadow-2xl px-10 sm:px-14 pt-9 sm:pt-11 pb-12 text-slate-800 flex flex-col ${letterData.fontFamily}`}
+                  className={`cv-a4-page bg-white shadow-2xl px-10 sm:px-14 pt-9 sm:pt-11 pb-12 text-slate-800 flex flex-col relative overflow-hidden ${letterData.fontFamily}`}
                   style={{
                     width: '794px',
                     minHeight: '1123px',
@@ -1200,6 +1201,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     boxSizing: 'border-box',
                   }}
                 >
+                  <WatermarkOverlay text="cvbagus.id" />
                   {/* LETTERHEAD / KOP SURAT */}
                   <div
                     className="border-b-2 pb-5 mb-6"

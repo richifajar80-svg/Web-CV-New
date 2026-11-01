@@ -6,7 +6,8 @@
 
 export async function exportCVToPDF(
   elementId: string = 'cv-paper-document',
-  fileName: string = 'CV.pdf'
+  fileName: string = 'CV.pdf',
+  options?: { removeWatermark?: boolean }
 ): Promise<boolean> {
   if (typeof window === 'undefined') return false;
 
@@ -32,6 +33,16 @@ export async function exportCVToPDF(
     const prevBorder = element.style.border;
     const prevBorderRadius = element.style.borderRadius;
 
+    // Hide watermark temporarily during official PDF export if requested (clean export for paid users)
+    const shouldRemoveWatermark = options?.removeWatermark !== false;
+    const watermarkEl = shouldRemoveWatermark
+      ? (element.querySelector('.cv-watermark-overlay') as HTMLElement | null)
+      : null;
+    const prevWatermarkDisplay = watermarkEl ? watermarkEl.style.display : null;
+    if (watermarkEl) {
+      watermarkEl.style.display = 'none';
+    }
+
     // Reset scaling and styling for clean capture at exact full A4 dimensions
     element.style.transform = 'none';
     element.style.transformOrigin = 'initial';
@@ -56,6 +67,9 @@ export async function exportCVToPDF(
     });
 
     // Restore original styles immediately
+    if (watermarkEl && prevWatermarkDisplay !== null) {
+      watermarkEl.style.display = prevWatermarkDisplay;
+    }
     element.style.transform = prevTransform;
     element.style.transformOrigin = prevTransformOrigin;
     element.style.position = prevPosition;

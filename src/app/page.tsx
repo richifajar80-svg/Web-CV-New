@@ -60,6 +60,7 @@ export default function Home() {
   // Preview zoom level & mobile view switcher
   const [zoom, setZoom] = useState<number>(100);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+  const [showWatermark, setShowWatermark] = useState<boolean>(true);
 
   // Template gallery modal state
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -1028,6 +1029,23 @@ export default function Home() {
 
                 <button
                   type="button"
+                  onClick={() => setShowWatermark((prev) => !prev)}
+                  className={`hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[11px] font-bold shadow-2xs transition-all cursor-pointer shrink-0 ${
+                    showWatermark
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                      : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900'
+                  }`}
+                  title="Klik untuk menyalakan atau mematikan watermark cvbagus.id pada lembar pratinjau"
+                >
+                  <ShieldCheck className={`w-3 h-3 ${showWatermark ? 'text-emerald-600' : 'text-slate-400'} shrink-0`} />
+                  <span>Watermark</span>
+                  <span className="text-[9px] font-normal opacity-75">
+                    {showWatermark ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handleVectorPrintClick}
                   className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-full border border-slate-200 text-[11px] font-bold shadow-2xs transition-all cursor-pointer shrink-0"
                   title="Cetak langsung atau Simpan sebagai PDF Vektor (Teks Asli, Tajam & Terbaca ATS)"
@@ -1041,7 +1059,7 @@ export default function Home() {
 
             {/* Scrollable preview area with paper styling */}
             <div className="w-full flex justify-center overflow-x-auto pb-8 min-w-0">
-              <CVCanvas data={cvData} zoom={zoom} />
+              <CVCanvas data={cvData} zoom={zoom} showWatermark={showWatermark} />
             </div>
           </div>
         </div>

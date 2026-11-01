@@ -139,6 +139,11 @@ body {
     page-break-inside: avoid !important;
   }
 
+  /* Watermark is hidden on clean print export */
+  .cv-watermark-overlay {
+    display: none !important;
+  }
+
   /* Security: Prevent unpaid users from bypassing payment via Browser Menu -> Print -> Save as PDF */
   .unpaid-print-lock .cv-a4-page,
   .unpaid-print-lock #cv-paper-document,
