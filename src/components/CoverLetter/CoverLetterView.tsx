@@ -51,9 +51,11 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
   onSwitchToCV,
 }) => {
   const { consumeDownloadQuota } = useAuth();
-  const [activePreset, setActivePreset] = useState<CoverLetterTemplateType>('fresh_grad');
+  const hasWorkExperience = Boolean(cvData.experiences && cvData.experiences.length > 0);
+  const initialPreset: CoverLetterTemplateType = hasWorkExperience ? 'experienced' : 'fresh_grad';
+  const [activePreset, setActivePreset] = useState<CoverLetterTemplateType>(initialPreset);
   const [letterData, setLetterData] = useState<CoverLetterData>(() =>
-    generateCoverLetterFromCV(cvData, 'fresh_grad')
+    generateCoverLetterFromCV(cvData, initialPreset)
   );
 
   // Quick inputs

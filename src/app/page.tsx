@@ -856,6 +856,7 @@ export default function Home() {
 
         {activeMode === 'cover_letter' ? (
           <CoverLetterView
+            key={activeCVId || cvData.personalInfo?.fullName || 'cover-letter-view'}
             cvData={cvData}
             isSubscriptionActive={isSubscriptionActive}
             onOpenPayment={() => setPaymentModalOpen(true)}

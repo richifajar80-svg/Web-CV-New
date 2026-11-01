@@ -368,16 +368,23 @@ Your task is to generate a complete, highly persuasive, customized Job Applicati
 
 Generate the output in ${isEnglish ? 'Professional International Business English' : 'Polite, Natural, High-Impact Professional Bahasa Indonesia (Standar HRD Indonesia)'}.
 
+CRITICAL RULES FOR RELEVANCE AND CAREER PRESENTATION:
+1. ALWAYS PRIORITIZE ACTUAL WORK EXPERIENCE OVER FORMAL EDUCATION:
+   - When the candidate has work experience in their CV, the cover letter, email body, and WhatsApp message MUST lead with and spotlight their actual professional job roles, responsibilities, leadership, and concrete achievements.
+   - NEVER start the letter with "Sebagai lulusan [Sekolah/Jurusan]..." if the candidate already has work experience. Instead, open as an experienced professional (e.g., "Sebagai seorang profesional yang berpengalaman dalam [spesialisasi/peran]..." or "Dengan rekam jejak kerja profesional di bidang...").
+   - DO NOT attribute advanced or managerial skills (such as operations management, team leadership, sales target achievement, P&L, customer service excellence) to their formal schooling or "selama masa studi" when they have real job experience. Attribute these skills to their actual career journey and professional employment.
+   - If the candidate's formal education does NOT match the target position (e.g., vocational/technical schooling like SMK Teknik Listrik or SMK Komputer/TKJ while applying for Retail Manager, Store Manager, Operations Manager, Sales, or Administration), DO NOT emphasize or highlight the mismatched educational degree. Emphasize 95%+ on practical achievements, responsibilities, leadership, and transferable competencies from their work history. Education should be mentioned minimally in a brief supporting phrase or omitted from the main paragraphs entirely.
+
 You must return a valid JSON object with EXACTLY these 8 fields:
 {
   "subject": "Perihal surat lamaran resmi (e.g., Lamaran Pekerjaan: [Posisi] - [Nama])",
-  "openingParagraph": "Paragraf 1 Surat Lamaran A4 (3-4 kalimat): Menyatakan posisi yang dilamar di perusahaan tujuan serta ringkasan profil utama kandidat.",
-  "bodyParagraph1": "Paragraf 2 Surat Lamaran A4 (3-5 kalimat): Menonjolkan pengalaman kerja/pendidikan dan pencapaian/keahlian nyata dari CV kandidat yang paling relevan dengan posisi yang dilamar.",
-  "bodyParagraph2": "Paragraf 3 Surat Lamaran A4 (3-4 kalimat): Menunjukkan antusiasme terhadap perusahaan tujuan dan nilai tambah yang bisa diberikan kandidat.",
+  "openingParagraph": "Paragraf 1 Surat Lamaran A4 (3-4 kalimat): Menyatakan posisi yang dilamar di perusahaan tujuan serta ringkasan profil keahlian dan rekam jejak kerja kandidat (fokus utama pada pengalaman kerja nyata, bukan pendidikan formal jika ada pengalaman kerja).",
+  "bodyParagraph1": "Paragraf 2 Surat Lamaran A4 (3-5 kalimat): Menonjolkan pengalaman kerja, kepemimpinan, pencapaian nyata, dan keahlian spesifik dari riwayat pekerjaan CV kandidat yang paling relevan dengan posisi yang dilamar.",
+  "bodyParagraph2": "Paragraf 3 Surat Lamaran A4 (3-4 kalimat): Menunjukkan antusiasme terhadap perusahaan tujuan, etos kerja profesional, dan nilai tambah yang bisa diberikan kandidat.",
   "closingParagraph": "Paragraf 4 Surat Lamaran A4 (2-3 kalimat): Menyebutkan lampiran CV, harapan wawancara, dan ucapan terima kasih.",
   "emailSubject": "Subjek Email Lamaran yang disukai HRD (contoh: Lamaran Kerja - [Posisi] - [Nama Lengkap])",
-  "emailBody": "Isi Body Email Lamaran Kerja lengkap dari salam pembuka, 3 paragraf padat & sopan (tidak terlalu panjang seperti surat PDF, tetapi langsung menonjolkan kualifikasi utama dan memberitahukan lampiran CV di email), hingga tanda tangan lengkap berisi Nama, No HP/WA, dan Email.",
-  "whatsappMessage": "Pesan Chat WhatsApp ke HRD yang sopan sesuai etika melamar kerja via WA di Indonesia (Salam waktu pagi/siang, perkenalan nama & latar belakang singkat, maksud melamar posisi di perusahaan tersebut, izin melampirkan file PDF CV, dan ucapan terima kasih). Gunakan tanda *teks* untuk cetak tebal WhatsApp pada nama dan posisi."
+  "emailBody": "Isi Body Email Lamaran Kerja lengkap dari salam pembuka, 3 paragraf padat & sopan (tidak terlalu panjang seperti surat PDF, tetapi langsung menonjolkan kualifikasi utama dari pengalaman kerja nyata dan memberitahukan lampiran CV di email), hingga tanda tangan lengkap berisi Nama, No HP/WA, dan Email.",
+  "whatsappMessage": "Pesan Chat WhatsApp ke HRD yang sopan sesuai etika melamar kerja via WA di Indonesia (Salam waktu pagi/siang, perkenalan nama & keahlian/pengalaman kerja singkat, maksud melamar posisi di perusahaan tersebut, izin melampirkan file PDF CV, dan ucapan terima kasih). Gunakan tanda *teks* untuk cetak tebal WhatsApp pada nama dan posisi."
 }
 
 Return ONLY raw JSON without markdown code blocks.`;
