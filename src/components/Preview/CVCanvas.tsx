@@ -28,15 +28,49 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({
   const docRef = useRef<HTMLDivElement>(null);
   const [docHeight, setDocHeight] = useState<number>(1123);
 
-  // Measure natural document height to size outer container perfectly
+  // Measure natural document height to size outer container perfectly to exact full A4 pages
   useEffect(() => {
     if (!docRef.current) return;
     const updateHeight = () => {
       if (docRef.current) {
-        const height = docRef.current.offsetHeight;
-        if (height > 0) {
-          setDocHeight(Math.max(1123, height));
+        const rootRect = docRef.current.getBoundingClientRect();
+        const rootScale =
+          rootRect.width > 0 ? rootRect.width / (docRef.current.offsetWidth || 794) : 1;
+
+        const templateEl = docRef.current.firstElementChild as HTMLElement | null;
+        let maxBottom = 0;
+
+        if (templateEl) {
+          const sections = Array.from(templateEl.children) as HTMLElement[];
+          for (const sec of sections) {
+            if (sec.classList.contains('cv-watermark-overlay')) continue;
+            if (sec.children.length === 0 && !sec.textContent?.trim()) continue;
+
+            if (sec.children.length > 0) {
+              const subItems = Array.from(sec.children) as HTMLElement[];
+              for (const item of subItems) {
+                const rect = item.getBoundingClientRect();
+                if (rect.height > 0) {
+                  const b = (rect.bottom - rootRect.top) / (rootScale || 1);
+                  if (b > maxBottom) maxBottom = b;
+                }
+              }
+            } else {
+              const rect = sec.getBoundingClientRect();
+              if (rect.height > 0) {
+                const b = (rect.bottom - rootRect.top) / (rootScale || 1);
+                if (b > maxBottom) maxBottom = b;
+              }
+            }
+          }
         }
+
+        const pageA4Px = 1123;
+        let totalPages = 1;
+        if (maxBottom > 1165) {
+          totalPages = Math.ceil((maxBottom + 10) / pageA4Px);
+        }
+        setDocHeight(Math.max(1, totalPages) * pageA4Px);
       }
     };
 
@@ -104,10 +138,11 @@ export const CVCanvas: React.FC<CVCanvasProps> = ({
       <div
         ref={docRef}
         id="cv-paper-document"
-        className={`cv-a4-page bg-white shadow-xl rounded-lg border border-slate-200/60 relative overflow-hidden ${fontClass}`}
+        className={`cv-a4-page bg-white shadow-xl rounded-lg border border-slate-200/60 relative overflow-hidden flex flex-col ${fontClass}`}
         style={{
           width: '794px',
-          minHeight: '1123px',
+          height: `${docHeight}px`,
+          minHeight: `${docHeight}px`,
           transform: scale !== 1 ? `scale(${scale})` : undefined,
           transformOrigin: 'top left',
           position: 'absolute',

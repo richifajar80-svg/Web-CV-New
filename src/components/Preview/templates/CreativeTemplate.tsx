@@ -13,7 +13,7 @@ export const CreativeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-10 min-h-[297mm] space-y-6">
+    <div className="w-full bg-white text-slate-800 p-10 min-h-[297mm] space-y-6 flex-1 self-stretch min-h-full">
       {/* Creative Hero Card Header */}
       <div className="bg-slate-900 text-white rounded-3xl p-8 flex flex-row justify-between items-center gap-5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none" style={{ backgroundColor: accent }} />

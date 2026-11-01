@@ -11,7 +11,7 @@ export const AcademicTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-900 p-12 min-h-[297mm] space-y-5">
+    <div className="w-full bg-white text-slate-900 p-12 min-h-[297mm] space-y-5 flex-1 self-stretch min-h-full">
       {/* Centered Academic Header with Double Border */}
       <div className="text-center space-y-1.5 pb-4 border-b-2 border-slate-900">
         <h1 className="text-3xl font-extrabold tracking-wider uppercase">

@@ -17,9 +17,9 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 flex flex-row min-h-[297mm]">
+    <div className="w-full bg-white text-slate-800 flex flex-row flex-1 self-stretch min-h-full">
       {/* LEFT SIDEBAR (30% width, Professional Dark Slate) */}
-      <div className="w-[30%] bg-slate-800 text-white p-5.5 flex flex-col justify-start shrink-0 space-y-5">
+      <div className="w-[30%] bg-slate-800 text-white p-5.5 flex flex-col justify-start shrink-0 space-y-5 self-stretch min-h-full">
         {/* Photo & Candidate Subtitle */}
         {personalInfo.showPhoto && personalInfo.photoUrl && (
           <div className="flex flex-col items-center">
@@ -142,7 +142,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ data }) => {
       </div>
 
       {/* RIGHT MAIN CONTENT (70% width, Balanced A4 Content Density) */}
-      <div className="w-[70%] p-6.5 space-y-4.5">
+      <div className="w-[70%] p-6.5 space-y-4.5 flex-1 min-h-full">
         {/* Name & Title Header */}
         <div className="border-b pb-3" style={{ borderColor: `${accent}30` }}>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-tight">

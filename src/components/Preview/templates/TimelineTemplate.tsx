@@ -13,7 +13,7 @@ export const TimelineTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 p-10 min-h-[297mm] space-y-6">
+    <div className="w-full bg-white text-slate-800 p-10 min-h-[297mm] space-y-6 flex-1 self-stretch min-h-full">
       {/* Top Header */}
       <div className="flex flex-row justify-between items-center gap-4 border-b pb-5" style={{ borderColor: `${accent}30` }}>
         <div className="space-y-1">

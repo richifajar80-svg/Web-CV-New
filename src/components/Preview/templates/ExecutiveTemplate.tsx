@@ -17,7 +17,7 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 min-h-[297mm]">
+    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex-1 self-stretch min-h-full">
       {/* Top Accent Banner */}
       <div
         className="px-8 py-6 text-white flex flex-row justify-between items-center gap-4"

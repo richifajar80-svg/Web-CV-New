@@ -13,12 +13,12 @@ export const StripeTemplate: React.FC<{ data: CVData }> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-800 min-h-[297mm] flex">
+    <div className="w-full bg-white text-slate-800 flex flex-row flex-1 self-stretch min-h-full">
       {/* Left Thick Vertical Stripe */}
-      <div className="w-6 shrink-0" style={{ backgroundColor: accent }} />
+      <div className="w-6 shrink-0 self-stretch min-h-full" style={{ backgroundColor: accent }} />
 
       {/* Main Content Area */}
-      <div className="flex-1 p-10 space-y-6">
+      <div className="flex-1 p-10 space-y-6 min-h-full">
         {/* Header */}
         <div className="flex flex-row justify-between items-center gap-4 border-b pb-5" style={{ borderColor: `${accent}30` }}>
           <div>

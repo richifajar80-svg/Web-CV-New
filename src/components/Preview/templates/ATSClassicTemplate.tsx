@@ -15,7 +15,7 @@ export const ATSClassicTemplate: React.FC<TemplateProps> = ({ data }) => {
   const t = getCVTranslations(theme.language);
 
   return (
-    <div className="w-full bg-white text-slate-900 p-8 min-h-[297mm] space-y-4">
+    <div className="w-full bg-white text-slate-900 p-8 min-h-[297mm] space-y-4 flex-1 self-stretch min-h-full">
       {/* Centered Header */}
       <div className="text-center border-b pb-4 space-y-1" style={{ borderColor: accent }}>
         <h1 className="text-3xl font-bold uppercase tracking-wide">
