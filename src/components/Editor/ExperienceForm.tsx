@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Experience } from '@/types/cv';
+import { getUserAuthHeaders, useAuth } from '@/context/AuthContext';
 import {
   Plus,
   Trash2,
@@ -14,6 +15,9 @@ import {
   ChevronDown,
   ChevronUp,
   GripVertical,
+  Sparkles,
+  Loader2,
+  Check,
 } from 'lucide-react';
 
 interface ExperienceFormProps {
@@ -23,6 +27,11 @@ interface ExperienceFormProps {
 }
 
 export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onChange, language = 'id' }) => {
+  const { user } = useAuth();
+  const [aiLoadingIdx, setAiLoadingIdx] = useState<number | null>(null);
+  const [aiError, setAiError] = useState<{ idx: number; message: string } | null>(null);
+  const [aiSuccessIdx, setAiSuccessIdx] = useState<number | null>(null);
+
   // Track collapsed state per experience ID
   const [collapsedMap, setCollapsedMap] = useState<Record<string, boolean>>({});
 
@@ -31,6 +40,58 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const isDraggingRef = useRef(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const handleEnhanceWithAI = async (idx: number) => {
+    const exp = experiences[idx];
+    if (!exp) return;
+
+    const rawNotes = exp.description.trim() || `${exp.role} di ${exp.company}`;
+    if (!rawNotes || rawNotes.length < 5) {
+      setAiError({
+        idx,
+        message: 'Tuliskan sedikit catatan atau jabatan pekerjaan Anda agar AI dapat merangkainya.',
+      });
+      return;
+    }
+
+    if (!user) {
+      setAiError({
+        idx,
+        message: 'Silakan masuk atau buat akun gratis terlebih dahulu untuk menggunakan fitur Poles AI.',
+      });
+      return;
+    }
+
+    setAiLoadingIdx(idx);
+    setAiError(null);
+
+    try {
+      const res = await fetch('/api/ai/assistant', {
+        method: 'POST',
+        headers: getUserAuthHeaders(),
+        body: JSON.stringify({
+          action: 'enhance_bullets',
+          role: exp.role,
+          company: exp.company,
+          rawNotes,
+          language,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Gagal memproses dengan AI.');
+      }
+
+      handleUpdate(idx, { description: data.result });
+      setAiSuccessIdx(idx);
+      setTimeout(() => setAiSuccessIdx(null), 3000);
+    } catch (err: any) {
+      setAiError({ idx, message: err.message || 'Gagal memproses dengan AI.' });
+    } finally {
+      setAiLoadingIdx(null);
+    }
+  };
 
   const handleAdd = () => {
     const newId = `exp-${Date.now()}`;
@@ -485,6 +546,27 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                   </div>
 
                   <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* AI Enhance Button */}
+                    <button
+                      type="button"
+                      disabled={aiLoadingIdx === idx}
+                      onClick={() => handleEnhanceWithAI(idx)}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 hover:text-emerald-950 bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border border-emerald-300 px-3 py-1 rounded-lg shadow-2xs transition-all cursor-pointer active:scale-98 disabled:opacity-50"
+                      title="AI akan mengubah catatan atau kalimat Anda menjadi 3–4 poin pencapaian berbobot standar HRD"
+                    >
+                      {aiLoadingIdx === idx ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
+                          <span>Menyusun Poin HRD...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                          <span>✨ Poles dengan AI</span>
+                        </>
+                      )}
+                    </button>
+
                     {/* Add Bullet Button */}
                     <button
                       type="button"
@@ -493,8 +575,28 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                     >
                       <span>+ Poin (•)</span>
                     </button>
+
+                    {aiSuccessIdx === idx && (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 inline-flex items-center gap-1">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>Berhasil Dipoles!</span>
+                      </span>
+                    )}
                   </div>
                 </div>
+
+                {aiError && aiError.idx === idx && (
+                  <div className="text-[11px] font-medium text-red-700 bg-red-50 p-2.5 rounded-xl border border-red-200 mb-2 flex items-center justify-between">
+                    <span>{aiError.message}</span>
+                    <button
+                      type="button"
+                      onClick={() => setAiError(null)}
+                      className="text-red-500 hover:text-red-700 text-xs font-bold ml-2 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 <textarea
                   rows={5}

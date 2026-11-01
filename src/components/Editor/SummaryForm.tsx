@@ -1,31 +1,83 @@
 'use client';
 
-import React from 'react';
-import { Sparkles, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, FileText, Loader2, Check, AlertCircle } from 'lucide-react';
+import { getUserAuthHeaders, useAuth } from '@/context/AuthContext';
 
 interface SummaryFormProps {
   summary: string;
   onChange: (summary: string) => void;
   jobTitle?: string;
+  experiences?: Array<{ role: string; company?: string }>;
+  skills?: string[];
   language?: 'id' | 'en';
 }
 
 const TEMPLATE_PRESETS = [
   {
-    title: 'Experienced Senior Engineer / Tech Lead',
-    text: 'Senior Software Engineer berpengalaman 5+ tahun dalam membangun aplikasi web modern berskala besar dengan ekosistem React, Next.js, TypeScript, dan Node.js. Memiliki rekam jejak sukses dalam meningkatkan performa sistem hingga 40% dan memimpin tim pengembang beranggotakan 6 engineer.',
+    title: 'Experienced Senior / Managerial Level',
+    text: 'Profesional berpengalaman dengan rekam jejak sukses dalam memimpin operasional, meningkatkan efisiensi tim, dan mencapai target bisnis secara konsisten. Memiliki keahlian komunikasi persuasif, analisis strategi penjualan, dan kepemimpinan adaptif.',
   },
   {
-    title: 'Fresh Graduate / Entry Level',
-    text: 'Lulusan baru Ilmu Komputer dengan pemahaman kuat dalam pengembangan web modern, clean code, dan arsitektur database relasional. Memiliki motivasi tinggi untuk belajar cepat, beradaptasi dengan teknologi baru, dan memberikan kontribusi nyata dalam tim engineering profesional.',
+    title: 'Supervisor & Koordinator Ritel / Toko',
+    text: 'Supervisor operasional ritel berpengalaman memimpin tim toko untuk mencapai target omset dan kepuasan pelanggan prima. Terampil dalam manajemen inventaris (stock opname), pengawasan SOP pelayanan, dan pengembangan keterampilan staf.',
   },
   {
-    title: 'Project Manager / Product Lead',
-    text: 'Technical Project Manager berorientasi hasil dengan rekam jejak sukses memimpin delivery 15+ proyek digital skala enterprise tepat waktu dan sesuai anggaran. Mahir dalam manajemen stakeholder, metodologi Agile Scrum, dan mitigasi risiko teknis.',
+    title: 'Fresh Graduate / Lulusan Baru',
+    text: 'Lulusan baru yang berdedikasi tinggi dengan pemahaman mendalam pada bidang keilmuan, kerja tim solid, dan komunikasi efektif. Memiliki motivasi tinggi untuk belajar cepat, beradaptasi dengan lingkungan kerja dinamis, dan memberikan kontribusi nyata bagi perusahaan.',
   },
 ];
 
-export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange, language = 'id' }) => {
+export const SummaryForm: React.FC<SummaryFormProps> = ({
+  summary,
+  onChange,
+  jobTitle,
+  experiences = [],
+  skills = [],
+  language = 'id',
+}) => {
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleGenerateAI = async () => {
+    if (!user) {
+      setErrorMsg('Silakan masuk atau daftar akun gratis terlebih dahulu untuk menggunakan AI Asisten.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await fetch('/api/ai/assistant', {
+        method: 'POST',
+        headers: getUserAuthHeaders(),
+        body: JSON.stringify({
+          action: 'generate_summary',
+          jobTitle,
+          experiences,
+          skills,
+          language,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Gagal menghasilkan ringkasan dengan AI.');
+      }
+
+      onChange(data.result);
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 3000);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Gagal memproses dengan AI.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="border-b border-slate-200 pb-3.5">
@@ -40,8 +92,8 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange, lan
         </p>
       </div>
 
-      <div className="p-4 sm:p-5 bg-slate-50/80 border border-slate-200/90 rounded-2xl">
-        <div className="flex items-center justify-between mb-2">
+      <div className="p-4 sm:p-5 bg-slate-50/80 border border-slate-200/90 rounded-2xl space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <label className="text-xs font-extrabold text-slate-800">Ringkasan Diri</label>
             {language === 'en' && (
@@ -50,21 +102,68 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange, lan
               </span>
             )}
           </div>
-          <span className="text-[11px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full">
-            {summary.length} karakter
-          </span>
+
+          <div className="flex items-center gap-2">
+            {/* AI Generate Summary Button */}
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={handleGenerateAI}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border border-emerald-300 px-3 py-1.5 rounded-xl shadow-2xs transition-all cursor-pointer active:scale-98 disabled:opacity-50"
+              title="AI akan membaca posisi dan pengalaman Anda lalu merangkum bio profesional otomatis"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
+                  <span>Merangkai Bio Eksekutif...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>✨ Tulis Otomatis dengan AI</span>
+                </>
+              )}
+            </button>
+
+            <span className="text-[11px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-full">
+              {summary.length} karakter
+            </span>
+          </div>
         </div>
+
+        {errorMsg && (
+          <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+              <span>{errorMsg}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setErrorMsg(null)}
+              className="text-red-500 hover:text-red-700 font-bold ml-2 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {isSuccess && (
+          <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800 font-bold animate-in fade-in">
+            <Check className="w-4 h-4 text-emerald-600" />
+            <span>✨ Ringkasan berhasil disusun otomatis oleh AI berdasarkan profil Anda!</span>
+          </div>
+        )}
 
         <textarea
           rows={6}
           spellCheck={false}
           value={summary}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Tuliskan deskripsi profesional Anda di sini..."
+          placeholder="Tuliskan deskripsi profesional Anda di sini, atau klik tombol 'Tulis Otomatis dengan AI' di atas..."
           className="w-full text-xs sm:text-[13px] font-medium p-3.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl leading-relaxed resize-y shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
         />
-        <p className="text-[11px] text-slate-600 font-medium mt-2">
-          💡 Rekruter membaca ringkasan ini dalam 6 detik pertama. Fokuskan pada pencapaian tertinggi Anda.
+        <p className="text-[11px] text-slate-600 font-medium">
+          💡 Rekruter membaca ringkasan ini dalam 6 detik pertama. Fokuskan pada keahlian dan pencapaian terbaik Anda.
         </p>
       </div>
 

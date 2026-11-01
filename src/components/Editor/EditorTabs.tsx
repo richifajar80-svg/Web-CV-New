@@ -17,6 +17,7 @@ import {
   Award,
   Users,
   ArrowUpDown,
+  Target,
 } from 'lucide-react';
 import { PersonalInfoForm } from './PersonalInfoForm';
 import { SummaryForm } from './SummaryForm';
@@ -26,6 +27,7 @@ import { SkillsForm } from './SkillsForm';
 import { LanguagesForm } from './LanguagesForm';
 import { CertificationsForm } from './CertificationsForm';
 import { OrganizationsForm } from './OrganizationsForm';
+import { JobMatcherModal } from './JobMatcherModal';
 
 interface EditorTabsProps {
   cvData: CVData;
@@ -49,6 +51,21 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
   onViewPreview,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('personal');
+  const [isJobMatcherOpen, setIsJobMatcherOpen] = useState(false);
+
+  const handleAddSkillsFromMatcher = (newSkills: string[]) => {
+    const existing = cvData.skills || [];
+    const added = newSkills
+      .filter((name) => !existing.some((s) => s.name.toLowerCase() === name.toLowerCase()))
+      .map((name) => ({
+        id: `sk-${Date.now()}-${Math.random()}`,
+        name,
+        level: 'Mahir' as const,
+      }));
+    if (added.length > 0) {
+      onUpdateCV({ skills: [...existing, ...added] });
+    }
+  };
 
   // Tab completion status
   const isPersonalComplete = Boolean(
@@ -233,7 +250,34 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
       </div>
 
       {/* Tab Content Body */}
-      <div className="p-4 sm:p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-5">
+        {/* AI Job Matcher Quick Banner */}
+        <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md shadow-emerald-900/10">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0">
+              <Target className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+                  Fitur AI Cerdas
+                </span>
+                <span className="text-xs font-bold text-white">Uji Kecocokan CV dengan Loker Target</span>
+              </div>
+              <p className="text-[11px] text-white/80 mt-0.5">
+                Punya teks loker dari JobStreet / LinkedIn? Pindai kata kunci yang kurang agar lolos screening ATS.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsJobMatcherOpen(true)}
+            className="px-3.5 py-1.5 bg-white text-emerald-800 hover:bg-emerald-50 rounded-xl text-xs font-extrabold shadow-sm transition-all cursor-pointer shrink-0 self-stretch sm:self-auto text-center active:scale-98"
+          >
+            🎯 Pindai Loker Target
+          </button>
+        </div>
+
         {/* Quick Setting Banner: Section Order Priority Toggle */}
         <div className="bg-gradient-to-r from-slate-50 via-emerald-50/30 to-teal-50/20 border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -304,6 +348,8 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
             summary={cvData.summary}
             onChange={(summary) => onUpdateCV({ summary })}
             jobTitle={cvData.personalInfo.jobTitle}
+            experiences={cvData.experiences.map((e) => ({ role: e.role, company: e.company }))}
+            skills={cvData.skills.map((s) => s.name)}
             language={cvData.theme.language || 'id'}
           />
         )}
@@ -390,6 +436,14 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
           )}
         </div>
       </div>
+
+      {/* AI Job Matcher Modal */}
+      <JobMatcherModal
+        isOpen={isJobMatcherOpen}
+        onClose={() => setIsJobMatcherOpen(false)}
+        cvData={cvData}
+        onAddSkills={handleAddSkillsFromMatcher}
+      />
     </div>
   );
 };

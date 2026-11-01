@@ -444,4 +444,316 @@ Return ONLY raw JSON without markdown code blocks.`;
   throw lastError || new Error('Gagal menyusun paket lamaran dengan Google Gemini AI.');
 }
 
+// ============================================================================
+// 1. AI BULLET POINT ENHANCER (Poles Poin Pekerjaan Berstandar HRD & ATS)
+// ============================================================================
+export interface EnhanceBulletsInput {
+  role?: string;
+  company?: string;
+  rawNotes: string;
+  language?: 'id' | 'en';
+}
+
+export async function enhanceExperienceBulletsWithGemini(
+  input: EnhanceBulletsInput,
+  options: { customApiKey?: string } = {}
+): Promise<string> {
+  const apiKey = options.customApiKey?.trim()
+    ? options.customApiKey.trim()
+    : process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
+
+  if (!apiKey) {
+    const error: any = new Error('Google Gemini API Key belum disetel.');
+    error.needsKey = true;
+    throw error;
+  }
+
+  const isEnglish = input.language === 'en';
+
+  const systemInstruction = isEnglish
+    ? `You are an elite executive resume writer and ATS specialist.
+Transform the user's raw notes, basic tasks, or job responsibilities into 3-4 high-impact, professional resume bullet points.
+
+STRICT RULES:
+1. Every bullet MUST start with "• " (bullet symbol followed by a space).
+2. Begin every bullet with a strong action verb (e.g., Spearheaded, Orchestrated, Optimized, Accelerated, Streamlined, Cultivated, Executed).
+3. Frame everyday responsibilities as measurable achievements with realistic metrics or percentage increases where suitable (e.g. 15%, 200+ clients, 1,000+ SKU).
+4. Tone: Confident, professional, tailored for corporate and ATS recruiters.
+5. Return ONLY the bullet points separated by newlines. No preamble, no greetings, no quotes, no markdown fences (\`\`\`).`
+    : `Anda adalah Konsultan Karir & HRD Profesional spesialis optimasi CV ATS.
+Tugas Anda adalah mengubah catatan tugas mentah / kalimat sederhana pengguna menjadi 3–4 poin pencapaian kerja (bullet points) berbobot tinggi standar HRD.
+
+ATURAN KETAT:
+1. Setiap poin WAJIB diawali dengan "• " (simbol bullet diikuti spasi).
+2. Awali setiap poin dengan kata kerja aktif yang kuat (misal: Memimpin, Mengoptimalkan, Mengoordinasikan, Meningkatkan, Menyusun, Mengeksekusi, Memonitor).
+3. Ubah tugas rutin menjadi pencapaian terukur dengan menyertakan metrik/angka yang masuk akal jika relevan (misal: 15 staf, efisiensi 20%, 500+ transaksi harian).
+4. Gunakan bahasa Indonesia profesional yang lugas, percaya diri, dan mudah dibaca oleh sistem ATS maupun manajer HRD.
+5. Kembalikan HANYA teks bullet points yang dipisahkan baris baru. Jangan berikan kalimat pembuka, salam, tanda kutip, atau markdown code block (\`\`\`).`;
+
+  const userPrompt = `Role: "${input.role || 'Professional'}"
+Perusahaan/Organisasi: "${input.company || '-'}"
+Catatan/Tugas Mentah dari Pengguna:
+"""
+${input.rawNotes.trim()}
+"""
+
+Hasilkan 3-4 bullet points profesional:`;
+
+  const models = [
+    'gemini-flash-lite-latest',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-flash',
+  ];
+
+  let lastError: any = null;
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: {
+            temperature: 0.35,
+            topP: 0.85,
+            maxOutputTokens: 800,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const message = errorData?.error?.message || `Status ${res.status}`;
+        if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 503) {
+          lastError = new Error(message);
+          continue;
+        }
+        throw new Error(message);
+      }
+
+      const data = await res.json();
+      let rawOutput = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawOutput) throw new Error('AI tidak mengembalikan teks.');
+
+      let cleaned = rawOutput.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, '').replace(/\n?```$/, '').trim();
+      }
+      return cleaned;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal memoles deskripsi dengan AI.');
+}
+
+// ============================================================================
+// 2. AI PROFESSIONAL SUMMARY GENERATOR (Penulis Bio Singkat Dari Profil)
+// ============================================================================
+export interface GenerateSummaryInput {
+  jobTitle?: string;
+  experiences?: Array<{ role: string; company?: string }>;
+  skills?: string[];
+  language?: 'id' | 'en';
+}
+
+export async function generateProfessionalSummaryWithGemini(
+  input: GenerateSummaryInput,
+  options: { customApiKey?: string } = {}
+): Promise<string> {
+  const apiKey = options.customApiKey?.trim()
+    ? options.customApiKey.trim()
+    : process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
+
+  if (!apiKey) {
+    const error: any = new Error('Google Gemini API Key belum disetel.');
+    error.needsKey = true;
+    throw error;
+  }
+
+  const isEnglish = input.language === 'en';
+
+  const systemInstruction = isEnglish
+    ? `You are an expert executive resume writer.
+Generate a compelling, executive-level 2-3 sentence professional bio/summary for a candidate resume based on their job title, experience history, and core skills.
+Focus on value proposition, leadership/expertise, and proven ability to deliver results.
+Return ONLY the summary paragraph. No preamble, no quotation marks, no markdown fences.`
+    : `Anda adalah Konsultan Karir & HRD Profesional senior.
+Tuliskan 1 paragraf ringkasan profesional (About Me / Bio Singkat) yang percaya diri, elegan, dan berbobot setinggi 2-3 kalimat berdasarkan posisi tujuan, pengalaman kerja, dan keahlian kandidat.
+Fokus pada proposisi nilai, keahlian utama, dan dedikasi mencapai hasil bisnis.
+Kembalikan HANYA teks paragraf ringkasan. Jangan berikan kalimat pembuka, tanda kutip, atau markdown code block.`;
+
+  const expList = (input.experiences || [])
+    .map((e) => `${e.role}${e.company ? ` di ${e.company}` : ''}`)
+    .join(', ');
+  const skillList = (input.skills || []).join(', ');
+
+  const userPrompt = `Posisi/Profesi Tujuan: ${input.jobTitle || 'Profesional'}
+Riwayat Jabatan: ${expList || 'Berpengalaman'}
+Keahlian Utama: ${skillList || 'Manajemen & Komunikasi'}
+
+Tuliskan 1 paragraf ringkasan profesional:`;
+
+  const models = [
+    'gemini-flash-lite-latest',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-flash',
+  ];
+
+  let lastError: any = null;
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: {
+            temperature: 0.4,
+            topP: 0.85,
+            maxOutputTokens: 500,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const message = errorData?.error?.message || `Status ${res.status}`;
+        if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 503) {
+          lastError = new Error(message);
+          continue;
+        }
+        throw new Error(message);
+      }
+
+      const data = await res.json();
+      let rawOutput = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawOutput) throw new Error('AI tidak mengembalikan teks.');
+
+      let cleaned = rawOutput.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, '').replace(/\n?```$/, '').trim();
+      }
+      return cleaned;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal menyusun ringkasan dengan AI.');
+}
+
+// ============================================================================
+// 3. AI JOB MATCHER & ATS KEYWORD SCANNER (Pemindai Kecocokan Loker)
+// ============================================================================
+export interface JobMatchInput {
+  jobDescription: string;
+  candidateTitle?: string;
+  candidateSummary?: string;
+  candidateExperiences?: string[];
+  candidateSkills?: string[];
+}
+
+export interface JobMatchOutput {
+  matchScore: number; // 0 - 100
+  verdict: string; // e.g. "Sangat Cocok & Siap Melamar! 🚀"
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  tips: string[];
+}
+
+export async function analyzeJobMatchWithGemini(
+  input: JobMatchInput,
+  options: { customApiKey?: string } = {}
+): Promise<JobMatchOutput> {
+  const apiKey = options.customApiKey?.trim()
+    ? options.customApiKey.trim()
+    : process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
+
+  if (!apiKey) {
+    const error: any = new Error('Google Gemini API Key belum disetel.');
+    error.needsKey = true;
+    throw error;
+  }
+
+  const systemInstruction = `You are a certified ATS (Applicant Tracking System) recruiter and career coach.
+Compare a candidate's CV data against a posted Job Vacancy (Job Description).
+Analyze the keyword overlap, relevance, and skill alignment.
+
+Return JSON strictly matching this schema:
+{
+  "matchScore": number (integer between 30 and 98 based on realistic alignment),
+  "verdict": string (short punchy Indonesian verdict, e.g. "Sangat Cocok & Siap Melamar! 🚀", "Cukup Baik, Perlu Kata Kunci Tambahan 🎯", "Perlu Optimasi Sebelum Melamar 💡"),
+  "matchedKeywords": array of strings (top 4-6 relevant keywords already present in CV),
+  "missingKeywords": array of strings (top 3-6 critical keywords from job description missing in CV),
+  "tips": array of strings (2-3 concrete, actionable advice in Indonesian on how candidate can tweak their CV to pass screening)
+}`;
+
+  const payload = {
+    jobDescription: input.jobDescription,
+    cv: {
+      targetJobTitle: input.candidateTitle || '',
+      summary: input.candidateSummary || '',
+      experiences: input.candidateExperiences || [],
+      skills: input.candidateSkills || [],
+    },
+  };
+
+  const models = [
+    'gemini-flash-lite-latest',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-2.5-flash',
+  ];
+
+  let lastError: any = null;
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: 'user', parts: [{ text: JSON.stringify(payload) }] }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.25,
+            topP: 0.85,
+            maxOutputTokens: 1200,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const message = errorData?.error?.message || `Status ${res.status}`;
+        if (res.status === 404 || res.status === 429 || res.status === 500 || res.status === 503) {
+          lastError = new Error(message);
+          continue;
+        }
+        throw new Error(message);
+      }
+
+      const data = await res.json();
+      const rawOutput = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawOutput) throw new Error('AI tidak mengembalikan output.');
+
+      const parsed: JobMatchOutput = JSON.parse(rawOutput);
+      return parsed;
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Gagal menganalisis kecocokan loker dengan AI.');
+}
+
 
