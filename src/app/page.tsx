@@ -19,7 +19,7 @@ import { QuotaExceededModal } from '@/components/QuotaExceededModal';
 import { TEMPLATE_LIST } from '@/data/templates';
 import { useAuth, getUserAuthHeaders } from '@/context/AuthContext';
 import { SavedCV } from '@/types/auth';
-import { exportCVToPDF, printCVToVectorPDF } from '@/utils/pdfExport';
+import { exportCVToPDF } from '@/utils/pdfExport';
 import { CoverLetterView } from '@/components/CoverLetter/CoverLetterView';
 import { SEOAccordionFooter } from '@/components/SEO/SEOAccordionFooter';
 import { ActionModal } from '@/components/UI/ActionModal';
@@ -31,7 +31,6 @@ import {
   CreditCard,
   FileText,
   Download,
-  Printer,
   LayoutTemplate,
   ArrowLeft,
   Sparkles,
@@ -724,41 +723,6 @@ export default function Home() {
     performPDFDownload();
   };
 
-  // VECTOR PRINT / PDF TRIGGER: Browser native print engine (100% Vector Text & True Lossless PDF)
-  const handleVectorPrintClick = async () => {
-    if (isTranslatingCV) {
-      showToast('AI sedang menerjemahkan CV ke Bahasa Inggris. Harap tunggu sebentar...');
-      return;
-    }
-
-    if (!isSubscriptionActive) {
-      setPaymentModalOpen(true);
-      return;
-    }
-
-    const quotaRes = await consumeDownloadQuota();
-    if (!quotaRes.allowed) {
-      if (quotaRes.unpaid) {
-        setPaymentModalOpen(true);
-      } else if (quotaRes.quotaExceeded) {
-        setQuotaModalType('download');
-        setQuotaModalMessage(quotaRes.error);
-        setQuotaModalOpen(true);
-      } else {
-        showToast(quotaRes.error || 'Tidak dapat memproses kuota cetak saat ini.');
-      }
-      return;
-    }
-
-    if (mobileView !== 'preview') {
-      setMobileView('preview');
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    }
-
-    showToast('Membuka dialog cetak... Pilih "Save as PDF" untuk hasil PDF Vektor asli!');
-    printCVToVectorPDF();
-  };
-
   const handleOpenAuth = (mode: 'login' | 'register') => {
     setAuthModalMode(mode);
     setAuthModalOpen(true);
@@ -1024,17 +988,6 @@ export default function Home() {
                     </button>
                   )}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleVectorPrintClick}
-                  className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-full border border-slate-200 text-[11px] font-bold shadow-2xs transition-all cursor-pointer shrink-0"
-                  title="Cetak langsung atau Simpan sebagai PDF Vektor (Teks Asli, Tajam & Terbaca ATS)"
-                >
-                  <Printer className="w-3 h-3 text-slate-500 shrink-0" />
-                  <span className="hidden 2xl:inline">Cetak PDF</span>
-                  <span className="2xl:hidden">Cetak</span>
-                </button>
               </div>
             </div>
 
