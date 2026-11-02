@@ -74,6 +74,9 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
   // Right panel output channel: WhatsApp | Email | A4 PDF Letter
   const [outputChannel, setOutputChannel] = useState<'whatsapp' | 'email' | 'letter'>('whatsapp');
 
+  // Real-time synchronization state between Paragraphs and Email/WA
+  const [isAutoSyncEmail, setIsAutoSyncEmail] = useState(true);
+
   // Preview zoom & mobile switcher
   const [zoom, setZoom] = useState(90);
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('preview');
@@ -151,6 +154,85 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
     setTimeout(() => setCopiedType(null), 3000);
   };
 
+  // Helper to compile Body Email from paragraphs & applicant data
+  const buildEmailBodyFromData = (data: CoverLetterData): string => {
+    const isGeneralTarget =
+      !data.companyName ||
+      data.companyName.toLowerCase().trim() === 'di tempat';
+    const recipientName = data.recipientName || 'Bapak/Ibu HRD';
+    const recipientHeader = `Kepada Yth. ${recipientName}\n${
+      isGeneralTarget
+        ? 'Di Tempat'
+        : `${data.companyName}${
+            data.companyAddress ? `\n${data.companyAddress}` : ''
+          }`
+    }`;
+    const salutation = `Dengan hormat,`;
+
+    const paragraphs = [
+      data.openingParagraph,
+      data.bodyParagraph1,
+      data.bodyParagraph2,
+      data.closingParagraph,
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
+    const signature = `Hormat saya,\n\n${data.applicantName}\nNo. HP/WA: ${data.applicantPhone}\nEmail: ${data.applicantEmail}${
+      data.applicantLinkedIn ? `\nLinkedIn/Portofolio: ${data.applicantLinkedIn}` : ''
+    }`;
+
+    return `${recipientHeader}\n\n${salutation}\n\n${paragraphs}\n\n${signature}`;
+  };
+
+  // Helper to compile WhatsApp Message from paragraphs & applicant data
+  const buildWhatsappMessageFromData = (data: CoverLetterData): string => {
+    const isGeneralTarget =
+      !data.companyName ||
+      data.companyName.toLowerCase().trim() === 'di tempat';
+    const recipientName = data.recipientName || 'Bapak/Ibu HRD';
+
+    return `Selamat pagi/siang ${recipientName}${
+      isGeneralTarget ? '' : ` di ${data.companyName}`
+    }.\n\nPerkenalkan saya *${data.applicantName}*. Melalui pesan ini saya bermaksud mengajukan lamaran kerja untuk posisi *${data.jobTitle}* ${
+      isGeneralTarget ? 'di perusahaan yang Bapak/Ibu pimpin' : `di *${data.companyName}*`
+    }.\n\n${data.openingParagraph}\n\nBersama pesan ini turut saya lampirkan berkas CV PDF terbaru saya sebagai bahan pertimbangan Bapak/Ibu.\n\nBesar harapan saya untuk dapat mengikuti tahapan seleksi selanjutnya. Terima kasih banyak atas waktu dan perhatian Bapak/Ibu. 🙏`;
+  };
+
+  // Real-time paragraph change handler that syncs directly to Body Email
+  const handleParagraphChange = (
+    field: 'subject' | 'openingParagraph' | 'bodyParagraph1' | 'bodyParagraph2' | 'closingParagraph',
+    value: string
+  ) => {
+    setLetterData((prev) => {
+      const updated = { ...prev, [field]: value };
+      if (isAutoSyncEmail) {
+        updated.emailBody = buildEmailBodyFromData(updated);
+        if (field === 'subject') {
+          updated.emailSubject = value;
+        }
+      }
+      return updated;
+    });
+  };
+
+  // Manual one-click sync handler to push current paragraphs to Body Email & WhatsApp
+  const handleManualSyncToChannels = () => {
+    setLetterData((prev) => {
+      const emailBody = buildEmailBodyFromData(prev);
+      const emailSubject = prev.subject || `Lamaran Pekerjaan - ${prev.jobTitle} - ${prev.applicantName}`;
+      const whatsappMessage = buildWhatsappMessageFromData(prev);
+      return {
+        ...prev,
+        emailSubject,
+        emailBody,
+        whatsappMessage,
+      };
+    });
+    setIsAutoSyncEmail(true);
+    showCopyFeedback('✓ Paragraf berhasil disinkronkan ke Body Email & WhatsApp!');
+  };
+
   // Handle Preset change
   const handleSelectPreset = (presetId: CoverLetterTemplateType) => {
     setActivePreset(presetId);
@@ -161,6 +243,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
       companyAddress: companyCity,
     });
     setLetterData(regenerated);
+    setIsAutoSyncEmail(true);
   };
 
   // Handle Regenerate / Update inputs (Instant without AI quota)
@@ -173,6 +256,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
       companyAddress: companyCity,
     });
     setLetterData(regenerated);
+    setIsAutoSyncEmail(true);
     showCopyFeedback('Kalimat berhasil diperbarui dari data CV Anda!');
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       setMobileView('preview');
@@ -243,6 +327,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
         emailBody: generated.emailBody || prev.emailBody,
         whatsappMessage: generated.whatsappMessage || prev.whatsappMessage,
       }));
+      setIsAutoSyncEmail(true);
 
       showCopyFeedback('✨ AI berhasil menyusun Chat WA, Body Email & Surat Lamaran!');
       if (typeof window !== 'undefined' && window.innerWidth < 1024) {
@@ -601,11 +686,17 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           const val = e.target.value;
                           setTargetCompany(val);
                           const isGeneral = val.toLowerCase().trim() === 'di tempat';
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            companyName: val,
-                            companyAddress: isGeneral ? '' : prev.companyAddress,
-                          }));
+                          setLetterData((prev: CoverLetterData) => {
+                            const updated = {
+                              ...prev,
+                              companyName: val,
+                              companyAddress: isGeneral ? '' : prev.companyAddress,
+                            };
+                            if (isAutoSyncEmail) {
+                              updated.emailBody = buildEmailBodyFromData(updated);
+                            }
+                            return updated;
+                          });
                           if (isGeneral) {
                             setCompanyCity('');
                           }
@@ -628,11 +719,18 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         onChange={(e) => {
                           const val = e.target.value;
                           setTargetJob(val);
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            jobTitle: val,
-                            subject: `Lamaran Pekerjaan: ${val} - ${prev.applicantName}`,
-                          }));
+                          setLetterData((prev: CoverLetterData) => {
+                            const updated = {
+                              ...prev,
+                              jobTitle: val,
+                              subject: `Lamaran Pekerjaan: ${val} - ${prev.applicantName}`,
+                            };
+                            if (isAutoSyncEmail) {
+                              updated.emailSubject = updated.subject;
+                              updated.emailBody = buildEmailBodyFromData(updated);
+                            }
+                            return updated;
+                          });
                         }}
                         placeholder="Contoh: Store Manager / Retail Operations"
                         className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
@@ -653,10 +751,13 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           onChange={(e) => {
                             const val = e.target.value;
                             setRecipient(val);
-                            setLetterData((prev: CoverLetterData) => ({
-                              ...prev,
-                              recipientName: val,
-                            }));
+                            setLetterData((prev: CoverLetterData) => {
+                              const updated = { ...prev, recipientName: val };
+                              if (isAutoSyncEmail) {
+                                updated.emailBody = buildEmailBodyFromData(updated);
+                              }
+                              return updated;
+                            });
                           }}
                           placeholder="Bapak/Ibu HRD"
                           className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
@@ -677,10 +778,13 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           onChange={(e) => {
                             const val = e.target.value;
                             setCompanyCity(val);
-                            setLetterData((prev: CoverLetterData) => ({
-                              ...prev,
-                              companyAddress: val,
-                            }));
+                            setLetterData((prev: CoverLetterData) => {
+                              const updated = { ...prev, companyAddress: val };
+                              if (isAutoSyncEmail) {
+                                updated.emailBody = buildEmailBodyFromData(updated);
+                              }
+                              return updated;
+                            });
                           }}
                           placeholder="Kosongkan jika Di Tempat"
                           className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
@@ -767,75 +871,149 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
               </>
             ) : (
               /* Fine-tuning Paragraphs */
-              <div className="p-3.5 bg-slate-50/90 border border-slate-200/90 rounded-2xl space-y-3.5">
-                <div>
-                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
-                    Perihal Surat (Subject)
-                  </label>
-                  <input
-                    type="text"
-                    value={letterData.subject}
-                    onChange={(e) =>
-                      setLetterData({ ...letterData, subject: e.target.value })
-                    }
-                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none transition-all"
-                  />
+              <div className="space-y-3.5">
+                {/* Sync Header Info Banner */}
+                <div className="bg-emerald-50/90 border border-emerald-200/90 rounded-2xl p-3.5 space-y-2.5 shadow-2xs">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <span className="text-xs font-extrabold text-emerald-950">
+                        Sinkronisasi ke Body Email & WA
+                      </span>
+                    </div>
+                    <label className="inline-flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-emerald-800 select-none bg-white px-2 py-0.5 rounded-lg border border-emerald-300 shadow-2xs">
+                      <input
+                        type="checkbox"
+                        checked={isAutoSyncEmail}
+                        onChange={(e) => {
+                          const nextVal = e.target.checked;
+                          setIsAutoSyncEmail(nextVal);
+                          if (nextVal) {
+                            handleManualSyncToChannels();
+                          }
+                        }}
+                        className="w-3.5 h-3.5 rounded text-emerald-600 focus:ring-emerald-500 border-emerald-300 cursor-pointer"
+                      />
+                      <span>Auto-Sync {isAutoSyncEmail ? 'ON' : 'OFF'}</span>
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-emerald-800 leading-relaxed">
+                    Setiap editan kalimat di bawah {isAutoSyncEmail ? 'langsung otomatis memperbarui' : 'dapat disinkronkan ke'} isi <strong>Body Email</strong> dan <strong>WhatsApp</strong>.
+                  </p>
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={handleManualSyncToChannels}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs cursor-pointer active:scale-95 transition-all"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Sinkronkan Sekarang</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleManualSyncToChannels();
+                        setOutputChannel('email');
+                        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                          setMobileView('preview');
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-300 text-xs font-bold shadow-2xs cursor-pointer active:scale-95 transition-all shrink-0"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Preview Email</span>
+                      <ArrowRight className="w-3 h-3 text-emerald-600" />
+                    </button>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
-                    Paragraf 1: Pembuka & Posisi
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={letterData.openingParagraph}
-                    onChange={(e) =>
-                      setLetterData({ ...letterData, openingParagraph: e.target.value })
-                    }
-                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
-                  />
+                <div className="p-3.5 bg-slate-50/90 border border-slate-200/90 rounded-2xl space-y-3.5">
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
+                      Perihal Surat (Subject)
+                    </label>
+                    <input
+                      type="text"
+                      value={letterData.subject}
+                      onChange={(e) => handleParagraphChange('subject', e.target.value)}
+                      className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
+                      Paragraf 1: Pembuka & Posisi
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={letterData.openingParagraph}
+                      onChange={(e) => handleParagraphChange('openingParagraph', e.target.value)}
+                      className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
+                      Paragraf 2: Keahlian & Nilai Tambah
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={letterData.bodyParagraph1}
+                      onChange={(e) => handleParagraphChange('bodyParagraph1', e.target.value)}
+                      className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
+                      Paragraf 3: Motivasi & Kecocokan Perusahaan
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={letterData.bodyParagraph2}
+                      onChange={(e) => handleParagraphChange('bodyParagraph2', e.target.value)}
+                      className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-800 mb-1">
+                      Paragraf 4: Penutup & Harapan Wawancara
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={letterData.closingParagraph}
+                      onChange={(e) => handleParagraphChange('closingParagraph', e.target.value)}
+                      className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
-                    Paragraf 2: Keahlian & Nilai Tambah
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={letterData.bodyParagraph1}
-                    onChange={(e) =>
-                      setLetterData({ ...letterData, bodyParagraph1: e.target.value })
-                    }
-                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
-                    Paragraf 3: Motivasi & Kecocokan Perusahaan
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={letterData.bodyParagraph2}
-                    onChange={(e) =>
-                      setLetterData({ ...letterData, bodyParagraph2: e.target.value })
-                    }
-                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-extrabold text-slate-800 mb-1">
-                    Paragraf 4: Penutup & Harapan Wawancara
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={letterData.closingParagraph}
-                    onChange={(e) =>
-                      setLetterData({ ...letterData, closingParagraph: e.target.value })
-                    }
-                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
-                  />
+                {/* Bottom Action Footer */}
+                <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleManualSyncToChannels}
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm shadow-emerald-600/20 cursor-pointer active:scale-98 transition-all"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Sinkronkan ke Body Email & WA</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleManualSyncToChannels();
+                      setOutputChannel('email');
+                      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                        setMobileView('preview');
+                      }
+                    }}
+                    className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs cursor-pointer active:scale-98 transition-all"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Buka Preview Email</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
                 </div>
               </div>
             )}
@@ -965,7 +1143,19 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 sm:self-end">
+                    <div className="flex items-center gap-2 sm:self-end flex-wrap sm:flex-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleManualSyncToChannels();
+                          showCopyFeedback('✓ Pesan WhatsApp berhasil disinkronkan dari Paragraf!');
+                        }}
+                        className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all cursor-pointer"
+                        title="Perbarui pesan WhatsApp dengan teks paragraf terbaru"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Sinkron dari Paragraf</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -1037,6 +1227,48 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                 </div>
 
                 <div className="p-4 sm:p-5 space-y-4">
+                  {/* Real-time Sync Status Banner */}
+                  <div
+                    className={`p-3.5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 transition-all ${
+                      isAutoSyncEmail
+                        ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950 shadow-2xs'
+                        : 'bg-amber-50/90 border-amber-200 text-amber-950 shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5 text-xs">
+                      {isAutoSyncEmail ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      )}
+                      <div className="leading-snug">
+                        <p className="font-extrabold flex items-center gap-1.5">
+                          <span>
+                            {isAutoSyncEmail
+                              ? 'Tersinkronisasi Otomatis dari Tab Edit Paragraf'
+                              : 'Isi Body Email Diedit Manual (Auto-Sync Dijeda)'}
+                          </span>
+                        </p>
+                        <p className="text-[11px] opacity-85 mt-0.5">
+                          {isAutoSyncEmail
+                            ? 'Setiap editan kalimat pada tab Edit Paragraf langsung tampil di preview ini.'
+                            : 'Anda mengubah teks ini secara manual. Ingin menyamakan kembali dengan kalimat di tab Edit Paragraf?'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleManualSyncToChannels();
+                        setIsAutoSyncEmail(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-xs cursor-pointer active:scale-95 transition-all self-stretch sm:self-auto shrink-0 justify-center"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Tarik dari Paragraf</span>
+                    </button>
+                  </div>
+
                   {/* 1. Email Subject Box */}
                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
                     <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -1090,9 +1322,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     <textarea
                       rows={12}
                       value={letterData.emailBody}
-                      onChange={(e) =>
-                        setLetterData({ ...letterData, emailBody: e.target.value })
-                      }
+                      onChange={(e) => {
+                        setIsAutoSyncEmail(false);
+                        setLetterData({ ...letterData, emailBody: e.target.value });
+                      }}
                       className="w-full bg-white text-base sm:text-sm text-slate-800 p-3 rounded-lg border border-slate-200 leading-relaxed focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-sans"
                     />
                   </div>
@@ -1309,10 +1542,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            subject: e.currentTarget.innerText.trim() || prev.subject,
-                          }))
+                          handleParagraphChange(
+                            'subject',
+                            e.currentTarget.innerText.trim() || letterData.subject
+                          )
                         }
                         className="font-extrabold text-slate-900 text-sm border-l-4 pl-3 py-0.5 rounded cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
                         style={{ borderColor: letterData.accentColor }}
@@ -1346,11 +1579,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            openingParagraph:
-                              e.currentTarget.innerText.trim() || prev.openingParagraph,
-                          }))
+                          handleParagraphChange(
+                            'openingParagraph',
+                            e.currentTarget.innerText.trim() || letterData.openingParagraph
+                          )
                         }
                         className="rounded p-1 -m-1 cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
                         title="Klik langsung untuk mengedit paragraf pembuka ini"
@@ -1361,11 +1593,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            bodyParagraph1:
-                              e.currentTarget.innerText.trim() || prev.bodyParagraph1,
-                          }))
+                          handleParagraphChange(
+                            'bodyParagraph1',
+                            e.currentTarget.innerText.trim() || letterData.bodyParagraph1
+                          )
                         }
                         className="rounded p-1 -m-1 cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
                         title="Klik langsung untuk mengedit paragraf keahlian ini"
@@ -1376,11 +1607,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            bodyParagraph2:
-                              e.currentTarget.innerText.trim() || prev.bodyParagraph2,
-                          }))
+                          handleParagraphChange(
+                            'bodyParagraph2',
+                            e.currentTarget.innerText.trim() || letterData.bodyParagraph2
+                          )
                         }
                         className="rounded p-1 -m-1 cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
                         title="Klik langsung untuk mengedit paragraf motivasi ini"
@@ -1391,11 +1621,10 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
-                          setLetterData((prev: CoverLetterData) => ({
-                            ...prev,
-                            closingParagraph:
-                              e.currentTarget.innerText.trim() || prev.closingParagraph,
-                          }))
+                          handleParagraphChange(
+                            'closingParagraph',
+                            e.currentTarget.innerText.trim() || letterData.closingParagraph
+                          )
                         }
                         className="rounded p-1 -m-1 cursor-text hover:bg-emerald-50/40 focus:bg-emerald-50/50 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors"
                         title="Klik langsung untuk mengedit paragraf penutup ini"
