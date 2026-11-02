@@ -252,54 +252,57 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
       {/* Tab Content Body */}
       <div className="p-4 sm:p-6 space-y-5">
         {/* AI Job Matcher Quick Banner */}
-        <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md shadow-emerald-900/10">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0">
-              <Target className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
-                  Fitur AI Cerdas
-                </span>
-                <span className="text-xs font-bold text-white">Uji Kecocokan CV dengan Loker Target</span>
+        <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white rounded-2xl p-3.5 sm:p-4 shadow-md shadow-emerald-950/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 mt-0.5">
+                <Target className="w-4 h-4 text-white" />
               </div>
-              <p className="text-[11px] text-white/80 mt-0.5">
-                Punya teks loker dari JobStreet / LinkedIn? Pindai kata kunci yang kurang agar lolos screening ATS.
-              </p>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-700/80 text-emerald-100 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                    Fitur AI Cerdas
+                  </span>
+                  <span className="text-xs font-bold text-white">Uji Kecocokan CV dengan Loker Target</span>
+                </div>
+                <p className="text-[11px] text-emerald-100/80 mt-1 leading-relaxed">
+                  Punya teks loker dari JobStreet / LinkedIn? Pindai kata kunci yang kurang agar lolos screening ATS.
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setIsJobMatcherOpen(true)}
+              className="w-full sm:w-auto px-4 py-2 bg-white text-emerald-900 hover:bg-emerald-50 rounded-xl text-xs font-extrabold shadow-sm transition-all cursor-pointer shrink-0 text-center active:scale-98"
+            >
+              🎯 Pindai Loker Target
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsJobMatcherOpen(true)}
-            className="px-3.5 py-1.5 bg-white text-emerald-800 hover:bg-emerald-50 rounded-xl text-xs font-extrabold shadow-sm transition-all cursor-pointer shrink-0 self-stretch sm:self-auto text-center active:scale-98"
-          >
-            🎯 Pindai Loker Target
-          </button>
         </div>
 
         {/* Quick Setting Banner: Section Order Priority Toggle */}
-        <div className="bg-gradient-to-r from-slate-50 via-emerald-50/30 to-teal-50/20 border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+        <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 shadow-2xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
               <ArrowUpDown className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                <span>Urutan Prioritas di Lembar CV:</span>
-                <span className="text-[11px] font-extrabold text-emerald-700">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-900">Urutan Prioritas di Lembar CV:</span>
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.2 rounded-full">
                   {(cvData.theme.sectionOrder || 'experience_first') === 'experience_first'
-                    ? 'Pengalaman Di Atas'
-                    : 'Pendidikan Di Atas'}
+                    ? 'Pengalaman Kerja Di Atas'
+                    : 'Pendidikan Formal Di Atas'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                Sesuaikan urutan section agar profil Anda paling memikat HRD saat pertama dilihat.
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Pilih bagian yang tampil lebih dulu setelah ringkasan profil untuk memikat HRD:
               </p>
             </div>
           </div>
 
-          <div className="flex items-center bg-slate-200/90 p-1 rounded-xl text-[11px] sm:text-xs font-bold shrink-0 self-start sm:self-auto shadow-inner">
+          {/* Symmetrical 2-Column Segmented Switcher */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 bg-slate-200/70 p-1.5 rounded-xl border border-slate-200">
             <button
               type="button"
               onClick={() =>
@@ -307,13 +310,18 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
                   theme: { ...cvData.theme, sectionOrder: 'experience_first' },
                 })
               }
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 (cvData.theme.sectionOrder || 'experience_first') === 'experience_first'
-                  ? 'bg-white text-emerald-800 shadow-xs font-extrabold'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white text-emerald-800 shadow-xs font-extrabold ring-1 ring-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
               }`}
             >
-              💼 Pengalaman Dahulu
+              <span>💼 Pengalaman Dahulu</span>
+              {(cvData.theme.sectionOrder || 'experience_first') === 'experience_first' && (
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full font-bold">
+                  Aktif
+                </span>
+              )}
             </button>
             <button
               type="button"
@@ -322,13 +330,18 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
                   theme: { ...cvData.theme, sectionOrder: 'education_first' },
                 })
               }
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 cvData.theme.sectionOrder === 'education_first'
-                  ? 'bg-white text-emerald-800 shadow-xs font-extrabold'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white text-emerald-800 shadow-xs font-extrabold ring-1 ring-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
               }`}
             >
-              🎓 Pendidikan Dahulu
+              <span>🎓 Pendidikan Dahulu</span>
+              {cvData.theme.sectionOrder === 'education_first' && (
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full font-bold">
+                  Aktif
+                </span>
+              )}
             </button>
           </div>
         </div>
