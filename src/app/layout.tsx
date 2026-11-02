@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagusid.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cvbagus.id';
 
 export const viewport: Viewport = {
   themeColor: [
