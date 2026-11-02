@@ -20,6 +20,7 @@ import {
   Palette,
   CreditCard,
   Cloud,
+  LogOut,
 } from 'lucide-react';
 import { CVTheme, CVData, TemplateId } from '@/types/cv';
 import { useAuth } from '@/context/AuthContext';
@@ -79,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeMode = 'cv',
   onSwitchMode,
 }) => {
-  const { isAuthenticated, isSubscriptionActive } = useAuth();
+  const { isAuthenticated, isSubscriptionActive, logout } = useAuth();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [resetMenuOpen, setResetMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -614,6 +615,21 @@ export const Header: React.FC<HeaderProps> = ({
                     <Mail className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Contact Us (Layanan Bantuan)</span>
                   </button>
+
+                  {/* Mobile Logout Button */}
+                  {isAuthenticated && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileNavOpen(false);
+                        logout();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors text-left cursor-pointer pt-1 border-t border-slate-100"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-red-500" />
+                      <span>Keluar dari Akun</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
