@@ -130,7 +130,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 value={data.fullName}
                 onChange={(e) => onChange({ fullName: e.target.value })}
                 placeholder="Contoh: Budi Santoso, S.Kom"
-                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           </div>
@@ -147,7 +147,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 value={data.jobTitle}
                 onChange={(e) => onChange({ jobTitle: e.target.value })}
                 placeholder="Contoh: Senior Full Stack Developer"
-                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           </div>
@@ -167,7 +167,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 value={data.email}
                 onChange={(e) => onChange({ email: e.target.value })}
                 placeholder="budi.santoso@email.com"
-                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 value={data.phone}
                 onChange={(e) => onChange({ phone: e.target.value })}
                 placeholder="+62 812 3456 7890"
-                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           </div>
@@ -224,7 +224,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 value={data.linkedin || ''}
                 onChange={(e) => onChange({ linkedin: e.target.value })}
                 placeholder="linkedin.com/in/budisantoso"
-                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           </div>
@@ -241,7 +241,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, onChan
                 value={data.website || ''}
                 onChange={(e) => onChange({ website: e.target.value })}
                 placeholder="budisantoso.dev"
-                className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
               />
             </div>
           </div>

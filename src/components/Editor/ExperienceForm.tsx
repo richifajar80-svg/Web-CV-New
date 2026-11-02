@@ -440,7 +440,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                     value={exp.role}
                     onChange={(e) => handleUpdate(idx, { role: e.target.value })}
                     placeholder="Contoh: Senior Full Stack Developer"
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                   />
                 </div>
                 <div>
@@ -453,7 +453,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                     value={exp.company}
                     onChange={(e) => handleUpdate(idx, { company: e.target.value })}
                     placeholder="Contoh: PT Solusi Teknologi Nusantara"
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                   />
                 </div>
               </div>
@@ -472,7 +472,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                       value={exp.location}
                       onChange={(e) => handleUpdate(idx, { location: e.target.value })}
                       placeholder="Jakarta / Remote"
-                      className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                      className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                     />
                   </div>
                 </div>
@@ -489,7 +489,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                       value={exp.startDate}
                       onChange={(e) => handleUpdate(idx, { startDate: e.target.value })}
                       placeholder="Jan 2021"
-                      className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                      className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                     />
                   </div>
                 </div>
@@ -507,7 +507,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                       value={exp.current ? 'Sekarang (Aktif)' : exp.endDate}
                       onChange={(e) => handleUpdate(idx, { endDate: e.target.value })}
                       placeholder="Bln / Thn"
-                      className={`w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 rounded-xl border-2 shadow-2xs transition-all outline-none ${
+                      className={`w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 rounded-xl border-2 shadow-2xs transition-all outline-none ${
                         exp.current
                           ? 'bg-emerald-50 text-emerald-800 font-bold border-emerald-400'
                           : 'bg-white border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 text-slate-900 placeholder:text-slate-400 placeholder:font-normal'
@@ -604,7 +604,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onC
                   value={exp.description}
                   onChange={(e) => handleUpdate(idx, { description: e.target.value })}
                   placeholder="• Memimpin pengembangan fitur checkout baru dan integrasi payment gateway.&#10;• Meningkatkan kecepatan rendering halaman sebesar 35% melalui migrasi Next.js.&#10;• Membimbing 4 junior developer dalam penulisan clean code dan unit test."
-                  className="w-full text-xs sm:text-[13px] font-medium p-3.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl leading-relaxed resize-y shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                  className="w-full text-base sm:text-[13px] font-medium p-3.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl leading-relaxed resize-y shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                 />
               </div>
             </div>

@@ -160,7 +160,7 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({
           value={summary}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Tuliskan deskripsi profesional Anda di sini, atau klik tombol 'Tulis Otomatis dengan AI' di atas..."
-          className="w-full text-xs sm:text-[13px] font-medium p-3.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl leading-relaxed resize-y shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+          className="w-full text-base sm:text-[13px] font-medium p-3.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl leading-relaxed resize-y shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
         />
         <p className="text-[11px] text-slate-600 font-medium">
           💡 Rekruter membaca ringkasan ini dalam 6 detik pertama. Fokuskan pada keahlian dan pencapaian terbaik Anda.

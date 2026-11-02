@@ -247,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <LayoutTemplate className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:scale-110 transition-transform" />
                   <span className="text-emerald-800 font-semibold hidden 2xl:inline">Template:</span>
-                  <span className="font-extrabold text-slate-900 truncate max-w-[75px] sm:max-w-[90px] 2xl:max-w-[115px]">
+                  <span className="font-extrabold text-slate-900 truncate max-w-[60px] xs:max-w-[80px] sm:max-w-[95px] 2xl:max-w-[115px]">
                     {currentTemplate.name}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-emerald-700 shrink-0 group-hover:translate-y-0.5 transition-transform" />

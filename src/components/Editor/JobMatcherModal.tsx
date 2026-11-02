@@ -187,7 +187,7 @@ export const JobMatcherModal: React.FC<JobMatcherModalProps> = ({
                     if (errorMsg) setErrorMsg(null);
                   }}
                   placeholder="Contoh:&#10;Dicari: Store Supervisor (Malang)&#10;Kualifikasi:&#10;• Pria/Wanita, Usia maks. 35 tahun&#10;• Pengalaman minimal 2 tahun di bidang ritel / store supervisor&#10;• Mahir manajemen stok (Stock Opname) & sistem POS&#10;• Mampu memimpin tim penjualan mencapai target omset harian..."
-                  className="w-full text-xs sm:text-[13px] font-medium p-3.5 bg-slate-50 border-2 border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-2xl outline-none transition-all leading-relaxed placeholder:text-slate-400"
+                  className="w-full text-base sm:text-[13px] font-medium p-3.5 bg-slate-50 border-2 border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-2xl outline-none transition-all leading-relaxed placeholder:text-slate-400"
                 />
               </div>
 

@@ -611,7 +611,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           }
                         }}
                         placeholder="Contoh: Di tempat / PT Nama Perusahaan"
-                        className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
+                        className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -635,7 +635,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           }));
                         }}
                         placeholder="Contoh: Store Manager / Retail Operations"
-                        className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
+                        className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -659,7 +659,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                             }));
                           }}
                           placeholder="Bapak/Ibu HRD"
-                          className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
+                          className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -683,7 +683,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                             }));
                           }}
                           placeholder="Kosongkan jika Di Tempat"
-                          className="w-full text-xs sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
+                          className="w-full text-base sm:text-[13px] font-semibold pl-9 pr-3 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -700,7 +700,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                       value={jobRequirements}
                       onChange={(e) => setJobRequirements(e.target.value)}
                       placeholder="Tempel syarat loker di sini jika ingin AI menyesuaikan kalimat lamaran dengan kualifikasi yang diminta HRD..."
-                      className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none leading-relaxed transition-all"
+                      className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none leading-relaxed transition-all"
                     />
                   </div>
 
@@ -778,7 +778,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, subject: e.target.value })
                     }
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none transition-all"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none transition-all"
                   />
                 </div>
 
@@ -792,7 +792,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, openingParagraph: e.target.value })
                     }
-                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
 
@@ -806,7 +806,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, bodyParagraph1: e.target.value })
                     }
-                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
 
@@ -820,7 +820,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, bodyParagraph2: e.target.value })
                     }
-                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
 
@@ -834,7 +834,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                     onChange={(e) =>
                       setLetterData({ ...letterData, closingParagraph: e.target.value })
                     }
-                    className="w-full text-xs sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
+                    className="w-full text-base sm:text-[13px] font-medium p-3 bg-white rounded-xl border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 shadow-2xs text-slate-900 outline-none leading-relaxed transition-all"
                   />
                 </div>
               </div>
@@ -961,7 +961,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                           value={hrdWhatsappNumber}
                           onChange={(e) => setHrdWhatsappNumber(e.target.value)}
                           placeholder="Contoh: 081234567890 (Kosongkan jika hanya ingin pilih kontak di WA)"
-                          className="w-full text-xs pl-8 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                          className="w-full text-base sm:text-xs pl-8 pr-3 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                         />
                       </div>
                     </div>
@@ -1063,7 +1063,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                       onChange={(e) =>
                         setLetterData({ ...letterData, emailSubject: e.target.value })
                       }
-                      className="w-full bg-white text-xs sm:text-sm font-bold text-slate-900 px-3 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                      className="w-full bg-white text-base sm:text-sm font-bold text-slate-900 px-3 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
 
@@ -1093,7 +1093,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                       onChange={(e) =>
                         setLetterData({ ...letterData, emailBody: e.target.value })
                       }
-                      className="w-full bg-white text-xs sm:text-sm text-slate-800 p-3 rounded-lg border border-slate-200 leading-relaxed focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-sans"
+                      className="w-full bg-white text-base sm:text-sm text-slate-800 p-3 rounded-lg border border-slate-200 leading-relaxed focus:outline-hidden focus:ring-2 focus:ring-emerald-500 font-sans"
                     />
                   </div>
 
@@ -1108,7 +1108,7 @@ export const CoverLetterView: React.FC<CoverLetterViewProps> = ({
                         value={hrdEmailAddress}
                         onChange={(e) => setHrdEmailAddress(e.target.value)}
                         placeholder="Contoh: recruitment@perusahaan.co.id"
-                        className="w-full bg-white text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                        className="w-full bg-white text-base sm:text-xs px-3 py-2 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
                     <div className="flex items-center gap-2 sm:self-end">

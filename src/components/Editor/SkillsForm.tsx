@@ -95,12 +95,12 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({
           value={newSkillName}
           onChange={(e) => setNewSkillName(e.target.value)}
           placeholder="Ketik keahlian (contoh: Microsoft Excel, Negosiasi, Next.js)..."
-          className="flex-1 text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+          className="flex-1 text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
         />
         <select
           value={newSkillLevel}
           onChange={(e) => setNewSkillLevel(e.target.value as Skill['level'])}
-          className="text-xs sm:text-[13px] font-semibold px-3 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 rounded-xl shadow-2xs text-slate-800 outline-none cursor-pointer"
+          className="text-base sm:text-[13px] font-semibold px-3 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 rounded-xl shadow-2xs text-slate-800 outline-none cursor-pointer"
         >
           <option value="Pemula">Pemula</option>
           <option value="Menengah">Menengah</option>

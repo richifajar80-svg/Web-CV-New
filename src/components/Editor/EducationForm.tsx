@@ -370,7 +370,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                           value={edu.degree}
                           onChange={(e) => handleUpdate(idx, { degree: e.target.value })}
                           placeholder="Contoh: S1 Ilmu Komputer"
-                          className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                          className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                         />
                       </div>
                       <div>
@@ -383,7 +383,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                           value={edu.institution}
                           onChange={(e) => handleUpdate(idx, { institution: e.target.value })}
                           placeholder="Contoh: Universitas Indonesia"
-                          className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                          className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                         />
                       </div>
                     </div>
@@ -402,7 +402,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                             value={edu.location}
                             onChange={(e) => handleUpdate(idx, { location: e.target.value })}
                             placeholder="Depok / Jakarta"
-                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                            className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
@@ -419,7 +419,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                             value={edu.startDate}
                             onChange={(e) => handleUpdate(idx, { startDate: e.target.value })}
                             placeholder="2018"
-                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                            className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
@@ -436,7 +436,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                             value={edu.endDate}
                             onChange={(e) => handleUpdate(idx, { endDate: e.target.value })}
                             placeholder="2022 (atau Sekarang)"
-                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                            className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
@@ -456,7 +456,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                             value={edu.gpa || ''}
                             onChange={(e) => handleUpdate(idx, { gpa: e.target.value })}
                             placeholder="Contoh: 3.85 / 4.00"
-                            className="w-full text-xs sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                            className="w-full text-base sm:text-[13px] font-semibold pl-10 pr-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                           />
                         </div>
                       </div>
@@ -471,7 +471,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ education, onChang
                           value={edu.description || ''}
                           onChange={(e) => handleUpdate(idx, { description: e.target.value })}
                           placeholder="Contoh: Lulusan Cum Laude, Fokus Arsitektur Sistem Terdistribusi"
-                          className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
+                          className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2.5 bg-white border-2 border-slate-300 hover:border-slate-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl shadow-2xs transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-normal outline-none"
                         />
                       </div>
                     </div>

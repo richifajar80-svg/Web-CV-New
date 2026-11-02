@@ -139,7 +139,7 @@ export const OrganizationsForm: React.FC<OrganizationsFormProps> = ({
                     value={org.role}
                     onChange={(e) => handleUpdate(idx, { role: e.target.value })}
                     placeholder="Contoh: Ketua Divisi Humas, Sekretaris, Anggota..."
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                   />
                 </div>
 
@@ -153,7 +153,7 @@ export const OrganizationsForm: React.FC<OrganizationsFormProps> = ({
                     value={org.name}
                     onChange={(e) => handleUpdate(idx, { name: e.target.value })}
                     placeholder="Contoh: BEM Universitas, Himpunan Mahasiswa, PMI..."
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -170,7 +170,7 @@ export const OrganizationsForm: React.FC<OrganizationsFormProps> = ({
                       value={org.startDate}
                       onChange={(e) => handleUpdate(idx, { startDate: e.target.value })}
                       placeholder="Contoh: 2021"
-                      className="w-full text-xs sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                      className="w-full text-base sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                     />
                   </div>
                   <span className="text-slate-400 text-xs mt-5">-</span>
@@ -185,7 +185,7 @@ export const OrganizationsForm: React.FC<OrganizationsFormProps> = ({
                       value={org.current ? 'Sekarang' : org.endDate}
                       onChange={(e) => handleUpdate(idx, { endDate: e.target.value })}
                       placeholder="Contoh: 2022"
-                      className={`w-full text-xs sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all ${
+                      className={`w-full text-base sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all ${
                         org.current ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     />
@@ -214,7 +214,7 @@ export const OrganizationsForm: React.FC<OrganizationsFormProps> = ({
                   value={org.description || ''}
                   onChange={(e) => handleUpdate(idx, { description: e.target.value })}
                   placeholder="• Memimpin tim beranggotakan 10 orang dalam menyelenggarakan kegiatan amal tahunan&#10;• Menggalang dana sebesar Rp 25 juta melalui kemitraan sponsor eksternal"
-                  className="w-full text-xs sm:text-[13px] font-medium p-3 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all leading-relaxed"
+                  className="w-full text-base sm:text-[13px] font-medium p-3 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all leading-relaxed"
                 />
               </div>
             </div>

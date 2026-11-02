@@ -133,7 +133,7 @@ export const LanguagesForm: React.FC<LanguagesFormProps> = ({ languages, onChang
                   value={lang.name}
                   onChange={(e) => handleUpdate(idx, { name: e.target.value })}
                   placeholder="Contoh: Bahasa Inggris, Mandarin, Jepang..."
-                  className="w-full text-xs sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                  className="w-full text-base sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                 />
               </div>
 
@@ -149,7 +149,7 @@ export const LanguagesForm: React.FC<LanguagesFormProps> = ({ languages, onChang
                     value={lang.level}
                     onChange={(e) => handleUpdate(idx, { level: e.target.value })}
                     placeholder="Pilih / ketik tingkat kemahiran..."
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                   />
                   <datalist id={`levels-list-${lang.id}`}>
                     {STANDARD_LEVELS.map((lvl) => (

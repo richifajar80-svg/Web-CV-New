@@ -144,7 +144,7 @@ export const CertificationsForm: React.FC<CertificationsFormProps> = ({
                     value={cert.title}
                     onChange={(e) => handleUpdate(idx, { title: e.target.value })}
                     placeholder="Contoh: BNSP Supervisor Ritel, Brevet Pajak A/B..."
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                   />
                 </div>
 
@@ -158,7 +158,7 @@ export const CertificationsForm: React.FC<CertificationsFormProps> = ({
                     value={cert.date}
                     onChange={(e) => handleUpdate(idx, { date: e.target.value })}
                     placeholder="Contoh: 2023 atau 2022 - 2025"
-                    className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                    className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -173,7 +173,7 @@ export const CertificationsForm: React.FC<CertificationsFormProps> = ({
                   value={cert.issuer}
                   onChange={(e) => handleUpdate(idx, { issuer: e.target.value })}
                   placeholder="Contoh: BNSP, Google, Microsoft, Kemnaker RI, Coursera..."
-                  className="w-full text-xs sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
+                  className="w-full text-base sm:text-[13px] font-semibold px-3.5 py-2 bg-slate-50/70 border border-slate-300 hover:border-slate-400 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15 rounded-xl text-slate-900 outline-none transition-all"
                 />
               </div>
             </div>
