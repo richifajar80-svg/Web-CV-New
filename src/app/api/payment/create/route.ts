@@ -102,14 +102,26 @@ export async function POST(request: Request) {
       },
     };
 
+    const appBaseUrl = isProduction ? 'https://www.cvbagus.id' : 'http://localhost:3000';
+    const webhookUrl = `${appBaseUrl}/api/payment/webhook`;
+
+    const fullPayload = {
+      ...payload,
+      callbacks: {
+        finish: `${appBaseUrl}/editor?payment=success`,
+        error: `${appBaseUrl}/editor?payment=error`,
+      },
+    };
+
     const midtransRes = await fetch(snapEndpoint, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         Authorization: `Basic ${authString}`,
+        'X-Override-Notification': webhookUrl,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(fullPayload),
     });
 
     const midtransData = await midtransRes.json().catch(() => ({}));
