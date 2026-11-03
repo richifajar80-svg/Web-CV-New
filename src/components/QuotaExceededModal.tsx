@@ -101,7 +101,7 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
             <div className="space-y-2 pt-1">
               <div className="flex items-center gap-2 text-xs text-slate-700 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span><strong>100x Unduh PDF</strong> per bulan (10x lipat dari Personal)</span>
+                <span><strong>50x Unduh PDF</strong> per bulan (5x lipat dari Personal)</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-700 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -117,7 +117,7 @@ export const QuotaExceededModal: React.FC<QuotaExceededModalProps> = ({
           {/* Action CTAs */}
           <div className="space-y-2.5 pt-1">
             <a
-              href="mailto:no-reply.cvbagus@gmail.com?subject=Permintaan%20Upgrade%20Paket%20Enterprise%20(Rp%20199rb)&body=Halo%20Admin%20cvbagus.id,%0A%0ASaya%20ingin%20upgrade%20akun%20saya%20ke%20Paket%20Enterprise%20(Rp%20199.000/tahun)%20agar%20mendapatkan%20kuota%20100x%20unduh%20dan%2025x%20translate%20per%20bulan.%0A%0AEmail%20Akun:%20"
+              href="mailto:no-reply.cvbagus@gmail.com?subject=Permintaan%20Upgrade%20Paket%20Enterprise%20(Rp%20199rb)&body=Halo%20Admin%20cvbagus.id,%0A%0ASaya%20ingin%20upgrade%20akun%20saya%20ke%20Paket%20Enterprise%20(Rp%20199.000/tahun)%20agar%20mendapatkan%20kuota%2050x%20unduh%20dan%2025x%20translate%20per%20bulan.%0A%0AEmail%20Akun:%20"
               className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
               <Mail className="w-4 h-4" />

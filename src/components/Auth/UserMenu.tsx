@@ -131,7 +131,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="text-slate-600">📥 Unduh PDF Bulan Ini:</span>
                         <span className="font-bold text-slate-800">
-                          {userQuota?.downloadsUsed ?? user.downloadCountThisMonth ?? 0} / {userQuota?.downloadLimit ?? (user.plan === 'enterprise' ? 100 : 10)}
+                          {userQuota?.downloadsUsed ?? user.downloadCountThisMonth ?? 0} / {userQuota?.downloadLimit ?? (user.plan === 'enterprise' ? 50 : 10)}
                         </span>
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
@@ -141,7 +141,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({
                             width: `${Math.min(
                               100,
                               (((userQuota?.downloadsUsed ?? user.downloadCountThisMonth ?? 0) /
-                                (userQuota?.downloadLimit ?? (user.plan === 'enterprise' ? 100 : 10))) *
+                                (userQuota?.downloadLimit ?? (user.plan === 'enterprise' ? 50 : 10))) *
                                 100)
                             )}%`,
                           }}

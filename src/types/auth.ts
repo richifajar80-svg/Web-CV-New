@@ -13,7 +13,7 @@ export const PLAN_LIMITS: Record<UserPlan, UserQuotaLimits> = {
     translateLimit: 5,
   },
   enterprise: {
-    downloadLimit: 100,
+    downloadLimit: 50,
     translateLimit: 25,
   },
 };

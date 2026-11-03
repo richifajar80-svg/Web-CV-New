@@ -369,7 +369,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   <div className="mt-1.5 pt-1.5 border-t border-slate-200/70 space-y-0.5 text-[10px] text-slate-600 font-medium">
                     <div className="flex items-center gap-1">
                       <CheckCircle className="w-3 h-3 text-indigo-600 shrink-0" />
-                      <span>100x Unduh PDF / bln</span>
+                      <span>50x Unduh PDF / bln</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <CheckCircle className="w-3 h-3 text-indigo-600 shrink-0" />

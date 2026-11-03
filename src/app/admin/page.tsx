@@ -180,7 +180,7 @@ export default function AdminDashboardPage() {
     showToast('Status langganan pengguna berhasil diperbarui!');
   };
 
-  // Toggle user plan between Personal (10x) and Enterprise (100x)
+  // Toggle user plan between Personal (10x) and Enterprise (50x)
   const handleTogglePlan = async (userId: string) => {
     const targetUser = users.find((u) => u.id === userId);
     const nextPlan: 'personal' | 'enterprise' = targetUser?.plan === 'enterprise' ? 'personal' : 'enterprise';
@@ -203,7 +203,7 @@ export default function AdminDashboardPage() {
 
     const updated = users.map((u) => (u.id === userId ? { ...u, plan: nextPlan } : u));
     setUsers(updated);
-    showToast(`Paket pengguna berhasil diubah ke ${nextPlan === 'enterprise' ? 'Enterprise (100x)' : 'Personal (10x)'}!`);
+    showToast(`Paket pengguna berhasil diubah ke ${nextPlan === 'enterprise' ? 'Enterprise (50x)' : 'Personal (10x)'}!`);
   };
 
   // Reset user monthly FUP quota (download & translate)
@@ -769,12 +769,12 @@ export default function AdminDashboardPage() {
                               <span className="text-slate-500">📥 Unduh:</span>
                               <span
                                 className={`font-bold ${
-                                  (item.downloadCountThisMonth ?? 0) >= (item.plan === 'enterprise' ? 100 : 10)
+                                  (item.downloadCountThisMonth ?? 0) >= (item.plan === 'enterprise' ? 50 : 10)
                                     ? 'text-red-600'
                                     : 'text-slate-800'
                                 }`}
                               >
-                                {item.downloadCountThisMonth ?? 0} / {item.plan === 'enterprise' ? 100 : 10}
+                                {item.downloadCountThisMonth ?? 0} / {item.plan === 'enterprise' ? 50 : 10}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 text-[11px]">
